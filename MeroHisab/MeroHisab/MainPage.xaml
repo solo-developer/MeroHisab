@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+               xmlns:fontAwesome="clr-namespace:FontAwesome"
+             x:Class="MeroHisab.MainPage">
+    <Grid>
+        <xct:TabView
+                TabStripPlacement="Bottom"
+                TabStripBackgroundColor="Green"
+                TabStripHeight="60"
+                TabIndicatorColor="Yellow"
+                TabContentBackgroundColor="Yellow">
+            <xct:TabViewItem Text="Home" TextColor="White" TextColorSelected="Yellow" FontSize="12">
+                <xct:TabViewItem.Icon>
+                    <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="Black"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.Home}"/>
+                </xct:TabViewItem.Icon>
+                <Grid  BackgroundColor="WhiteSmoke">
+                    <Label HorizontalOptions="Center"  VerticalOptions="Center" Text="TabContent1" />
+                </Grid>
+            </xct:TabViewItem>
+            <xct:TabViewItem Text="Reports" TextColor="White" TextColorSelected="Yellow" FontSize="12">
+                <xct:TabViewItem.Icon>
+                    <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="Black"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.File}"/>
+                </xct:TabViewItem.Icon>
+                <Grid  BackgroundColor="WhiteSmoke">
+                    <Label HorizontalOptions="Center"  VerticalOptions="Center" Text="TabContent1" />
+                </Grid>
+            </xct:TabViewItem>
+            <xct:TabViewItem Text="Settings" TextColor="White" TextColorSelected="Yellow" FontSize="12">
+                <xct:TabViewItem.Icon>
+                    <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="Black"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.Cogs}"/>
+                </xct:TabViewItem.Icon>
+                <Grid  BackgroundColor="WhiteSmoke">
+                    <Label HorizontalOptions="Center"  VerticalOptions="Center" Text="TabContent1" />
+                </Grid>
+            </xct:TabViewItem>
+            <xct:TabViewItem Text="Profile" TextColor="White" TextColorSelected="Yellow" FontSize="12">
+                <xct:TabViewItem.Icon>
+                    <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="Black"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.User}"/>
+                </xct:TabViewItem.Icon>
+                <Grid  BackgroundColor="WhiteSmoke">
+                    <Label HorizontalOptions="Center"  VerticalOptions="Center" Text="TabContent1" />
+                </Grid>
+            </xct:TabViewItem>
+           
+        </xct:TabView>
+    </Grid>
+
+
+</ContentPage>
