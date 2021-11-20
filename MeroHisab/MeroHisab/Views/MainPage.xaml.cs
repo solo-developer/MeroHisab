@@ -1,6 +1,6 @@
 ﻿using Xamarin.Forms;
 
-namespace MeroHisab
+namespace MeroHisab.Views
 {
     public partial class MainPage : ContentPage
     {

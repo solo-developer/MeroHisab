@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
+﻿using FormsPinView.iOS;
 using Foundation;
+using ImageCircle.Forms.Plugin.iOS;
+using MeroHisab.Helpers.Interface;
+using MeroHisab.iOS.Services;
+using MeroHisab.Services.Interface;
+using Microsoft.Extensions.DependencyInjection;
 using UIKit;
 
 namespace MeroHisab.iOS
@@ -22,10 +24,20 @@ namespace MeroHisab.iOS
         //
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
+            Rg.Plugins.Popup.Popup.Init();
             global::Xamarin.Forms.Forms.Init();
-            LoadApplication(new App());
+            ImageCircleRenderer.Init();
+            PinItemViewRenderer.Init();
+            FFImageLoading.Forms.Platform.CachedImageRenderer.Init();
+            LoadApplication(new App(AddServices));
 
             return base.FinishedLaunching(app, options);
+        }
+
+        static void AddServices(IServiceCollection services)
+        {
+            services.AddTransient<IToastService, ToastService>();
+            services.AddTransient<IEnvironmentService, EnvironmentService>();
         }
     }
 }
