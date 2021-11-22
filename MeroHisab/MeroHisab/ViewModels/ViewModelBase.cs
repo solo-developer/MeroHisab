@@ -26,7 +26,7 @@ namespace MeroHisab.ViewModels
             CrossConnectivity.Current.ConnectivityChanged -= Current_ConnectivityChanged;
         }
 
-       
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             var handler = PropertyChanged;

@@ -117,7 +117,7 @@ namespace MeroHisab
             {
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    var navigation = Resolve<INavigationService>();
+                    //var navigation = Resolve<INavigationService>();
                     // navigate to login page
                 });
             }

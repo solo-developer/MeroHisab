@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using MeroHisab.ViewModels;
+using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace MeroHisab.LazyViews
@@ -9,6 +10,8 @@ namespace MeroHisab.LazyViews
         public DashboardHomePage()
         {
             InitializeComponent();
+            var vm = App.GetViewModel<DashboardHomePageModel>();
+            BindingContext = vm;
         }
     }
 }

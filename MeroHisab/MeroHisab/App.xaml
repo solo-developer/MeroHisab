@@ -1,8 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Application xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:fontAwesome="clr-namespace:FontAwesome"
              x:Class="MeroHisab.App">
     <Application.Resources>
+        <Color x:Key="CategoryColor">WhiteSmoke</Color>
+        <!--  teal-green  -->
+        <Color x:Key="PrimaryColor">#2EcC71</Color>
+        <Color x:Key="NavigationTextColor">White</Color>
+        <Color x:Key="BackgroundColor">#009933</Color>
 
+        <Color x:Key="PrimaryBlack">Black</Color>
+        <Style x:Key="PageBackgroundColor" TargetType="Page">
+            <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"></Setter>
+        </Style>
+        <Style TargetType="ContentView">
+            <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"></Setter>
+        </Style>
+        <ControlTemplate x:Key="CustomNavigationBar">
+
+            <Grid BindingContext="{Binding Source={RelativeSource TemplatedParent}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <StackLayout Grid.Column="0" Orientation="Horizontal" HorizontalOptions="StartAndExpand">
+                    <!--<Image Source="{Binding Logo}" HeightRequest="30"></Image>-->
+                    <Label Text="{Binding Title}" FontSize="Large" HorizontalOptions="StartAndExpand" VerticalOptions="Center"  TextColor="White"></Label>
+                </StackLayout>
+                <StackLayout Grid.Column="1" Orientation="Horizontal">                  
+                    <ImageButton Grid.Column="3" VerticalOptions="Center" HorizontalOptions="End" HeightRequest="30" WidthRequest="30" Clicked="ImageButton_Clicked" BackgroundColor="Transparent">
+                        <ImageButton.Source>
+                            <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="White"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.SignOutAlt}"/>
+                        </ImageButton.Source>
+                    </ImageButton>
+                </StackLayout>
+            </Grid>
+            <!--</StackLayout>-->
+        </ControlTemplate>
     </Application.Resources>
 </Application>
