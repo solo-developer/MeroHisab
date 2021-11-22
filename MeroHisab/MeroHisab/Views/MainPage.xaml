@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
                xmlns:fontAwesome="clr-namespace:FontAwesome"
+             xmlns:local="clr-namespace:MeroHisab.CustomControls"
+             xmlns:lazyViews="clr-namespace:MeroHisab.LazyViews"
              x:Class="MeroHisab.Views.MainPage"
              NavigationPage.HasNavigationBar="False">
     <Grid>
@@ -11,16 +13,15 @@
                 TabStripBackgroundColor="Green"
                 TabStripHeight="60"
                 TabIndicatorColor="Yellow"
-                TabContentBackgroundColor="Transparent">
+                TabContentBackgroundColor="Transparent"
+            SelectionChanged="TabView_SelectionChanged">
             <xct:TabViewItem Text="Home" TextColor="White" TextColorSelected="Yellow" FontSize="12">
                 <xct:TabViewItem.Icon>
                     <FontImageSource FontFamily="FontAwesomeSolid"
                      Color="White"
                      Glyph="{x:Static fontAwesome:FontAwesomeIcons.Home}"/>
                 </xct:TabViewItem.Icon>
-                <Grid  BackgroundColor="WhiteSmoke">
-                    <Label HorizontalOptions="Center"  VerticalOptions="Center" Text="TabContent1" />
-                </Grid>
+                <local:CustomisedLazyViewImpl x:Name="HomeTabContent" x:TypeArguments="lazyViews:DashboardHomePage" UseActivityIndicator="True" AccentColor="Red" Animate="True"/>
             </xct:TabViewItem>
             <xct:TabViewItem Text="Reports" TextColor="White" TextColorSelected="Yellow" FontSize="12">
                 <xct:TabViewItem.Icon>
@@ -28,9 +29,8 @@
                      Color="White"
                      Glyph="{x:Static fontAwesome:FontAwesomeIcons.File}"/>
                 </xct:TabViewItem.Icon>
-                <Grid  BackgroundColor="WhiteSmoke">
-                    <Label HorizontalOptions="Center"  VerticalOptions="Center" Text="TabContent1" />
-                </Grid>
+                <local:CustomisedLazyViewImpl x:Name="ReportsTabContent" x:TypeArguments="lazyViews:DashboardReportsPage" UseActivityIndicator="True" AccentColor="Red" Animate="True"/>
+             
             </xct:TabViewItem>
             <xct:TabViewItem Text="Settings" TextColor="White" TextColorSelected="Yellow" FontSize="12">
                 <xct:TabViewItem.Icon>
@@ -38,9 +38,7 @@
                      Color="White"
                      Glyph="{x:Static fontAwesome:FontAwesomeIcons.Cogs}"/>
                 </xct:TabViewItem.Icon>
-                <Grid  BackgroundColor="WhiteSmoke">
-                    <Label HorizontalOptions="Center"  VerticalOptions="Center" Text="TabContent1" />
-                </Grid>
+                <local:CustomisedLazyViewImpl x:Name="SettingsTabContent" x:TypeArguments="lazyViews:DashboardSettingsPage" UseActivityIndicator="True" AccentColor="Red" Animate="True"/>
             </xct:TabViewItem>
             <xct:TabViewItem Text="Profile" TextColor="White" TextColorSelected="Yellow" FontSize="12">
                 <xct:TabViewItem.Icon>
@@ -48,11 +46,9 @@
                      Color="White"
                      Glyph="{x:Static fontAwesome:FontAwesomeIcons.User}"/>
                 </xct:TabViewItem.Icon>
-                <Grid  BackgroundColor="WhiteSmoke">
-                    <Label HorizontalOptions="Center"  VerticalOptions="Center" Text="TabContent1" />
-                </Grid>
+                <local:CustomisedLazyViewImpl x:Name="ProfileTabContent" x:TypeArguments="lazyViews:DashboardProfilePage" UseActivityIndicator="True" AccentColor="Red" Animate="True"/>
             </xct:TabViewItem>
-           
+
         </xct:TabView>
     </Grid>
 
