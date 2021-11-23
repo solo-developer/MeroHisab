@@ -1,10 +1,7 @@
 ﻿using SQLite;
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
-namespace MeroHisab.Repository.Interface
+namespace MeroHisab.Core.Repository.Interface
 {
     public interface IBaseRepository<T> where T : class, new()
     {

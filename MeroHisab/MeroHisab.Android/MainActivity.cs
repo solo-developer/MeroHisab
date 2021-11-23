@@ -43,6 +43,7 @@ namespace MeroHisab.Droid
         {
             services.AddTransient<IToastService, ToastService>();
             services.AddTransient<IEnvironmentService, EnvironmentService>();
+            services.AddScoped<ISqlite, Sqlite>();
         }
     }
 }

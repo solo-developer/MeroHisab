@@ -1,19 +1,17 @@
-﻿using MeroHisab.Repository.Interface;
+﻿using MeroHisab.Core.Repository.Interface;
 using SQLite;
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
-namespace MeroHisab.Repository.Implementations
+namespace MeroHisab.Core.Repository.Implementations
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : class, new()
     {
         private SQLiteAsyncConnection db;
-
-        public BaseRepository(SQLiteAsyncConnection db)
+        private static readonly object locker = new object();
+        public BaseRepository(string dbPath)
         {
-            this.db = db;
+            db = new SQLiteAsyncConnection(dbPath);
+            db.CreateTableAsync<T>();
         }
 
         public AsyncTableQuery<T> AsQueryable() =>
