@@ -4,11 +4,17 @@
              xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
                xmlns:fontAwesome="clr-namespace:FontAwesome"
              xmlns:local="clr-namespace:MeroHisab.CustomControls"
-             xmlns:lazyViews="clr-namespace:MeroHisab.LazyViews"
+             xmlns:lazyViews="clr-namespace:MeroHisab.LazyViews"             
+             xmlns:controls="clr-namespace:MeroHisab.ControlTemplates"
              x:Class="MeroHisab.Views.MainPage"
-             NavigationPage.HasNavigationBar="False">
-    <Grid>
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{StaticResource BackgroundColor}">
+    <Grid RowDefinitions="50,*">
+        <StackLayout Grid.Row="0">
+            <controls:NavigationBarView Title="Mero Hisab" ControlTemplate="{StaticResource CustomNavigationBar}"></controls:NavigationBarView>
+        </StackLayout>
         <xct:TabView
+            Grid.Row="1"
                 TabStripPlacement="Bottom"
                 TabStripBackgroundColor="Green"
                 TabStripHeight="60"

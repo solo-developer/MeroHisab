@@ -19,7 +19,7 @@
         </Style>
         <ControlTemplate x:Key="CustomNavigationBar">
 
-            <Grid BindingContext="{Binding Source={RelativeSource TemplatedParent}}">
+            <Grid BindingContext="{Binding Source={RelativeSource TemplatedParent}}" Margin="20,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
