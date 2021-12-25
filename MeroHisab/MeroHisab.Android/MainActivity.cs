@@ -9,6 +9,7 @@ using MeroHisab.Helpers.Interface;
 using MeroHisab.Droid.Services;
 using AndroidX.AppCompat.App;
 using FormsPinView.Droid;
+using MeroHisab.Core.Repository.Interface;
 
 namespace MeroHisab.Droid
 {

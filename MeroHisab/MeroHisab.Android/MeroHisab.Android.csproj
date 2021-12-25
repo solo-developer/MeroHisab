@@ -114,6 +114,10 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MeroHisab.Core\MeroHisab.Core.csproj">
+      <Project>{6c5acc04-c5ab-43a0-bc58-7fe1266b2c45}</Project>
+      <Name>MeroHisab.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MeroHisab\MeroHisab.csproj">
       <Project>{6288A96F-E5DE-43B9-BDC5-A3D963829E86}</Project>
       <Name>MeroHisab</Name>

@@ -7,11 +7,10 @@ namespace MeroHisab.Core.Repository.Implementations
     public class BaseRepository<T> : IBaseRepository<T> where T : class, new()
     {
         private SQLiteAsyncConnection db;
-        private static readonly object locker = new object();
         public BaseRepository(string dbPath)
         {
             db = new SQLiteAsyncConnection(dbPath);
-            db.CreateTableAsync<T>();
+            db.CreateTableAsync<T>().Wait();
         }
 
         public AsyncTableQuery<T> AsQueryable() =>

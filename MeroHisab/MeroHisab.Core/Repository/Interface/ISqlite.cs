@@ -1,6 +1,6 @@
 ﻿using SQLite;
 
-namespace MeroHisab.Helpers.Interface
+namespace MeroHisab.Core.Repository.Interface
 {
     public interface ISqlite
     {

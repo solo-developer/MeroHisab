@@ -1,4 +1,6 @@
-﻿using MeroHisab.Helpers.Implementations;
+﻿using MeroHisab.Core.Repository.Implementations;
+using MeroHisab.Core.Repository.Interface;
+using MeroHisab.Helpers.Implementations;
 using MeroHisab.Helpers.Interface;
 using MeroHisab.Library;
 using MeroHisab.Services.Interface;
@@ -74,8 +76,8 @@ namespace MeroHisab
 
         private void RegisterRepos(ServiceCollection services, Assembly assembly)
         {
-            // RegisterActualRepos(services, assembly);
-            RegisterMockRepos(services, assembly);
+            RegisterActualRepos(services, assembly);
+            // RegisterMockRepos(services, assembly);
         }
 
         private static void RegisterActualRepos(ServiceCollection services, Assembly assembly)
@@ -89,6 +91,8 @@ namespace MeroHisab
 
         private static void RegisterInterfacesAndImplementations(string nameSpacePart, ServiceCollection services, Assembly assembly)
         {
+            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
             var serviceTypes = assembly.GetTypes().Where(a => a.IsClass && a.FullName.Contains(nameSpacePart) && !a.IsAbstract).Select(a => new
             {
                 interfaceName = a.GetInterface($"I{a.Name.Replace("Mock", string.Empty)}"),
