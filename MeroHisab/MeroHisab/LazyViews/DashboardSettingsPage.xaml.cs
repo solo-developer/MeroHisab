@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MeroHisab.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,17 @@ namespace MeroHisab.LazyViews
     {
         public DashboardSettingsPage()
         {
+         
+
             InitializeComponent();
+            Content.BindingContext = App.GetViewModel<DashboardSettingsPageModel>();
+            (Content.BindingContext as DashboardSettingsPageModel).InitSettingsPageLoad();
         }
+
+        protected override void OnBindingContextChanged()
+        {
+            base.OnBindingContextChanged();
+        }
+
     }
 }

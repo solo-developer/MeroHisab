@@ -13,16 +13,20 @@ namespace MeroHisab.Views
         }
 
         private void TabView_SelectionChanged(object sender, Xamarin.CommunityToolkit.UI.Views.TabSelectionChangedEventArgs e)
-        {            
+        {
             if (e.NewPosition == 0 && !HomeTabContent.IsLoaded)
                 HomeTabContent.LoadViewAsync();
-            if (e.NewPosition == 1 && !ReportsTabContent.IsLoaded)
+            else if (e.NewPosition == 1 && !ReportsTabContent.IsLoaded)
                 ReportsTabContent.LoadViewAsync();
-            if (e.NewPosition == 2 && !SettingsTabContent.IsLoaded)
-                SettingsTabContent.LoadViewAsync();
-            if (e.NewPosition == 3 && !ProfileTabContent.IsLoaded)
+            else if (e.NewPosition == 2)
+            {
+              
+                SettingsTabContent.LoadViewAsync();              
+            }
+
+            else if (e.NewPosition == 3 && !ProfileTabContent.IsLoaded)
                 ProfileTabContent.LoadViewAsync();
-           
+
         }
     }
 }

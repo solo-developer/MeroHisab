@@ -1,5 +1,6 @@
 ﻿using MeroHisab.Core.Repository.Implementations;
 using MeroHisab.Core.Repository.Interface;
+using MeroHisab.Core.Services.Interface;
 using MeroHisab.Helpers.Implementations;
 using MeroHisab.Helpers.Interface;
 using MeroHisab.Library;
@@ -17,9 +18,10 @@ namespace MeroHisab
     public partial class App : Application
     {
         protected static IServiceProvider ServiceProvider { get; set; }
-        private static readonly string _servicesFolderName = "MeroHisab.Services";
-        private static readonly string _mockRepoFolderName = "MeroHisab.Repository.MockRepos";
-        private static readonly string _actualRepoFolderName = "MeroHisab.Repository.Implementations";
+        private static readonly string _servicesFolderName = "MeroHisab.Core.Services";
+        private static readonly string _helperServicesFolderName = "MeroHisab.Services";
+        private static readonly string _mockRepoFolderName = "MeroHisab.Core.Repository.MockRepos";
+        private static readonly string _actualRepoFolderName = "MeroHisab.Core.Repository.Implementations";
 
         public App(Action<IServiceCollection> addPlatformServices = null)
         {
@@ -53,7 +55,8 @@ namespace MeroHisab
             addPlatformServices?.Invoke(services);
             var assembly = typeof(ViewModelBase).Assembly;
 
-            RegisterInterfacesAndImplementations(_servicesFolderName, services, assembly);
+            RegisterInterfacesAndImplementations(_servicesFolderName, services, typeof(IAccountHeadService).Assembly);
+            RegisterInterfacesAndImplementations(_helperServicesFolderName, services, assembly);
 
             #region helpers
             services.AddTransient<INotificationService, NotificationService>();

@@ -7,9 +7,9 @@ namespace MeroHisab.Core.Repository.Implementations
     public class BaseRepository<T> : IBaseRepository<T> where T : class, new()
     {
         private SQLiteAsyncConnection db;
-        public BaseRepository(string dbPath)
+        public BaseRepository(ISqlite sqlite)
         {
-            db = new SQLiteAsyncConnection(dbPath);
+            db = new SQLiteAsyncConnection(sqlite.GetConnection().DatabasePath);
             db.CreateTableAsync<T>().Wait();
         }
 

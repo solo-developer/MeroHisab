@@ -11,6 +11,19 @@
         <Color x:Key="BackgroundColor">#009933</Color>
 
         <Color x:Key="PrimaryBlack">Black</Color>
+        <Color x:Key="Gray">Gray</Color>
+        <Color x:Key="Border">#B4BFD2</Color>
+        <Color x:Key="SecondaryColor">#ffe000</Color>
+        <Color x:Key="TertiaryColor">#518855</Color>
+        <Color x:Key="RatingColor">#FF9529</Color>
+        <Color x:Key="SavingColor">#bb0628</Color>
+        <Color x:Key="ErrorColor">#bb0628</Color>
+        <Color x:Key="LineColor">#e4e9f1</Color>
+        <Color x:Key="LightColor">White</Color>
+        <Color x:Key="DarkColor">Black</Color>
+        <Color x:Key="Accent">gray</Color>
+        <Color x:Key="FontLight">#518855</Color>
+        
         <Style x:Key="PageBackgroundColor" TargetType="Page">
             <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"></Setter>
         </Style>

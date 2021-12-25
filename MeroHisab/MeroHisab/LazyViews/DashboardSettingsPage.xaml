@@ -1,10 +1,63 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MeroHisab.LazyViews.DashboardSettingsPage">
-  <ContentView.Content>
-        <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-          <Label Text="Settings Page !!"/>
-      </StackLayout>
-  </ContentView.Content>
+             x:Class="MeroHisab.LazyViews.DashboardSettingsPage"
+             xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
+              xmlns:fontAwesome="clr-namespace:FontAwesome"
+               xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
+    <ContentView.Content>
+        <Grid RowDefinitions="Auto,*">
+            <StackLayout BackgroundColor="White" Grid.Row="0" xct:StateLayout.CurrentState="{Binding AccountHeadDataState}">
+                <xct:StateLayout.StateViews>
+                    <xct:StateView StateKey="Loading">
+                        <Grid BackgroundColor="White">
+                            <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                                <ActivityIndicator Color="Red" IsRunning="True" IsEnabled="True"/>
+                                <Label Text="Loading..." HorizontalOptions="Center" />
+                            </StackLayout>
+                        </Grid>
+                    </xct:StateView>
+                    <xct:StateView StateKey="Error">
+                        <Label TextColor="{StaticResource ErrorColor}" Text="Failed to load account heads." HorizontalOptions="Center" VerticalOptions="Center"></Label>
+                    </xct:StateView>
+                    <xct:StateView StateKey="Success">
+                        <CollectionView Grid.Row="0" ItemsSource="{Binding AccountHeads}" SelectionMode="Single" SelectedItem="{Binding SelectedItem}">
+                            <CollectionView.EmptyView>
+                                <Label Text="There are no account heads." FontSize="Large" TextColor="{StaticResource DarkColor}" VerticalOptions="Center" HorizontalOptions="Center"/>
+
+                            </CollectionView.EmptyView>
+
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
+                            </CollectionView.ItemsLayout>
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="dto:AccountHeadDto">
+                                    <Frame BackgroundColor="#291f1e" Margin="0" CornerRadius="5">
+
+                                        <StackLayout Orientation="Horizontal">
+                                            <Image HeightRequest="25" WidthRequest="25">
+                                                <Image.Source>
+                                                    <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="White"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.Sync}"/>
+                                                </Image.Source>
+                                            </Image>
+                                            <Label Text="{Binding Name}" VerticalTextAlignment="Center" HorizontalOptions="FillAndExpand" TextColor="White" FontSize="Medium"></Label>
+                                        </StackLayout>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <!--<CollectionView.Behaviors>
+                        <xct:EventToCommandBehavior Command="{Binding SettingSelectedCommand}" EventName="SelectionChanged"></xct:EventToCommandBehavior>
+                    </CollectionView.Behaviors>-->
+                        </CollectionView>
+                    </xct:StateView>
+                </xct:StateLayout.StateViews>
+
+            </StackLayout>
+            <StackLayout Grid.Row="1"></StackLayout>
+
+        </Grid>
+    </ContentView.Content>
 </ContentView>
