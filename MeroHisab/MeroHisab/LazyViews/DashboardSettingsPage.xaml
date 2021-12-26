@@ -6,58 +6,121 @@
               xmlns:fontAwesome="clr-namespace:FontAwesome"
                xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
     <ContentView.Content>
-        <Grid RowDefinitions="Auto,*">
-            <StackLayout BackgroundColor="White" Grid.Row="0" xct:StateLayout.CurrentState="{Binding AccountHeadDataState}">
-                <xct:StateLayout.StateViews>
-                    <xct:StateView StateKey="Loading">
-                        <Grid BackgroundColor="White">
-                            <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+        <ScrollView VerticalScrollBarVisibility="Always" Margin="10,5">
+            <StackLayout Orientation="Vertical" Margin="10,5">
+                <!--Account Heads -->
+                <StackLayout Orientation="Horizontal">
+                    <Label HorizontalOptions="StartAndExpand" Text="Account Heads" TextColor="{StaticResource PrimaryBlack}" FontSize="Medium" Grid.Column="0"/>
+                    <StackLayout HorizontalOptions="End" Orientation="Horizontal">
+                        <Label Text="View All" FontSize="Medium" Grid.Column="0" />
+                        <ImageButton HeightRequest="15" WidthRequest="15" Grid.Column="1" BackgroundColor="Transparent">
+                            <ImageButton.Source>
+                                <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="Black"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.FastForward}"/>
+                            </ImageButton.Source>
+                        </ImageButton>
+                    </StackLayout>
+
+                </StackLayout>
+
+                <StackLayout xct:StateLayout.CurrentState="{Binding AccountHeadDataState}" VerticalOptions="Fill">
+                    <xct:StateLayout.StateViews>
+                        <xct:StateView StateKey="Loading">
+                            <StackLayout BackgroundColor="White" VerticalOptions="Center" HorizontalOptions="Center">
+
                                 <ActivityIndicator Color="Red" IsRunning="True" IsEnabled="True"/>
                                 <Label Text="Loading..." HorizontalOptions="Center" />
+
                             </StackLayout>
-                        </Grid>
-                    </xct:StateView>
-                    <xct:StateView StateKey="Error">
-                        <Label TextColor="{StaticResource ErrorColor}" Text="Failed to load account heads." HorizontalOptions="Center" VerticalOptions="Center"></Label>
-                    </xct:StateView>
-                    <xct:StateView StateKey="Success">
-                        <CollectionView Grid.Row="0" ItemsSource="{Binding AccountHeads}" SelectionMode="Single" SelectedItem="{Binding SelectedItem}">
-                            <CollectionView.EmptyView>
-                                <Label Text="There are no account heads." FontSize="Large" TextColor="{StaticResource DarkColor}" VerticalOptions="Center" HorizontalOptions="Center"/>
+                        </xct:StateView>
+                        <xct:StateView StateKey="Error">
+                            <Label TextColor="{StaticResource ErrorColor}" Text="Failed to load account heads." HorizontalOptions="Center" VerticalOptions="Center"></Label>
+                        </xct:StateView>
+                        <xct:StateView StateKey="Success">
+                            <StackLayout BindableLayout.ItemsSource="{Binding AccountHeads}"    Margin="0,10,0,0" Spacing="10">
+                                <BindableLayout.EmptyView>
+                                    <StackLayout BackgroundColor="White" HeightRequest="50">
+                                        <Label Text="There are no account heads." FontSize="Small" TextColor="{StaticResource DarkColor}" HorizontalOptions="Center"/>
+                                    </StackLayout>
+                                </BindableLayout.EmptyView>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="dto:AccountHeadDto">
+                                        <Frame VerticalOptions="Start" BackgroundColor="White" Margin="0" Padding="10" CornerRadius="10">
+                                            <StackLayout>
+                                                <Label Text="{Binding Name}" VerticalTextAlignment="Center" HorizontalOptions="FillAndExpand" TextColor="{StaticResource BackgroundColor}" FontSize="Medium"/>
+                                                <Label Text="{Binding HeadType}" FontSize="Small"/>
+                                            </StackLayout>
 
-                            </CollectionView.EmptyView>
+                                        </Frame>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </StackLayout>
+                        </xct:StateView>
+                    </xct:StateLayout.StateViews>
 
-                            <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
-                            </CollectionView.ItemsLayout>
+                </StackLayout>
+                <!--End Account Heads -->
 
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="dto:AccountHeadDto">
-                                    <Frame BackgroundColor="#291f1e" Margin="0" CornerRadius="5">
+                <!--Payment Mediums -->
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Payment Mediums" TextColor="{StaticResource PrimaryBlack}" FontSize="Medium" Grid.Column="0" HorizontalOptions="StartAndExpand"/>
+                    <StackLayout Grid.Column="1" HorizontalOptions="End" Orientation="Horizontal">
+                        <Label Text="View All" FontSize="Medium" Grid.Column="0" />
+                        <ImageButton HeightRequest="15" WidthRequest="15" Grid.Column="1" BackgroundColor="Transparent">
+                            <ImageButton.Source>
+                                <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="Black"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.FastForward}"/>
+                            </ImageButton.Source>
+                        </ImageButton>
+                    </StackLayout>
 
-                                        <StackLayout Orientation="Horizontal">
-                                            <Image HeightRequest="25" WidthRequest="25">
-                                                <Image.Source>
-                                                    <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="White"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.Sync}"/>
-                                                </Image.Source>
-                                            </Image>
-                                            <Label Text="{Binding Name}" VerticalTextAlignment="Center" HorizontalOptions="FillAndExpand" TextColor="White" FontSize="Medium"></Label>
-                                        </StackLayout>
+                </StackLayout>
+
+                <StackLayout xct:StateLayout.CurrentState="{Binding PaymentMediumDataState}">
+                    <xct:StateLayout.StateViews>
+                        <xct:StateView StateKey="Loading">
+                            <Grid BackgroundColor="White">
+                                <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                                    <ActivityIndicator Color="Red" IsRunning="True" IsEnabled="True"/>
+                                    <Label Text="Loading..." HorizontalOptions="Center" />
+                                </StackLayout>
+                            </Grid>
+                        </xct:StateView>
+                        <xct:StateView StateKey="Error">
+                            <Label TextColor="{StaticResource ErrorColor}" Text="Failed to load payment mediums." HorizontalOptions="Center" VerticalOptions="Center"></Label>
+                        </xct:StateView>
+                        <xct:StateView StateKey="Success">
+                            <StackLayout BindableLayout.ItemsSource="{Binding PaymentMediums}"    Margin="0,10,0,0" Spacing="10">
+                                <BindableLayout.EmptyView>
+                                    <Frame BackgroundColor="White" CornerRadius="5" HeightRequest="50">
+                                        <Label Text="There are no payment mediums." FontSize="Small" TextColor="{StaticResource DarkColor}" HorizontalOptions="Center"/>
                                     </Frame>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                            <!--<CollectionView.Behaviors>
-                        <xct:EventToCommandBehavior Command="{Binding SettingSelectedCommand}" EventName="SelectionChanged"></xct:EventToCommandBehavior>
-                    </CollectionView.Behaviors>-->
-                        </CollectionView>
-                    </xct:StateView>
-                </xct:StateLayout.StateViews>
+                                </BindableLayout.EmptyView>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="dto:PaymentMediumDto">
+                                        <Frame BackgroundColor="White" Margin="0" Padding="10" CornerRadius="10">
+                                            <StackLayout>
+                                                <Label Text="{Binding Name}" VerticalTextAlignment="Center" HorizontalOptions="FillAndExpand" TextColor="{StaticResource BackgroundColor}" FontSize="Medium"/>
+                                                <Label Text="{Binding Balance}" FontSize="Small"/>
+
+                                            </StackLayout>
+
+                                        </Frame>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </StackLayout>
+
+
+                        </xct:StateView>
+                    </xct:StateLayout.StateViews>
+
+                </StackLayout>
+                <!--End Payment Mediums -->
 
             </StackLayout>
-            <StackLayout Grid.Row="1"></StackLayout>
+        </ScrollView>
 
-        </Grid>
     </ContentView.Content>
 </ContentView>

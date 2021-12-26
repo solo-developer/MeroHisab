@@ -18,9 +18,8 @@ namespace MeroHisab.Views
                 HomeTabContent.LoadViewAsync();
             else if (e.NewPosition == 1 && !ReportsTabContent.IsLoaded)
                 ReportsTabContent.LoadViewAsync();
-            else if (e.NewPosition == 2)
-            {
-              
+            else if (e.NewPosition == 2 && !SettingsTabContent.IsLoaded)
+            {              
                 SettingsTabContent.LoadViewAsync();              
             }
 
