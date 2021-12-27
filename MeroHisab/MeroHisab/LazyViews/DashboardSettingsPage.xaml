@@ -20,6 +20,9 @@
                      Glyph="{x:Static fontAwesome:FontAwesomeIcons.FastForward}"/>
                             </ImageButton.Source>
                         </ImageButton>
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" NumberOfTapsRequired="1"/>
+                        </StackLayout.GestureRecognizers>
                     </StackLayout>
 
                 </StackLayout>

@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MeroHisab.Views.AccountHeadListPage"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             NavigationPage.HasBackButton="True"
+              xmlns:fontAwesome="clr-namespace:FontAwesome"
+             xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
+               xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
+    <NavigationPage.TitleView>
+        <StackLayout Orientation="Horizontal">
+            <Label VerticalOptions="Center" HorizontalOptions="StartAndExpand" Text="Account Heads" FontSize="Large" TextColor="{StaticResource NavigationTextColor}"></Label>
+        </StackLayout>
+
+    </NavigationPage.TitleView>
+    <ContentPage.Content>
+        <ScrollView VerticalScrollBarVisibility="Always" Margin="10,5">
+            <StackLayout Orientation="Vertical" Margin="10,5">
+
+                <StackLayout xct:StateLayout.CurrentState="{Binding AccountHeadDataState}" VerticalOptions="Fill">
+                    <xct:StateLayout.StateViews>
+                        <xct:StateView StateKey="Loading">
+                            <StackLayout BackgroundColor="White" VerticalOptions="Center" HorizontalOptions="Center">
+
+                                <ActivityIndicator Color="Red" IsRunning="True" IsEnabled="True"/>
+                                <Label Text="Loading..." HorizontalOptions="Center" />
+
+                            </StackLayout>
+                        </xct:StateView>
+                        <xct:StateView StateKey="Error">
+                            <Label TextColor="{StaticResource ErrorColor}" Text="Failed to load account heads." HorizontalOptions="Center" VerticalOptions="Center"></Label>
+                        </xct:StateView>
+                        <xct:StateView StateKey="Success">
+                            <CollectionView ItemsSource="{Binding AccountHeads}" ItemSizingStrategy="MeasureFirstItem" HorizontalScrollBarVisibility="Default" HorizontalOptions="FillAndExpand" >
+                                <CollectionView.ItemsLayout>
+                                    <GridItemsLayout Orientation="Vertical" Span="1" VerticalItemSpacing="10" />
+                                </CollectionView.ItemsLayout>                               
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Frame VerticalOptions="Start" BackgroundColor="White" Margin="0" Padding="10" CornerRadius="10">
+                                            <StackLayout>
+                                                <Label Text="{Binding Name}" VerticalTextAlignment="Center" HorizontalOptions="FillAndExpand" TextColor="{StaticResource BackgroundColor}" FontSize="Medium"/>
+                                                <Label Text="{Binding HeadType}" FontSize="Small"/>
+                                            </StackLayout>
+
+                                        </Frame>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+
+                                <CollectionView.EmptyView>
+                                    <Label Text="There are no account heads." FontSize="Small" TextColor="White" VerticalOptions="Center" HorizontalOptions="CenterAndExpand"  Padding="50,50"/>
+
+                                </CollectionView.EmptyView>
+                            </CollectionView>
+                            
+              
+                        </xct:StateView>
+                    </xct:StateLayout.StateViews>
+
+                </StackLayout>
+
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

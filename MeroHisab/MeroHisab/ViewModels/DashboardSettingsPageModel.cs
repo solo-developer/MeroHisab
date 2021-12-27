@@ -3,6 +3,7 @@ using MeroHisab.Core.Services.Interface;
 using MeroHisab.Helpers.Interface;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Xamarin.CommunityToolkit.ObjectModel;
 using Xamarin.CommunityToolkit.UI.Views;
 
@@ -13,12 +14,14 @@ namespace MeroHisab.ViewModels
         private readonly IAccountHeadService _accountHeadService;
         private readonly INotificationService _notificationService;
 
+        public IAsyncCommand ViewAllAccountHeadCommand;
         public DashboardSettingsPageModel(IAccountHeadService accountHeadService, INotificationService notificationService)
         {
             _accountHeadService = accountHeadService;
             AccountHeads = new ObservableRangeCollection<AccountHeadDto>();
             PaymentMediums = new ObservableRangeCollection<PaymentMediumDto>();
             _notificationService = notificationService;
+            ViewAllAccountHeadCommand = new AsyncCommand(() => NavigateToAccountHeadListPage(), a => true);
         }
 
         public LayoutState AccountHeadDataState
@@ -84,6 +87,11 @@ namespace MeroHisab.ViewModels
             {
                 await _notificationService.ShowInfo("Error", "Failed to perform the operation.");
             }
+        }
+
+        public async Task NavigateToAccountHeadListPage()
+        {
+            await _navigationService.NavigateToAsync<AccountHeadListPageModel>();
         }
         private async Task LoadAccountHeads()
         {

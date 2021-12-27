@@ -20,5 +20,9 @@ namespace MeroHisab.LazyViews
             base.OnBindingContextChanged();
         }
 
+        private async void TapGestureRecognizer_Tapped(object sender, System.EventArgs e)
+        {
+            await (Content.BindingContext as DashboardSettingsPageModel).NavigateToAccountHeadListPage();
+        }
     }
 }

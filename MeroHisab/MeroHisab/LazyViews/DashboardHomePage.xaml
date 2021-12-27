@@ -1,27 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MeroHisab.LazyViews.DashboardHomePage"
-             xmlns:viewModel="clr-namespace:MeroHisab.ViewModels">
+             x:Class="MeroHisab.LazyViews.DashboardHomePage">
     <ContentView.Content>
-        <Grid Margin="20,10,20,10" x:DataType="viewModel:DashboardHomePageModel">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="5*"></RowDefinition>
-            </Grid.RowDefinitions>
-          
-            <StackLayout Grid.Row="1" VerticalOptions="Center" HorizontalOptions="Center">
-                <Label Text="Welcome Bruh !!"></Label>
-
-
-            </StackLayout>
-            <ScrollView Grid.Row="2" VerticalScrollBarVisibility="Never">
-                <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label Text="Home Page!!"></Label>
-                </StackLayout>
-            </ScrollView>
-        </Grid>
+        <Label Text="Home Page!!"  HorizontalOptions="Center" VerticalOptions="Center"/>
     </ContentView.Content>
 
 </ContentView>

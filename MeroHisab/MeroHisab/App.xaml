@@ -23,12 +23,15 @@
         <Color x:Key="DarkColor">Black</Color>
         <Color x:Key="Accent">gray</Color>
         <Color x:Key="FontLight">#518855</Color>
-        
+        <Style TargetType="NavigationPage">
+            <Setter Property="BarBackgroundColor" Value="{StaticResource BackgroundColor}" />
+            <Setter Property="BarTextColor" Value="White" />
+        </Style>
         <Style x:Key="PageBackgroundColor" TargetType="Page">
-            <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"></Setter>
+            <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
         </Style>
         <Style TargetType="ContentView">
-            <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"></Setter>
+            <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
         </Style>
         <ControlTemplate x:Key="CustomNavigationBar">
 
