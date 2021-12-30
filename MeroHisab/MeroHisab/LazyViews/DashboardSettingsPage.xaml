@@ -4,9 +4,10 @@
              x:Class="MeroHisab.LazyViews.DashboardSettingsPage"
              xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
               xmlns:fontAwesome="clr-namespace:FontAwesome"
-               xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
+               xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+              xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView">
     <ContentView.Content>
-        <ScrollView VerticalScrollBarVisibility="Always" Margin="10,5">
+        <ScrollView VerticalScrollBarVisibility="Default" Margin="10,5">
             <StackLayout Orientation="Vertical" Margin="10,5">
                 <!--Account Heads -->
                 <StackLayout Orientation="Horizontal">
@@ -49,13 +50,16 @@
                                 </BindableLayout.EmptyView>
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="dto:AccountHeadDto">
-                                        <Frame VerticalOptions="Start" BackgroundColor="White" Margin="0" Padding="10" CornerRadius="10">
-                                            <StackLayout>
-                                                <Label Text="{Binding Name}" VerticalTextAlignment="Center" HorizontalOptions="FillAndExpand" TextColor="{StaticResource BackgroundColor}" FontSize="Medium"/>
+                                        <yummy:PancakeView BackgroundColor="White" CornerRadius="10,10,10,10" HorizontalOptions="FillAndExpand" HeightRequest="80">
+                                            <StackLayout  VerticalOptions="Center" Padding="10">
+                                                <Label Text="{Binding Name}" HorizontalOptions="FillAndExpand" TextColor="{StaticResource BackgroundColor}" FontSize="Medium"/>
                                                 <Label Text="{Binding HeadType}" FontSize="Small"/>
                                             </StackLayout>
-
-                                        </Frame>
+                                            <yummy:PancakeView.Border>
+                                                <yummy:Border Thickness="2" Color="LightGreen"/>
+                                            </yummy:PancakeView.Border>
+                                        </yummy:PancakeView>
+                                        
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
                             </StackLayout>
@@ -103,14 +107,17 @@
                                 </BindableLayout.EmptyView>
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="dto:PaymentMediumDto">
-                                        <Frame BackgroundColor="White" Margin="0" Padding="10" CornerRadius="10">
-                                            <StackLayout>
+                                        <yummy:PancakeView BackgroundColor="White" CornerRadius="10,10,10,10" HorizontalOptions="FillAndExpand" HeightRequest="80">
+                                            <StackLayout  VerticalOptions="Center" Padding="10">
                                                 <Label Text="{Binding Name}" VerticalTextAlignment="Center" HorizontalOptions="FillAndExpand" TextColor="{StaticResource BackgroundColor}" FontSize="Medium"/>
                                                 <Label Text="{Binding Balance}" FontSize="Small"/>
 
                                             </StackLayout>
-
-                                        </Frame>
+                                            <yummy:PancakeView.Border>
+                                                <yummy:Border Thickness="2" Color="LightGreen"/>
+                                            </yummy:PancakeView.Border>
+                                        </yummy:PancakeView>
+                                        
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
                             </StackLayout>

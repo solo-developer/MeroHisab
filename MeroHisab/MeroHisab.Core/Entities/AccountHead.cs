@@ -22,7 +22,7 @@ namespace MeroHisab.Core.Entities
 
         public LedgerType LedgerType { get; set; }
 
-        public bool IsEnabled { get; set; }
+        public bool IsEnabled { get; set; } = true;
 
         public void Enable() => IsEnabled = true;
         public void Disable() => IsEnabled = false;

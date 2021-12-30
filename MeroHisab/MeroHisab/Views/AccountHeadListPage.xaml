@@ -6,17 +6,28 @@
              NavigationPage.HasBackButton="True"
               xmlns:fontAwesome="clr-namespace:FontAwesome"
              xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
-               xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
+               xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView">
     <NavigationPage.TitleView>
-        <StackLayout Orientation="Horizontal">
-            <Label VerticalOptions="Center" HorizontalOptions="StartAndExpand" Text="Account Heads" FontSize="Large" TextColor="{StaticResource NavigationTextColor}"></Label>
+        <StackLayout Orientation="Horizontal" Margin="0,0,20,0">
+            <Label VerticalOptions="Center" HorizontalOptions="StartAndExpand" Text="Account Heads" FontSize="Large" TextColor="{StaticResource NavigationTextColor}"/>
+
+            <ImageButton HorizontalOptions="End" VerticalOptions="Center" HeightRequest="30" WidthRequest="30">
+                <ImageButton.Source>
+                    <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="White"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.PlusCircle}"/>
+                </ImageButton.Source>
+                <ImageButton.Behaviors>
+                    <xct:EventToCommandBehavior Command="{Binding AddAccountHeadCommand}" EventName="Clicked"/>
+                </ImageButton.Behaviors>
+            </ImageButton>
         </StackLayout>
 
     </NavigationPage.TitleView>
     <ContentPage.Content>
         <ScrollView VerticalScrollBarVisibility="Always" Margin="10,5">
             <StackLayout Orientation="Vertical" Margin="10,5">
-
                 <StackLayout xct:StateLayout.CurrentState="{Binding AccountHeadDataState}" VerticalOptions="Fill">
                     <xct:StateLayout.StateViews>
                         <xct:StateView StateKey="Loading">
@@ -34,16 +45,19 @@
                             <CollectionView ItemsSource="{Binding AccountHeads}" ItemSizingStrategy="MeasureFirstItem" HorizontalScrollBarVisibility="Default" HorizontalOptions="FillAndExpand" >
                                 <CollectionView.ItemsLayout>
                                     <GridItemsLayout Orientation="Vertical" Span="1" VerticalItemSpacing="10" />
-                                </CollectionView.ItemsLayout>                               
+                                </CollectionView.ItemsLayout>
                                 <CollectionView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Frame VerticalOptions="Start" BackgroundColor="White" Margin="0" Padding="10" CornerRadius="10">
-                                            <StackLayout>
-                                                <Label Text="{Binding Name}" VerticalTextAlignment="Center" HorizontalOptions="FillAndExpand" TextColor="{StaticResource BackgroundColor}" FontSize="Medium"/>
+                                    <DataTemplate x:DataType="dto:AccountHeadDto">
+                                        <yummy:PancakeView BackgroundColor="White" CornerRadius="10,10,10,10" HorizontalOptions="FillAndExpand" HeightRequest="80">
+                                            <StackLayout  VerticalOptions="Center" Padding="10">
+                                                <Label Text="{Binding Name}" HorizontalOptions="FillAndExpand" TextColor="{StaticResource BackgroundColor}" FontSize="Medium"/>
                                                 <Label Text="{Binding HeadType}" FontSize="Small"/>
                                             </StackLayout>
+                                            <yummy:PancakeView.Border>
+                                                <yummy:Border Thickness="2" Color="LightGreen"/>
+                                            </yummy:PancakeView.Border>
+                                        </yummy:PancakeView>
 
-                                        </Frame>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
 
@@ -52,8 +66,8 @@
 
                                 </CollectionView.EmptyView>
                             </CollectionView>
-                            
-              
+
+
                         </xct:StateView>
                     </xct:StateLayout.StateViews>
 

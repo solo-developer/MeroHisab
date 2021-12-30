@@ -9,12 +9,12 @@ namespace MeroHisab.Droid.Services
 {
     public class Sqlite : ISqlite
     {
-        public SQLiteConnection GetConnection()
+        public SQLiteAsyncConnection GetConnection()
         {
             var dbase = "MeroHisab.db3";
             var dbpath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
             var path = Path.Combine(dbpath, dbase);
-            var connection = new SQLiteConnection(path);
+            var connection = new SQLiteAsyncConnection(path);
             return connection;
         }
     }

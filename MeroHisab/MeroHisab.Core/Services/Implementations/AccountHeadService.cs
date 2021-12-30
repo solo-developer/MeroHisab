@@ -34,9 +34,15 @@ namespace MeroHisab.Core.Services.Implementations
             }).ToList();
         }
 
-        public Task Save(AccountHeadDto accountHead)
+        public async Task Save(AccountHeadDto accountHead)
         {
-            throw new NotImplementedException();
+            var entity = (await _repo.Get(accountHead.Id)) ?? new AccountHead();
+            entity.Name = accountHead.Name;
+            entity.HeadType = accountHead.HeadType;
+            entity.LedgerType = accountHead.LedgerType;
+            entity.Code = accountHead.Code;
+
+            await _repo.Insert(entity);
         }
     }
 }
