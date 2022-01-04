@@ -58,7 +58,7 @@ namespace MeroHisab.ViewModels
             {
                 Model.HeadType = (PayHeadType)SelectedPayHead.Value;
 
-                await _accountHeadService.Save(Model);
+                await _accountHeadService.SaveOrUpdate(Model);
 
                 await _notificationService.ShowInfo("Success", "Account Head saved successfully.");
                 await _navigationService.HideModal();
@@ -87,6 +87,7 @@ namespace MeroHisab.ViewModels
                    }).ToList();
             PayHeadTypes.Clear();
             PayHeadTypes.AddRange(heads);
+            SelectedPayHead = PayHeadTypes.FirstOrDefault(a => a.Value == (int)dto.HeadType);
         }
     }
 }

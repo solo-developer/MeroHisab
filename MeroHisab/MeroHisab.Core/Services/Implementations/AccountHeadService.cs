@@ -1,11 +1,9 @@
 ﻿using MeroHisab.Core.Dto;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Enums;
+using MeroHisab.Core.Exceptions;
 using MeroHisab.Core.Repository.Interface;
 using MeroHisab.Core.Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MeroHisab.Core.Services.Implementations
 {
@@ -15,6 +13,13 @@ namespace MeroHisab.Core.Services.Implementations
         public AccountHeadService(IBaseRepository<AccountHead> repo)
         {
             _repo = repo;
+        }
+
+        public async Task Disable(int id)
+        {
+            var entity = (await _repo.Get(id)) ?? throw new ItemNotFoundException("Account head not found.");
+            entity.Disable();
+            await _repo.Update(entity);
         }
 
         public async Task<List<AccountHeadDto>> GetAccountHeads(LedgerType ledgerType, int? take = null)
@@ -34,7 +39,7 @@ namespace MeroHisab.Core.Services.Implementations
             }).ToList();
         }
 
-        public async Task Save(AccountHeadDto accountHead)
+        public async Task SaveOrUpdate(AccountHeadDto accountHead)
         {
             var entity = (await _repo.Get(accountHead.Id)) ?? new AccountHead();
             entity.Name = accountHead.Name;
@@ -42,7 +47,10 @@ namespace MeroHisab.Core.Services.Implementations
             entity.LedgerType = accountHead.LedgerType;
             entity.Code = accountHead.Code;
 
-            await _repo.Insert(entity);
+            if (accountHead.Id == 0)
+                await _repo.Insert(entity);
+            else
+                await _repo.Update(entity);
         }
     }
 }

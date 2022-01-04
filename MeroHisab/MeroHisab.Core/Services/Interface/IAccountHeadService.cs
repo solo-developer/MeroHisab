@@ -7,6 +7,8 @@ namespace MeroHisab.Core.Services.Interface
     {
         Task<List<AccountHeadDto>> GetAccountHeads(LedgerType ledgerType, int? take = null);
 
-        Task Save(AccountHeadDto accountHead);
+        Task SaveOrUpdate(AccountHeadDto accountHead);
+
+        Task Disable(int id);
     }
 }
