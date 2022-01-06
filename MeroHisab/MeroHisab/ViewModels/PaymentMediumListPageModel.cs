@@ -4,6 +4,7 @@ using MeroHisab.Core.Repository.Interface;
 using MeroHisab.Core.Services.Interface;
 using MeroHisab.Helpers.Interface;
 using MeroHisab.Partial.AccountHead;
+using MeroHisab.Services.Interface;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -13,29 +14,29 @@ using Xamarin.Forms;
 
 namespace MeroHisab.ViewModels
 {
-    public class AccountHeadListPageModel : ViewModelBase
+    public class PaymentMediumListPageModel :ViewModelBase
     {
         private readonly IAccountHeadService _accountHeadService;
         private readonly IBaseRepository<AccountHead> _accountHeadRepo;
         private readonly INotificationService _notificationService;
 
-        public IAsyncCommand AddAccountHeadCommand { get; set; }
+        public IAsyncCommand AddPaymentMediumCommand { get; set; }
         public ICommand OnEditButtonClicked { get; set; }
         public ICommand OnDeleteButtonClicked { get; set; }
-        public AccountHeadListPageModel(IAccountHeadService accountHeadService, IBaseRepository<AccountHead> accountHeadRepo, INotificationService notificationService)
+
+        public PaymentMediumListPageModel(IAccountHeadService accountHeadService, IBaseRepository<AccountHead> accountHeadRepo,INotificationService notificationService)
         {
             _accountHeadService = accountHeadService;
             _accountHeadRepo = accountHeadRepo;
-            AccountHeads = new ObservableRangeCollection<AccountHeadDto>();
-            AddAccountHeadCommand = new AsyncCommand(() => OpenAccountHeadModal(new AccountHeadDto() { LedgerType = Core.Enums.LedgerType.Normal }), a => true);
+            PaymentMediums = new ObservableRangeCollection<AccountHeadDto>();
+            AddPaymentMediumCommand = new AsyncCommand(() => OpenAccountHeadModal(new AccountHeadDto() { LedgerType = Core.Enums.LedgerType.PaymentMedium,HeadType= Core.Enums.PayHeadType.Income }), a => true);
             OnEditButtonClicked = new Command<int>(async (id) => await EditDetail(id), a => true);
             OnDeleteButtonClicked = new Command<int>(async (id) => await Disable(id), a => true);
-
-            _notificationService = notificationService;
-            LoadAllAccountHeads();
+            _notificationService=notificationService;   
+            LoadAllPaymentMediums();
         }
 
-        public LayoutState AccountHeadDataState
+        public LayoutState PaymentMediumDataState
         {
             get => GetValue<LayoutState>();
             set
@@ -44,7 +45,7 @@ namespace MeroHisab.ViewModels
             }
         }
 
-        public ObservableRangeCollection<AccountHeadDto> AccountHeads
+        public ObservableRangeCollection<AccountHeadDto> PaymentMediums
         {
             get => GetValue<ObservableRangeCollection<AccountHeadDto>>();
             set
@@ -53,20 +54,20 @@ namespace MeroHisab.ViewModels
             }
         }
 
-        private async Task LoadAllAccountHeads()
+        private async Task LoadAllPaymentMediums()
         {
             try
             {
-                AccountHeadDataState = LayoutState.Loading;
-                AccountHeads = new ObservableRangeCollection<AccountHeadDto>();
-                var heads = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.Normal);
-                AccountHeads.AddRange(heads);
+                PaymentMediumDataState = LayoutState.Loading;
+                PaymentMediums = new ObservableRangeCollection<AccountHeadDto>();
+                var heads = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.PaymentMedium);
+                PaymentMediums.AddRange(heads);
 
-                AccountHeadDataState = LayoutState.Success;
+                PaymentMediumDataState = LayoutState.Success;
             }
             catch (System.Exception)
             {
-                AccountHeadDataState = LayoutState.Error;
+                PaymentMediumDataState = LayoutState.Error;
             }
         }
 
@@ -74,12 +75,12 @@ namespace MeroHisab.ViewModels
         {
             await _navigationService.ShowModal(new AddEditAccountHeadModal(dto));
 
-            MessagingCenter.Subscribe<AccountHeadDto>(this, "AccountHeadSavedUpdated", AfterManipulatingAccountHeads);
+            MessagingCenter.Subscribe<AccountHeadDto>(this, "PaymentMediumSavedUpdated", AfterManipulatingPaymentMediums);
         }
 
-        private async void AfterManipulatingAccountHeads(AccountHeadDto obj)
+        private async void AfterManipulatingPaymentMediums(AccountHeadDto obj)
         {
-            await LoadAllAccountHeads();
+            await LoadAllPaymentMediums();
         }
 
         private async Task EditDetail(int id)
@@ -100,7 +101,7 @@ namespace MeroHisab.ViewModels
             }
             catch (Exception)
             {
-                _toastService.LongAlert("Failed to edit account head");
+                _toastService.LongAlert("Failed to edit payment medium");
             }
 
         }
@@ -112,13 +113,12 @@ namespace MeroHisab.ViewModels
                 var isDeleteConfirmed = await _notificationService.ShowConfirmationDialog("Confirm!!", "Are you sure to delete this entry?", "OK", "Cancel");
                 if (!isDeleteConfirmed)
                     return;
-
                 await _accountHeadService.Disable(id);
-                AfterManipulatingAccountHeads(null);
+                AfterManipulatingPaymentMediums(null);
             }
             catch (Exception)
             {
-                _toastService.LongAlert("Failed to delete account head.");
+                _toastService.LongAlert("Failed to delete payment medium.");
             }
 
         }

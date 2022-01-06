@@ -30,6 +30,12 @@ namespace MeroHisab.ViewModels
             _notificationService = notificationService;
         }
 
+        public bool IsPaymentMedium
+        {
+            get => GetValue<bool>();
+            set => SetValue(value);
+        }
+
         public AccountHeadDto Model
         {
             get => GetValue<AccountHeadDto>();
@@ -60,13 +66,18 @@ namespace MeroHisab.ViewModels
 
                 await _accountHeadService.SaveOrUpdate(Model);
 
-                await _notificationService.ShowInfo("Success", "Account Head saved successfully.");
+                await _notificationService.ShowInfo("Success", "Operation performed successfully.");
                 await _navigationService.HideModal();
-                MessagingCenter.Send(Model, "AccountHeadSavedUpdated");
+                string key = "AccountHeadSavedUpdated";
+                if(Model.LedgerType == LedgerType.PaymentMedium)
+                {
+                    key = "PaymentMediumSavedUpdated";
+                }
+                MessagingCenter.Send(Model, key);
             }
             catch (Exception ex)
             {
-                await _notificationService.ShowInfo("Error", "Failed to save/update account head");
+                await _notificationService.ShowInfo("Error", "Failed to perform specified operation");
             }
 
         }
@@ -88,6 +99,7 @@ namespace MeroHisab.ViewModels
             PayHeadTypes.Clear();
             PayHeadTypes.AddRange(heads);
             SelectedPayHead = PayHeadTypes.FirstOrDefault(a => a.Value == (int)dto.HeadType);
+            IsPaymentMedium = dto.LedgerType == LedgerType.PaymentMedium;
         }
     }
 }

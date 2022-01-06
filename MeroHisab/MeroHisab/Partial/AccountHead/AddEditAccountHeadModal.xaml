@@ -4,17 +4,23 @@
              x:Class="MeroHisab.Partial.AccountHead.AddEditAccountHeadModal"
              xmlns:pages="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"
              xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-             xmlns:fontAwesome="clr-namespace:FontAwesome"
-             xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
-             xmlns:vm="clr-namespace:MeroHisab.ViewModels;assembly=MeroHisab"
+                  xmlns:converters="clr-namespace:MeroHisab.Converters"
+                   xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
              CloseWhenBackgroundIsClicked="True">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:IsNegatedValueConverter x:Key="NegateBool" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ContentPage.Content>
         <StackLayout VerticalOptions="FillAndExpand" Margin="20"  BackgroundColor="WhiteSmoke" >
             <ScrollView>
                 <StackLayout Margin="15">
+                    <StackLayout IsVisible="{Binding IsPaymentMedium,Converter={StaticResource NegateBool}}">
+                        <Label Text="Type" VerticalOptions="Center"/>
+                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PayHeadTypes}" Title="--select--" SelectedItem="{Binding SelectedPayHead}" FontSize="Small"/>
+                    </StackLayout>
 
-                    <Label Text="Type" VerticalOptions="Center"></Label>
-                    <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PayHeadTypes}" Title="--select--" SelectedItem="{Binding SelectedPayHead}" FontSize="Small"></Picker>
                     <StackLayout BindingContext="{Binding Model}">
                         <Label VerticalOptions="Center" Text="Code"/>
                         <Entry VerticalOptions="Center" Text="{Binding Code}" FontSize="Small"/>
@@ -23,7 +29,7 @@
                         <Entry VerticalOptions="Center" Text="{Binding Name}" FontSize="Small"/>
 
                     </StackLayout>
-                    
+
                     <Button VerticalOptions="Center" Text="Save" HorizontalOptions="FillAndExpand" CornerRadius="5" BackgroundColor="{StaticResource PrimaryColor}" TextColor="White">
                         <Button.Behaviors>
                             <xct:EventToCommandBehavior Command="{Binding SaveButtonClickedCommand}" EventName="Clicked"/>

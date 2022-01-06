@@ -2,7 +2,7 @@
 using System.Globalization;
 using Xamarin.Forms;
 
-namespace XmartCreditMobileApp.Converters
+namespace MeroHisab.Converters
 {
     public class IsNegatedValueConverter : IValueConverter
     {

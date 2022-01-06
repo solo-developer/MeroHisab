@@ -93,6 +93,11 @@ namespace MeroHisab.ViewModels
         public async Task NavigateToAccountHeadListPage()
         {
             await _navigationService.NavigateToAsync<AccountHeadListPageModel>();
+        } 
+        
+        public async Task NavigateToPaymentMediumListPage()
+        {
+            await _navigationService.NavigateToAsync<PaymentMediumListPageModel>();
         }
         private async Task LoadAccountHeads()
         {

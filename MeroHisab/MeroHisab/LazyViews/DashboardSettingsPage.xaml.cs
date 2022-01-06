@@ -24,5 +24,10 @@ namespace MeroHisab.LazyViews
         {
             await (Content.BindingContext as DashboardSettingsPageModel).NavigateToAccountHeadListPage();
         }
+
+        private async void ViewAllPaymentMediumsTapped(object sender, System.EventArgs e)
+        {
+            await(Content.BindingContext as DashboardSettingsPageModel).NavigateToPaymentMediumListPage();
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Text;
 using Xamarin.Forms;
 
-namespace XmartCreditMobileApp.Converters
+namespace MeroHisab.Converters
 {
     public class IsValueNotMatchedConverter : IMultiValueConverter
     {

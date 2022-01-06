@@ -81,6 +81,9 @@
                      Glyph="{x:Static fontAwesome:FontAwesomeIcons.FastForward}"/>
                             </ImageButton.Source>
                         </ImageButton>
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="ViewAllPaymentMediumsTapped" NumberOfTapsRequired="1"/>
+                        </StackLayout.GestureRecognizers>
                     </StackLayout>
 
                 </StackLayout>
@@ -99,7 +102,7 @@
                             <Label TextColor="{StaticResource ErrorColor}" Text="Failed to load payment mediums." HorizontalOptions="Center" VerticalOptions="Center"></Label>
                         </xct:StateView>
                         <xct:StateView StateKey="Success">
-                            <StackLayout BindableLayout.ItemsSource="{Binding PaymentMediums}"    Margin="0,10,0,0" Spacing="10">
+                            <StackLayout BindableLayout.ItemsSource="{Binding PaymentMediums}" Margin="0,10,0,0" Spacing="10">
                                 <BindableLayout.EmptyView>
                                     <Frame BackgroundColor="White" CornerRadius="5" HeightRequest="50">
                                         <Label Text="There are no payment mediums." FontSize="Small" TextColor="{StaticResource DarkColor}" HorizontalOptions="Center"/>
