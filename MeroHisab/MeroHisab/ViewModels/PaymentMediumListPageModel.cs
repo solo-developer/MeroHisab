@@ -29,7 +29,7 @@ namespace MeroHisab.ViewModels
             _accountHeadService = accountHeadService;
             _accountHeadRepo = accountHeadRepo;
             PaymentMediums = new ObservableRangeCollection<AccountHeadDto>();
-            AddPaymentMediumCommand = new AsyncCommand(() => OpenAccountHeadModal(new AccountHeadDto() { LedgerType = Core.Enums.LedgerType.PaymentMedium,HeadType= Core.Enums.PayHeadType.Income }), a => true);
+            AddPaymentMediumCommand = new AsyncCommand(() => OpenAccountHeadModal(new AccountHeadDto() { LedgerType = Core.Enums.LedgerType.PaymentMedium,HeadType= Core.Enums.LedgerGroupType.Income }), a => true);
             OnEditButtonClicked = new Command<int>(async (id) => await EditDetail(id), a => true);
             OnDeleteButtonClicked = new Command<int>(async (id) => await Disable(id), a => true);
             _notificationService=notificationService;   

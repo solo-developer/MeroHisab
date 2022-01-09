@@ -7,7 +7,7 @@ namespace MeroHisab.Core.Dto
         public int Id { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
-        public PayHeadType HeadType { get; set; }
+        public LedgerGroupType HeadType { get; set; }
         public LedgerType LedgerType { get; set; }
     }
 }

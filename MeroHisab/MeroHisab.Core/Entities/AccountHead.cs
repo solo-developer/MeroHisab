@@ -9,7 +9,7 @@ namespace MeroHisab.Core.Entities
         {
 
         }
-        public AccountHead(string name, PayHeadType headType,LedgerType ledgerType)
+        public AccountHead(string name, LedgerGroupType headType,LedgerType ledgerType)
         {
             Name = name ?? throw new NonNullValueException();
             HeadType = headType;
@@ -18,7 +18,7 @@ namespace MeroHisab.Core.Entities
         public string Name { get; set; }
 
         public string Code { get; set; }
-        public PayHeadType HeadType { get; set; }
+        public LedgerGroupType HeadType { get; set; }
 
         public LedgerType LedgerType { get; set; }
 

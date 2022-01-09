@@ -1,4 +1,5 @@
-﻿using MeroHisab.Core.Exceptions;
+﻿using MeroHisab.Core.Enums;
+using MeroHisab.Core.Exceptions;
 
 namespace MeroHisab.Core.Entities
 {
@@ -17,8 +18,9 @@ namespace MeroHisab.Core.Entities
             }
         }
 
-        public string code { get; set; }
-        public DateTime created_date { get; set; } = DateTime.Now;
+        public LedgerGroupType Type { get; set; }
+        public string Code { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public bool IsCurrentlyUsed { get; set; } = false;
 

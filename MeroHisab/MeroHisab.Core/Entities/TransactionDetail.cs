@@ -54,7 +54,7 @@ namespace MeroHisab.Core.Entities
             }
         }
 
-        public decimal Balane { get; set; }
+        public decimal Balance { get; set; }
 
         public bool IsValid()
         {

@@ -62,7 +62,7 @@ namespace MeroHisab.ViewModels
         {
             try
             {
-                Model.HeadType = (PayHeadType)SelectedPayHead.Value;
+                Model.HeadType = (LedgerGroupType)SelectedPayHead.Value;
 
                 await _accountHeadService.SaveOrUpdate(Model);
 
@@ -90,8 +90,8 @@ namespace MeroHisab.ViewModels
         public void SetValues(AccountHeadDto dto)
         {
             Model = dto;
-            var heads = Enum.GetValues(typeof(PayHeadType))
-                   .Cast<PayHeadType>().Select(a => new GenericDropDownDto<int, string>
+            var heads = Enum.GetValues(typeof(LedgerGroupType))
+                   .Cast<LedgerGroupType>().Select(a => new GenericDropDownDto<int, string>
                    {
                        Text = a.ToString(),
                        Value = (int)a
