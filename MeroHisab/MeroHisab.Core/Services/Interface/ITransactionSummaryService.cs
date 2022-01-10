@@ -1,6 +1,6 @@
 ﻿using MeroHisab.Core.Dto;
 
-namespace LE.Account.Service.Services.Interface
+namespace MeroHisab.Core.Repository.Interface
 {
     public interface ITransactionSummaryService
     {

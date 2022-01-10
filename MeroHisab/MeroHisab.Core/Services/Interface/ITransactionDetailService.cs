@@ -1,7 +1,7 @@
 ﻿using MeroHisab.Core.Dto;
 using MeroHisab.Core.Entities;
 
-namespace LE.Account.Service.Services.Interface
+namespace MeroHisab.Core.Repository.Interface
 {
     public interface ITransactionDetailService
     {

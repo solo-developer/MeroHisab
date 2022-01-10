@@ -1,12 +1,11 @@
-﻿using LE.Account.Service.Services.Interface;
-using MeroHisab.Core.Dto;
+﻿using MeroHisab.Core.Dto;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Exceptions;
 using MeroHisab.Core.Makers.Interface;
 using MeroHisab.Core.Repository.Interface;
 using System.Transactions;
 
-namespace LE.Account.Service.Services.Implementations
+namespace MeroHisab.Core.Services.Implementations
 {
     public class TransactionDetailService : ITransactionDetailService
     {
