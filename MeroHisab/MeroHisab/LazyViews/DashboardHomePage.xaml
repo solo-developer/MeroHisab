@@ -1,9 +1,44 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MeroHisab.LazyViews.DashboardHomePage">
+             x:Class="MeroHisab.LazyViews.DashboardHomePage"
+               xmlns:fontAwesome="clr-namespace:FontAwesome">
     <ContentView.Content>
-        <Label Text="Home Page!!"  HorizontalOptions="Center" VerticalOptions="Center"/>
+        <Grid RowDefinitions="*,3*" Margin="10,0">
+            <Frame BackgroundColor="{StaticResource CardColor}" Grid.Row="0" CornerRadius="10">
+                <StackLayout VerticalOptions="Start">
+                    <Label Text="Accounts Balance" HorizontalOptions="Center" FontSize="Small"/>
+                    <Label Text="NRs. 5000.00" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    <StackLayout Orientation="Horizontal" Margin="0,20,0,0">
+                        <Grid RowDefinitions="*,*" ColumnDefinitions="Auto,*" HorizontalOptions="StartAndExpand">
+                            <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+                                <Image.Source>
+                                    <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="Green"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowUp}"/>
+                                </Image.Source>
+                            </Image>
+                            <Label Text="Incomes" Grid.Row="0" Grid.Column="1"/>
+                            <Label Text="Nrs. 10000.00" Grid.Row="1" Grid.Column="1"/>
+                        </Grid>
+                        <Grid RowDefinitions="*,*" ColumnDefinitions="Auto,*" HorizontalOptions="StartAndExpand">
+                            <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+                                <Image.Source>
+                                    <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="Red"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowDown}"/>
+                                </Image.Source>
+                            </Image>
+                            <Label Text="Expenses" Grid.Row="0" Grid.Column="1"/>
+                            <Label Text="Nrs. 5000.00" Grid.Row="1" Grid.Column="1"/>
+                        </Grid>
+                    </StackLayout>
+
+                </StackLayout>
+
+            </Frame>
+        </Grid>
+
     </ContentView.Content>
 
 </ContentView>

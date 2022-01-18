@@ -19,6 +19,7 @@ namespace MeroHisab
     {
         protected static IServiceProvider ServiceProvider { get; set; }
         private static readonly string _servicesFolderName = "MeroHisab.Core.Services";
+        private static readonly string _makersFolderName = "MeroHisab.Core.Makers";
         private static readonly string _helperServicesFolderName = "MeroHisab.Services";
         private static readonly string _mockRepoFolderName = "MeroHisab.Core.Repository.MockRepos";
         private static readonly string _actualRepoFolderName = "MeroHisab.Core.Repository.Implementations";
@@ -56,6 +57,7 @@ namespace MeroHisab
             var assembly = typeof(ViewModelBase).Assembly;
 
             RegisterInterfacesAndImplementations(_servicesFolderName, services, typeof(IAccountHeadService).Assembly);
+            RegisterInterfacesAndImplementations(_makersFolderName, services, typeof(IAccountHeadService).Assembly);
             RegisterInterfacesAndImplementations(_helperServicesFolderName, services, assembly);
 
             #region helpers
