@@ -3,8 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MeroHisab.LazyViews.DashboardHomePage"
                xmlns:fontAwesome="clr-namespace:FontAwesome"
-              xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
-             xmlns:viewmodel="clr-namespace:MeroHisab.ViewModels;assembly=MeroHisab"
              xmlns:models="clr-namespace:MeroHisab.Models;assembly=MeroHisab">
     <ContentView.Content  x:DataType="viewmodel:DashboardHomePageModel">
         <Grid RowDefinitions="3*,30,7*" Margin="10,0">

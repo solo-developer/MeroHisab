@@ -2,16 +2,41 @@
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MeroHisab.LazyViews.DashboardProfilePage"
-              xmlns:lazyViews="clr-namespace:MeroHisab.LazyViews" 
-              xmlns:local="clr-namespace:MeroHisab.CustomControls" xmlns:tabs="http://sharpnado.com">
+             xmlns:tabs="http://sharpnado.com">
     <ContentView.Resources>
         <Style x:Key="SegmentedTabStyle" TargetType="tabs:SegmentedTabItem">
             <Setter Property="SelectedTabColor" Value="{StaticResource Accent}" />
-            <!--<Setter Property="FontFamily" Value="{StaticResource FontSemiBold}" />-->
             <Setter Property="LabelSize" Value="14" />
             <Setter Property="SelectedLabelColor" Value="#F0F0F3" />
             <Setter Property="UnselectedLabelColor" Value="Gray" />
         </Style>
+
+        <DataTemplate x:Key="CollectionViewRowTemplate">
+            <StackLayout Spacing="20">
+                <StackLayout Orientation="Horizontal" Spacing="30">
+                    <Image HeightRequest="20" WidthRequest="20" VerticalOptions="Center" HorizontalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="{StaticResource BackgroundColor}"
+                     Glyph="{Binding IconName}"/>
+                        </Image.Source>
+                    </Image>
+                    <Label Text="{Binding DisplayName}" TextColor="Black" FontSize="Small" />
+                </StackLayout>
+
+                <BoxView HeightRequest="1" BackgroundColor="Black"/>
+            </StackLayout>
+        </DataTemplate>
+
+        <Style TargetType="CollectionView">
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="Margin" Value="0,10"/>
+            <Setter Property="BackgroundColor" Value="White"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="ItemTemplate" Value="{StaticResource CollectionViewRowTemplate}"/>
+            <Setter Property="SelectedItem" Value="{Binding SelectedItem}"/>           
+        </Style>
+        
     </ContentView.Resources>
     <ContentView.Content>
         <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Margin="10,0">
@@ -42,17 +67,47 @@
                        Animate="False"
                        SelectedIndex="{Binding SelectedViewModelIndex, Mode=TwoWay}">
                 <ContentView>
-                    <StackLayout>
-                        <Label Text="I am on Page 1"></Label>
-                    </StackLayout>
-                </ContentView><ContentView>
-                    <StackLayout>
-                        <Label Text="I am on Page 2"></Label>
-                    </StackLayout>
-                </ContentView><ContentView>
-                    <StackLayout>
-                        <Label Text="I am on Page 3"></Label>
-                    </StackLayout>
+                    <Frame BackgroundColor="{StaticResource CardColor}" CornerRadius="10">
+                        <StackLayout>
+                            <ScrollView VerticalScrollBarVisibility="Never">
+                                <CollectionView ItemsSource="{Binding GeneralOptions}">
+                                    <CollectionView.ItemsLayout>
+                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="20" />
+                                    </CollectionView.ItemsLayout>
+                                </CollectionView>
+                            </ScrollView>
+                        </StackLayout>
+
+                    </Frame>
+                </ContentView>
+                <ContentView>
+                    <Frame BackgroundColor="{StaticResource CardColor}" CornerRadius="10">
+                        <StackLayout>
+                            <ScrollView VerticalScrollBarVisibility="Never">
+                                <CollectionView ItemsSource="{Binding AccountOptions}">
+                                    <CollectionView.ItemsLayout>
+                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="30" />
+                                    </CollectionView.ItemsLayout>
+                                </CollectionView>
+                            </ScrollView>
+                        </StackLayout>
+
+                    </Frame>
+                </ContentView>
+                <ContentView>
+                    <Frame BackgroundColor="{StaticResource CardColor}" CornerRadius="10">
+                        <StackLayout>
+                            <ScrollView VerticalScrollBarVisibility="Never">
+                                <CollectionView ItemsSource="{Binding AboutOptions}">
+                                    <CollectionView.ItemsLayout>
+                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="20" />
+                                    </CollectionView.ItemsLayout>
+
+                                </CollectionView>
+                            </ScrollView>
+                        </StackLayout>
+
+                    </Frame>
                 </ContentView>
             </tabs:ViewSwitcher>
         </StackLayout>
