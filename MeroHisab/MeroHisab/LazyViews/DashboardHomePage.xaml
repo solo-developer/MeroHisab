@@ -7,7 +7,7 @@
              xmlns:viewmodel="clr-namespace:MeroHisab.ViewModels;assembly=MeroHisab"
              xmlns:models="clr-namespace:MeroHisab.Models;assembly=MeroHisab">
     <ContentView.Content  x:DataType="viewmodel:DashboardHomePageModel">
-        <Grid RowDefinitions="*,3*" Margin="10,0">
+        <Grid RowDefinitions="3*,30,7*" Margin="10,0">
             <Frame BackgroundColor="{StaticResource CardColor}" Grid.Row="0" CornerRadius="10">
                 <StackLayout VerticalOptions="Start">
                     <Label Text="Accounts Balance" HorizontalOptions="Center" FontSize="Small"/>
@@ -40,8 +40,18 @@
                 </StackLayout>
 
             </Frame>
-
-            <Frame BackgroundColor="{StaticResource CardColor}" Grid.Row="1" CornerRadius="10">
+            <StackLayout  Grid.Row="1" VerticalOptions="Center" Orientation="Horizontal">
+                <Label Text="My Transaction Graph" FontSize="Subtitle" TextColor="White"/>
+                <Image HeightRequest="25" WidthRequest="30" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image.Source>
+                        <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="White"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowRight}"/>
+                    </Image.Source>
+                </Image>
+            </StackLayout>
+            
+            <Frame BackgroundColor="{StaticResource CardColor}" Grid.Row="2" CornerRadius="10">
                 <StackLayout>
                     <ScrollView VerticalScrollBarVisibility="Never">
                         <CollectionView ItemsSource="{Binding Operations}" Margin="0,10" Grid.Row="1" SelectionMode="Single" BackgroundColor="White" Opacity="0.7" SelectedItem="{Binding SelectedItem}">
@@ -56,7 +66,7 @@
                                         <Image HeightRequest="40" WidthRequest="40" VerticalOptions="Center" HorizontalOptions="Center">
                                             <Image.Source>
                                                 <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="Black"
+                     Color="{StaticResource BackgroundColor}"
                      Glyph="{Binding IconName}"/>
                                             </Image.Source>
                                         </Image>
