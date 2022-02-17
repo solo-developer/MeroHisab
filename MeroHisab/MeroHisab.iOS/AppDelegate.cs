@@ -26,6 +26,7 @@ namespace MeroHisab.iOS
         {
             Rg.Plugins.Popup.Popup.Init();
             global::Xamarin.Forms.Forms.Init();
+            Sharpnado.Tabs.iOS.Preserver.Preserve();
             ImageCircleRenderer.Init();
             PinItemViewRenderer.Init();
             FFImageLoading.Forms.Platform.CachedImageRenderer.Init();

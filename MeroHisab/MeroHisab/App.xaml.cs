@@ -27,6 +27,8 @@ namespace MeroHisab
         public App(Action<IServiceCollection> addPlatformServices = null)
         {
             InitializeComponent();
+            Sharpnado.Tabs.Initializer.Initialize(false, false);
+            Sharpnado.Shades.Initializer.Initialize(loggerEnable: false);
             SetupServices(addPlatformServices);
             SetStatusBarColor();
             InitNavigation();

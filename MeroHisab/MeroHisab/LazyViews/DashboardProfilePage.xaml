@@ -1,10 +1,60 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MeroHisab.LazyViews.DashboardProfilePage">
-  <ContentView.Content>
-        <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-          <Label Text="Profile Page !!"/>
-      </StackLayout>
-  </ContentView.Content>
+             x:Class="MeroHisab.LazyViews.DashboardProfilePage"
+              xmlns:lazyViews="clr-namespace:MeroHisab.LazyViews" 
+              xmlns:local="clr-namespace:MeroHisab.CustomControls" xmlns:tabs="http://sharpnado.com">
+    <ContentView.Resources>
+        <Style x:Key="SegmentedTabStyle" TargetType="tabs:SegmentedTabItem">
+            <Setter Property="SelectedTabColor" Value="{StaticResource Accent}" />
+            <!--<Setter Property="FontFamily" Value="{StaticResource FontSemiBold}" />-->
+            <Setter Property="LabelSize" Value="14" />
+            <Setter Property="SelectedLabelColor" Value="#F0F0F3" />
+            <Setter Property="UnselectedLabelColor" Value="Gray" />
+        </Style>
+    </ContentView.Resources>
+    <ContentView.Content>
+        <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Margin="10,0">
+            <tabs:TabHostView x:Name="TabHost"
+                    Grid.Row="4"
+                    HeightRequest="40"
+                    VerticalOptions="Center"
+                    BackgroundColor="#F0F0F3"
+                    Shades="{tabs:SingleShade Offset='0,8',
+                                            BlurRadius=10,
+                                            Color={StaticResource Accent}}"
+                    CornerRadius="20"
+                    IsSegmented="True"
+                    SegmentedHasSeparator="True"
+                    SegmentedOutlineColor="{StaticResource Accent}"
+                    TabType="Fixed"
+                     SelectedIndex="{Binding Source={x:Reference Switcher}, Path=SelectedIndex, Mode=TwoWay}">
+                <tabs:TabHostView.Tabs>
+                    <tabs:SegmentedTabItem Style="{StaticResource SegmentedTabStyle}" Label="GENERAL"/>
+                    <tabs:SegmentedTabItem Style="{StaticResource SegmentedTabStyle}" Label="ACCOUNT"/>
+                    <tabs:SegmentedTabItem Style="{StaticResource SegmentedTabStyle}" Label="ABOUT"/>
+                </tabs:TabHostView.Tabs>
+                
+            </tabs:TabHostView>
+
+            <tabs:ViewSwitcher x:Name="Switcher"
+                       Grid.Row="1"
+                       Animate="False"
+                       SelectedIndex="{Binding SelectedViewModelIndex, Mode=TwoWay}">
+                <ContentView>
+                    <StackLayout>
+                        <Label Text="I am on Page 1"></Label>
+                    </StackLayout>
+                </ContentView><ContentView>
+                    <StackLayout>
+                        <Label Text="I am on Page 2"></Label>
+                    </StackLayout>
+                </ContentView><ContentView>
+                    <StackLayout>
+                        <Label Text="I am on Page 3"></Label>
+                    </StackLayout>
+                </ContentView>
+            </tabs:ViewSwitcher>
+        </StackLayout>
+    </ContentView.Content>
 </ContentView>
