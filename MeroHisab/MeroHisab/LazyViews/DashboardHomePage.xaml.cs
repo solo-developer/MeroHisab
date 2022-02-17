@@ -11,7 +11,7 @@ namespace MeroHisab.LazyViews
         {
             InitializeComponent();
             var vm = App.GetViewModel<DashboardHomePageModel>();
-            BindingContext = vm;
+            Content.BindingContext = vm;
         }
     }
 }

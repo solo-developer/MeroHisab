@@ -2,8 +2,11 @@
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MeroHisab.LazyViews.DashboardHomePage"
-               xmlns:fontAwesome="clr-namespace:FontAwesome">
-    <ContentView.Content>
+               xmlns:fontAwesome="clr-namespace:FontAwesome"
+              xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
+             xmlns:viewmodel="clr-namespace:MeroHisab.ViewModels;assembly=MeroHisab"
+             xmlns:models="clr-namespace:MeroHisab.Models;assembly=MeroHisab">
+    <ContentView.Content  x:DataType="viewmodel:DashboardHomePageModel">
         <Grid RowDefinitions="*,3*" Margin="10,0">
             <Frame BackgroundColor="{StaticResource CardColor}" Grid.Row="0" CornerRadius="10">
                 <StackLayout VerticalOptions="Start">
@@ -34,6 +37,38 @@
                         </Grid>
                     </StackLayout>
 
+                </StackLayout>
+
+            </Frame>
+
+            <Frame BackgroundColor="{StaticResource CardColor}" Grid.Row="1" CornerRadius="10">
+                <StackLayout>
+                    <ScrollView VerticalScrollBarVisibility="Never">
+                        <CollectionView ItemsSource="{Binding Operations}" Margin="0,10" Grid.Row="1" SelectionMode="Single" BackgroundColor="White" Opacity="0.7" SelectedItem="{Binding SelectedItem}">
+
+                            <CollectionView.ItemsLayout>
+                                <GridItemsLayout Orientation="Vertical" Span="4" HorizontalItemSpacing="10" VerticalItemSpacing="35" />
+                            </CollectionView.ItemsLayout>
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:GridItem">
+                                    <StackLayout Orientation="Vertical">
+                                        <Image HeightRequest="40" WidthRequest="40" VerticalOptions="Center" HorizontalOptions="Center">
+                                            <Image.Source>
+                                                <FontImageSource FontFamily="FontAwesomeSolid"
+                     Color="Black"
+                     Glyph="{Binding IconName}"/>
+                                            </Image.Source>
+                                        </Image>
+                                        <Label Text="{Binding DisplayName}" VerticalOptions="Center" HorizontalOptions="FillAndExpand" TextColor="Black" FontSize="Small" HorizontalTextAlignment="Center"></Label>
+                                    </StackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <!--<CollectionView.Behaviors>
+                                <xct:EventToCommandBehavior Command="{Binding SettingSelectedCommand}" EventName="SelectionChanged"></xct:EventToCommandBehavior>
+                            </CollectionView.Behaviors>-->
+                        </CollectionView>
+                    </ScrollView>
                 </StackLayout>
 
             </Frame>
