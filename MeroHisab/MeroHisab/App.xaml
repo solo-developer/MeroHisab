@@ -9,6 +9,7 @@
         <Color x:Key="PrimaryColor">#2EcC71</Color>
         <Color x:Key="NavigationTextColor">White</Color>
         <Color x:Key="CardColor">White</Color>
+        <Color x:Key="HeadingColor">White</Color>
         <Color x:Key="BackgroundColor">#009933</Color>
 
         <Color x:Key="PrimaryBlack">Black</Color>

@@ -41,11 +41,11 @@
 
             </Frame>
             <StackLayout  Grid.Row="1" VerticalOptions="Center" Orientation="Horizontal">
-                <Label Text="My Transaction Graph" FontSize="Subtitle" TextColor="White"/>
+                <Label Text="My Transaction Graph" FontSize="Subtitle" TextColor="{StaticResource HeadingColor}"/>
                 <Image HeightRequest="25" WidthRequest="30" VerticalOptions="Center" HorizontalOptions="Center">
                     <Image.Source>
                         <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="White"
+                     Color="{StaticResource HeadingColor}"
                      Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowRight}"/>
                     </Image.Source>
                 </Image>

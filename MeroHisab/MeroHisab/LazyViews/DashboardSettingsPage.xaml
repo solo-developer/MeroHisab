@@ -11,13 +11,13 @@
             <StackLayout Orientation="Vertical" Margin="10,5">
                 <!--Account Heads -->
                 <StackLayout Orientation="Horizontal">
-                    <Label HorizontalOptions="StartAndExpand" Text="Account Heads" TextColor="{StaticResource PrimaryBlack}" FontSize="Medium" Grid.Column="0"/>
+                    <Label HorizontalOptions="StartAndExpand" Text="Account Heads" TextColor="{StaticResource HeadingColor}" FontSize="Medium" Grid.Column="0"/>
                     <StackLayout HorizontalOptions="End" Orientation="Horizontal">
-                        <Label Text="View All" FontSize="Medium" Grid.Column="0" />
+                        <Label Text="View All" FontSize="Medium" Grid.Column="0"  TextColor="{StaticResource HeadingColor}"/>
                         <ImageButton HeightRequest="15" WidthRequest="15" Grid.Column="1" BackgroundColor="Transparent">
                             <ImageButton.Source>
                                 <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="Black"
+                     Color="{StaticResource HeadingColor}"
                      Glyph="{x:Static fontAwesome:FontAwesomeIcons.FastForward}"/>
                             </ImageButton.Source>
                         </ImageButton>
@@ -71,13 +71,13 @@
 
                 <!--Payment Mediums -->
                 <StackLayout Orientation="Horizontal">
-                    <Label Text="Payment Mediums" TextColor="{StaticResource PrimaryBlack}" FontSize="Medium" Grid.Column="0" HorizontalOptions="StartAndExpand"/>
+                    <Label Text="Payment Mediums" TextColor="{StaticResource HeadingColor}" FontSize="Medium" Grid.Column="0" HorizontalOptions="StartAndExpand"/>
                     <StackLayout Grid.Column="1" HorizontalOptions="End" Orientation="Horizontal">
-                        <Label Text="View All" FontSize="Medium" Grid.Column="0" />
+                        <Label Text="View All" FontSize="Medium" Grid.Column="0" TextColor="{StaticResource HeadingColor}"/>
                         <ImageButton HeightRequest="15" WidthRequest="15" Grid.Column="1" BackgroundColor="Transparent">
                             <ImageButton.Source>
                                 <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="Black"
+                     Color="{StaticResource HeadingColor}"
                      Glyph="{x:Static fontAwesome:FontAwesomeIcons.FastForward}"/>
                             </ImageButton.Source>
                         </ImageButton>
