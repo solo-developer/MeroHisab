@@ -12,20 +12,23 @@
         </Style>
 
         <DataTemplate x:Key="CollectionViewRowTemplate">
-            <StackLayout Spacing="20">
-                <StackLayout Orientation="Horizontal" Spacing="30">
-                    <Image HeightRequest="20" WidthRequest="20" VerticalOptions="Center" HorizontalOptions="Center">
-                        <Image.Source>
-                            <FontImageSource FontFamily="FontAwesomeSolid"
+            <Frame Padding="10,0" HeightRequest="50">
+                <Grid RowDefinitions="*,Auto">
+                    <StackLayout Orientation="Horizontal" Spacing="30" VerticalOptions="Center">
+                        <Image HeightRequest="20" WidthRequest="20" VerticalOptions="Center" HorizontalOptions="Center">
+                            <Image.Source>
+                                <FontImageSource FontFamily="FontAwesomeSolid"
                      Color="{StaticResource BackgroundColor}"
                      Glyph="{Binding IconName}"/>
-                        </Image.Source>
-                    </Image>
-                    <Label Text="{Binding DisplayName}" TextColor="Black" FontSize="Small" />
-                </StackLayout>
+                            </Image.Source>
+                        </Image>
+                        <Label Text="{Binding DisplayName}" TextColor="Black" FontSize="Small" />
+                    </StackLayout>
 
-                <BoxView HeightRequest="1" BackgroundColor="Black"/>
-            </StackLayout>
+                    <BoxView HeightRequest="1" BackgroundColor="Black" Grid.Row="1"/>
+                </Grid>
+            </Frame>
+           
         </DataTemplate>
 
         <Style TargetType="CollectionView">
@@ -35,6 +38,22 @@
             <Setter Property="Opacity" Value="0.7"/>
             <Setter Property="ItemTemplate" Value="{StaticResource CollectionViewRowTemplate}"/>
             <Setter Property="SelectedItem" Value="{Binding SelectedItem}"/>
+        </Style>
+
+        <Style TargetType="Frame">
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="Selected">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                        Value="FloralWhite" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
         </Style>
 
     </ContentView.Resources>
@@ -72,7 +91,7 @@
                             <ScrollView VerticalScrollBarVisibility="Never">
                                 <CollectionView ItemsSource="{Binding GeneralOptions}">
                                     <CollectionView.ItemsLayout>
-                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="20" />
+                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="0" />
                                     </CollectionView.ItemsLayout>
                                 </CollectionView>
                             </ScrollView>
@@ -86,7 +105,7 @@
                             <ScrollView VerticalScrollBarVisibility="Never">
                                 <CollectionView ItemsSource="{Binding AccountOptions}">
                                     <CollectionView.ItemsLayout>
-                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="20" />
+                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="0" />
                                     </CollectionView.ItemsLayout>
                                 </CollectionView>
                             </ScrollView>
@@ -100,7 +119,7 @@
                             <ScrollView VerticalScrollBarVisibility="Never">
                                 <CollectionView ItemsSource="{Binding AboutOptions}">
                                     <CollectionView.ItemsLayout>
-                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="20" />
+                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="0" />
                                     </CollectionView.ItemsLayout>
 
                                 </CollectionView>
