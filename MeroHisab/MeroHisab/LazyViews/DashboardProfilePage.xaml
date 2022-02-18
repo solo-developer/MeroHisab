@@ -34,9 +34,9 @@
             <Setter Property="BackgroundColor" Value="White"/>
             <Setter Property="Opacity" Value="0.7"/>
             <Setter Property="ItemTemplate" Value="{StaticResource CollectionViewRowTemplate}"/>
-            <Setter Property="SelectedItem" Value="{Binding SelectedItem}"/>           
+            <Setter Property="SelectedItem" Value="{Binding SelectedItem}"/>
         </Style>
-        
+
     </ContentView.Resources>
     <ContentView.Content>
         <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Margin="10,0">
@@ -86,7 +86,7 @@
                             <ScrollView VerticalScrollBarVisibility="Never">
                                 <CollectionView ItemsSource="{Binding AccountOptions}">
                                     <CollectionView.ItemsLayout>
-                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="30" />
+                                        <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="20" />
                                     </CollectionView.ItemsLayout>
                                 </CollectionView>
                             </ScrollView>
