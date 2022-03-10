@@ -24,9 +24,11 @@
                     <StackLayout BindingContext="{Binding Model}">
                         <Label VerticalOptions="Center" Text="Code"/>
                         <Entry VerticalOptions="Center" Text="{Binding Code}" FontSize="Small"/>
+                        <Label x:Name="AccountHeadDto_CodeError" IsVisible="False" TextColor="Red" />
 
                         <Label VerticalOptions="Center" Text="Name"/>
                         <Entry VerticalOptions="Center" Text="{Binding Name}" FontSize="Small"/>
+                        <Label x:Name="AccountHeadDto_NameError" IsVisible="False" TextColor="Red" />
 
                     </StackLayout>
 

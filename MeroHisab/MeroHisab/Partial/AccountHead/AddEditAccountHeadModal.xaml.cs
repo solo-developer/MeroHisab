@@ -1,4 +1,5 @@
 ﻿using MeroHisab.Core.Dto;
+using MeroHisab.Helpers.Implementations;
 using MeroHisab.ViewModels;
 using Rg.Plugins.Popup.Pages;
 using Xamarin.Forms.Xaml;
@@ -12,6 +13,7 @@ namespace MeroHisab.Partial.AccountHead
         {
             InitializeComponent();
             var vm= App.GetViewModel<AccountHeadViewModel>();
+            vm.page = this;
             BindingContext = vm;
             vm.SetValues(dto);
         }

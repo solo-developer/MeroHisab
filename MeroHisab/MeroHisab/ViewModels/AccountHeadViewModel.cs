@@ -1,6 +1,7 @@
 ﻿using MeroHisab.Core.Dto;
 using MeroHisab.Core.Enums;
 using MeroHisab.Core.Services.Interface;
+using MeroHisab.Helpers.Implementations;
 using MeroHisab.Helpers.Interface;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace MeroHisab.ViewModels
 
         private readonly IAccountHeadService _accountHeadService;
         private readonly INotificationService _notificationService;
-
+        public Page page;
         public AccountHeadViewModel(IAccountHeadService accountHeadService, INotificationService notificationService)
         {
             SaveButtonClickedCommand = new AsyncCommand(Proceed);
@@ -62,6 +63,8 @@ namespace MeroHisab.ViewModels
         {
             try
             {
+                if (!ValidationHelper.IsFormValid(Model, page))
+                    return;
                 Model.HeadType = (LedgerGroupType)SelectedPayHead.Value;
 
                 await _accountHeadService.SaveOrUpdate(Model);
