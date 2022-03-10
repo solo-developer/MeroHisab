@@ -44,9 +44,9 @@
                         <xct:StateView StateKey="Success">
                             <StackLayout BindableLayout.ItemsSource="{Binding AccountHeads}"    Margin="0,10,0,0" Spacing="10">
                                 <BindableLayout.EmptyView>
-                                    <StackLayout BackgroundColor="White" HeightRequest="50">
+                                    <Frame BackgroundColor="White" CornerRadius="5" HeightRequest="50">
                                         <Label Text="There are no account heads." FontSize="Small" TextColor="{StaticResource DarkColor}" HorizontalOptions="Center"/>
-                                    </StackLayout>
+                                    </Frame>
                                 </BindableLayout.EmptyView>
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="dto:AccountHeadDto">
