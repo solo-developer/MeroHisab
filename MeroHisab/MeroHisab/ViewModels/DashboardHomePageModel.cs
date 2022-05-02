@@ -1,17 +1,34 @@
 ﻿using MeroHisab.Models;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xamarin.CommunityToolkit.ObjectModel;
+using Xamarin.Forms;
 
 namespace MeroHisab.ViewModels
 {
     public class DashboardHomePageModel : ViewModelBase
     {
+        public IAsyncCommand SettingSelectedCommand { get; set; }
+        public IAsyncCommand SettingTabbedCommand { get;set ; }
         public DashboardHomePageModel()
         {
+            SettingTabbedCommand = new AsyncCommand(GetTabValue);
+            SettingSelectedCommand = new AsyncCommand(GetTabValue);
             Operations = new ObservableRangeCollection<GridItem>();
             this.SetAvailableOperations();
         }
-        public GridItem SelectedItem
+
+		private async Task GetTabValue()
+		{
+            var s=SelectedItem;
+            SelectedItem = null;
+            string key = "ReceiptSave";
+            MessagingCenter.Send(this, key);
+            return;
+        }
+
+		public GridItem SelectedItem
         {
             get => GetValue<GridItem>();
             set

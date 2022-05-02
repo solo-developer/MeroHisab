@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MeroHisab.LazyViews.DashboardHomePage"
                xmlns:fontAwesome="clr-namespace:FontAwesome"
-             xmlns:models="clr-namespace:MeroHisab.Models;assembly=MeroHisab">
+             xmlns:models="clr-namespace:MeroHisab.Models;assembly=MeroHisab" xmlns:xct="clr-namespace:MeroHisab.Behaviors">
     <ContentView.Content  x:DataType="viewmodel:DashboardHomePageModel">
         <Grid RowDefinitions="3*,30,7*" Margin="10,0">
             <Frame BackgroundColor="{StaticResource CardColor}" Grid.Row="0" CornerRadius="10">
@@ -48,12 +48,11 @@
                     </Image.Source>
                 </Image>
             </StackLayout>
-            
+
             <Frame BackgroundColor="{StaticResource CardColor}" Grid.Row="2" CornerRadius="10">
                 <StackLayout>
                     <ScrollView VerticalScrollBarVisibility="Never">
-                        <CollectionView ItemsSource="{Binding Operations}" Margin="0,10" Grid.Row="1" SelectionMode="Single" BackgroundColor="White" Opacity="0.7" SelectedItem="{Binding SelectedItem}">
-
+                        <CollectionView  ItemsSource="{Binding Operations}" Margin="0,10" Grid.Row="1" SelectionMode="Single" BackgroundColor="White" Opacity="0.7" SelectedItem="{Binding SelectedItem}">
                             <CollectionView.ItemsLayout>
                                 <GridItemsLayout Orientation="Vertical" Span="4" HorizontalItemSpacing="10" VerticalItemSpacing="35" />
                             </CollectionView.ItemsLayout>
@@ -72,10 +71,11 @@
                                     </StackLayout>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
-                            <!--<CollectionView.Behaviors>
-                                <xct:EventToCommandBehavior Command="{Binding SettingSelectedCommand}" EventName="SelectionChanged"></xct:EventToCommandBehavior>
-                            </CollectionView.Behaviors>-->
+                            <CollectionView.Behaviors>
+                                <xct:EventToCommandBehavior Command="{Binding SettingTabbedCommand}" EventName="SelectionChanged"></xct:EventToCommandBehavior>
+                            </CollectionView.Behaviors>
                         </CollectionView>
+
                     </ScrollView>
                 </StackLayout>
 
