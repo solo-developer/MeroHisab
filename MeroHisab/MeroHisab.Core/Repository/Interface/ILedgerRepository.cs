@@ -1,4 +1,5 @@
-﻿using MeroHisab.Core.Entities;
+﻿using MeroHisab.Core.BaseRepository.Interface;
+using MeroHisab.Core.Entities;
 using SQLite;
 
 namespace MeroHisab.Core.Repository.Interface

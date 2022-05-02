@@ -1,4 +1,5 @@
-﻿using MeroHisab.Core.Dto;
+﻿using MeroHisab.Core.BaseRepository.Interface;
+using MeroHisab.Core.Dto;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Enums;
 using MeroHisab.Core.Exceptions;

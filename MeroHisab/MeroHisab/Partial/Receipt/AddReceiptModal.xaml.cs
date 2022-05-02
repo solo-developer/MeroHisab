@@ -12,7 +12,7 @@ using Xamarin.Forms.Xaml;
 namespace MeroHisab.Partial.Receipt
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class AddReceiptModal
+	public partial class AddReceiptModal : PopupPage
 	{
 		public AddReceiptModal(ReceiptDto dto)
 		{

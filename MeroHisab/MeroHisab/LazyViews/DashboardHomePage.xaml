@@ -72,7 +72,7 @@
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                             <CollectionView.Behaviors>
-                                <xct:EventToCommandBehavior Command="{Binding SettingTabbedCommand}" EventName="SelectionChanged"></xct:EventToCommandBehavior>
+                                <xct:EventToCommandBehavior Command="{Binding SettingSelectedCommand}" EventName="SelectionChanged"></xct:EventToCommandBehavior>
                             </CollectionView.Behaviors>
                         </CollectionView>
 

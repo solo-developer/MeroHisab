@@ -1,4 +1,7 @@
-﻿using MeroHisab.Core.Repository.Implementations;
+﻿using MeroHisab.Core.BaseRepository.Implementations;
+using MeroHisab.Core.BaseRepository.Interface;
+using MeroHisab.Core.Makers.Interface;
+using MeroHisab.Core.Repository.Implementations;
 using MeroHisab.Core.Repository.Interface;
 using MeroHisab.Core.Services.Interface;
 using MeroHisab.Helpers.Implementations;
@@ -22,7 +25,7 @@ namespace MeroHisab
         private static readonly string _makersFolderName = "MeroHisab.Core.Makers";
         private static readonly string _helperServicesFolderName = "MeroHisab.Services";
         private static readonly string _mockRepoFolderName = "MeroHisab.Core.Repository.MockRepos";
-        private static readonly string _actualRepoFolderName = "MeroHisab.Core.Repository.Implementations";
+        private static readonly string _actualRepoFolderName = "MeroHisab.Core.Repository";
 
         public App(Action<IServiceCollection> addPlatformServices = null)
         {
@@ -60,13 +63,13 @@ namespace MeroHisab
 
             RegisterInterfacesAndImplementations(_servicesFolderName, services, typeof(IAccountHeadService).Assembly);
             RegisterInterfacesAndImplementations(_makersFolderName, services, typeof(IAccountHeadService).Assembly);
+            //RegisterInterfacesAndImplementations(_actualRepoFolderName, services, typeof(IReceiptRepository).Assembly);
             RegisterInterfacesAndImplementations(_helperServicesFolderName, services, assembly);
 
             #region helpers
             services.AddTransient<INotificationService, NotificationService>();
             #endregion
-
-            RegisterRepos(services, assembly);
+            RegisterRepos(services, typeof(IReceiptRepository).Assembly);
 
             RegisterViewModels(services, assembly);
 
@@ -83,6 +86,7 @@ namespace MeroHisab
 
         private void RegisterRepos(ServiceCollection services, Assembly assembly)
         {
+            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             RegisterActualRepos(services, assembly);
             // RegisterMockRepos(services, assembly);
         }
@@ -97,8 +101,7 @@ namespace MeroHisab
         }
 
         private static void RegisterInterfacesAndImplementations(string nameSpacePart, ServiceCollection services, Assembly assembly)
-        {
-            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+        {          
 
             var serviceTypes = assembly.GetTypes().Where(a => a.IsClass && a.FullName.Contains(nameSpacePart) && !a.IsAbstract).Select(a => new
             {

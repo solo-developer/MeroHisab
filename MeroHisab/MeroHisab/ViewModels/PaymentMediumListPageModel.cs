@@ -1,4 +1,5 @@
-﻿using MeroHisab.Core.Dto;
+﻿using MeroHisab.Core.BaseRepository.Interface;
+using MeroHisab.Core.Dto;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Repository.Interface;
 using MeroHisab.Core.Services.Interface;

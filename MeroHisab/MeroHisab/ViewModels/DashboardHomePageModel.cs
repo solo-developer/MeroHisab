@@ -1,4 +1,6 @@
-﻿using MeroHisab.Models;
+﻿using MeroHisab.Core.Dto;
+using MeroHisab.Models;
+using MeroHisab.Partial.Receipt;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,10 +12,11 @@ namespace MeroHisab.ViewModels
     public class DashboardHomePageModel : ViewModelBase
     {
         public IAsyncCommand SettingSelectedCommand { get; set; }
-        public IAsyncCommand SettingTabbedCommand { get;set ; }
+
+        public IAsyncCommand ReceiptSave { get; set; }
         public DashboardHomePageModel()
         {
-            SettingTabbedCommand = new AsyncCommand(GetTabValue);
+            
             SettingSelectedCommand = new AsyncCommand(GetTabValue);
             Operations = new ObservableRangeCollection<GridItem>();
             this.SetAvailableOperations();
@@ -24,11 +27,22 @@ namespace MeroHisab.ViewModels
             var s=SelectedItem;
             SelectedItem = null;
             string key = "ReceiptSave";
+            if(s != null)
+                await AddReceipt(new ReceiptDto());
             MessagingCenter.Send(this, key);
             return;
         }
+        private async Task AddReceipt(ReceiptDto dto)
+        {
+            await _navigationService.ShowModal(new AddReceiptModal(dto));
 
-		public GridItem SelectedItem
+            MessagingCenter.Subscribe<ReceiptDto>(this, "AccountHeadSavedUpdated", AfterManipulatingAccountHeads);
+        }
+        private async void AfterManipulatingAccountHeads(ReceiptDto obj)
+        {
+
+        }
+        public GridItem SelectedItem
         {
             get => GetValue<GridItem>();
             set

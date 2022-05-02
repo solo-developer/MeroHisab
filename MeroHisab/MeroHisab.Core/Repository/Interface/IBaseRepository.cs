@@ -1,7 +1,7 @@
 ﻿using SQLite;
 using System.Linq.Expressions;
 
-namespace MeroHisab.Core.Repository.Interface
+namespace MeroHisab.Core.BaseRepository.Interface
 {
     public interface IBaseRepository<T> where T : class, new()
     {

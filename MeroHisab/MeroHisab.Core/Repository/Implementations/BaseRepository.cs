@@ -1,8 +1,9 @@
-﻿using MeroHisab.Core.Repository.Interface;
+﻿using MeroHisab.Core.BaseRepository.Interface;
+using MeroHisab.Core.Repository.Interface;
 using SQLite;
 using System.Linq.Expressions;
 
-namespace MeroHisab.Core.Repository.Implementations
+namespace MeroHisab.Core.BaseRepository.Implementations
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : class, new()
     {
