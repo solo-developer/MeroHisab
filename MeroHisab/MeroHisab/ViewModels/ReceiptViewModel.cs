@@ -52,6 +52,23 @@ namespace MeroHisab.ViewModels
             }
 
         }
+        public ObservableRangeCollection<GenericDropDownDto<int, string>> LedgerList
+        {
+            get => GetValue<ObservableRangeCollection<GenericDropDownDto<int, string>>>();
+            set
+            {
+                SetValue(value);
+            }
+        }
+
+        public GenericDropDownDto<int, string> PaymentMediumList
+        {
+            get => GetValue<GenericDropDownDto<int, string>>();
+            set
+            {
+                SetValue(value);
+            }
+        }
 
         private async Task Cancel()
         {
@@ -60,6 +77,8 @@ namespace MeroHisab.ViewModels
         public void SetValues(ReceiptDto dto)
         {
             Model = dto;
+            LedgerList = new ObservableRangeCollection<GenericDropDownDto<int, string>>();
+            PaymentMediumList = new GenericDropDownDto<int, string>();
         }
     }
 }

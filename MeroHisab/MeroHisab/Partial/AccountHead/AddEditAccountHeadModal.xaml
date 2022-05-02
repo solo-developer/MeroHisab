@@ -4,8 +4,8 @@
              x:Class="MeroHisab.Partial.AccountHead.AddEditAccountHeadModal"
              xmlns:pages="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"
              xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-                  xmlns:converters="clr-namespace:MeroHisab.Converters"
-                   xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
+             xmlns:converters="clr-namespace:MeroHisab.Converters"
+             xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
              CloseWhenBackgroundIsClicked="True">
     <ContentPage.Resources>
         <ResourceDictionary>

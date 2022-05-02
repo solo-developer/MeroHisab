@@ -36,7 +36,7 @@ namespace MeroHisab.ViewModels
         {
             await _navigationService.ShowModal(new AddReceiptModal(dto));
 
-            MessagingCenter.Subscribe<ReceiptDto>(this, "AccountHeadSavedUpdated", AfterManipulatingAccountHeads);
+            MessagingCenter.Subscribe<ReceiptDto>(this, "AddReceipt", AfterManipulatingAccountHeads);
         }
         private async void AfterManipulatingAccountHeads(ReceiptDto obj)
         {
