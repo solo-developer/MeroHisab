@@ -1,5 +1,6 @@
 ﻿using MeroHisab.Core.Dto;
 using MeroHisab.Models;
+using MeroHisab.Partial.Payment;
 using MeroHisab.Partial.Receipt;
 using System;
 using System.Collections.Generic;
@@ -28,17 +29,46 @@ namespace MeroHisab.ViewModels
             SelectedItem = null;
             string key = "ReceiptSave";
             if(s != null)
-                await AddReceipt(new ReceiptDto());
+                await ModalType(s.DisplayName);
             MessagingCenter.Send(this, key);
             return;
+        }
+        private async Task ModalType(string selectedItem)
+        {
+            switch (selectedItem)
+            {
+                case "Receipt":
+                    await AddReceipt(new ReceiptDto());
+                    break;
+                case "Payment":
+                    await AddPayment(new PaymentDto());
+                    break;
+                case "Journal":
+                    await AddPayment(new PaymentDto());
+                    break;
+                case "Transfer":
+                    await AddPayment(new PaymentDto());
+                    break;
+            }
         }
         private async Task AddReceipt(ReceiptDto dto)
         {
             await _navigationService.ShowModal(new AddReceiptModal(dto));
 
-            MessagingCenter.Subscribe<ReceiptDto>(this, "AddReceipt", AfterManipulatingAccountHeads);
+            MessagingCenter.Subscribe<ReceiptDto>(this, "AddReceipt", AfterManipulatingReceiptModal);
         }
-        private async void AfterManipulatingAccountHeads(ReceiptDto obj)
+
+		private void AfterManipulatingReceiptModal(ReceiptDto obj)
+		{
+		}
+
+		private async Task AddPayment(PaymentDto dto)
+		{
+            await _navigationService.ShowModal(new AddPaymentModal(dto));
+
+            MessagingCenter.Subscribe<PaymentDto>(this, "AddPayment", AfterManipulatingPaymentModal);
+        }
+        private void AfterManipulatingPaymentModal(PaymentDto obj)
         {
 
         }

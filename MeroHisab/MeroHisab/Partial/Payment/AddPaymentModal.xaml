@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<pages:PopupPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:pages="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MeroHisab.Partial.Payment.AddPaymentModal"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             CloseWhenBackgroundIsClicked="True">
+    <ContentPage.Content>
+        <StackLayout  VerticalOptions="FillAndExpand" Margin="20"  BackgroundColor="WhiteSmoke">
+            <ScrollView>
+                <StackLayout Margin="15">
+
+                    <StackLayout>
+                        <Label Text="Payment From" VerticalOptions="Center"/>
+                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding Ledgers}" Title="--select--" SelectedItem="{Binding PaymentFrom}" FontSize="Small"/>
+                    </StackLayout>
+
+                    <StackLayout>
+                        <Label Text="Payment To" VerticalOptions="Center"/>
+                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PaymentMediumList}" Title="--select--" SelectedItem="{Binding PaymentTo}" FontSize="Small"/>
+                    </StackLayout>
+
+                    <StackLayout>
+                        <Label Text="Transaction Date" VerticalOptions="Center"/>
+                        <DatePicker MaximumDate="{Binding MaxDate}" Date="{Binding TransactionDate}" />
+                    </StackLayout>
+
+                    <StackLayout BindingContext="{Binding Model}">
+                        <Label VerticalOptions="Center" Text="Amount"/>
+                        <Entry VerticalOptions="Center" Text="{Binding Amount}" FontSize="Small"/>
+                        <Label x:Name="ReceiptDto_AmountError" IsVisible="False" TextColor="Red" />
+
+                        <Label VerticalOptions="Center" Text="Discount"/>
+                        <Entry VerticalOptions="Center" Text="{Binding Discount}" FontSize="Small"/>
+                        <Label x:Name="ReceiptDto_DiscountError" IsVisible="False" TextColor="Red" />
+
+                        <Label VerticalOptions="Center" Text="Remarks"/>
+                        <Entry VerticalOptions="Center" Text="{Binding Remarks}" FontSize="Small"/>
+                        <Label x:Name="ReceiptDto_RemarksError" IsVisible="False" TextColor="Red" />
+
+                    </StackLayout>
+
+                    <Button VerticalOptions="Center" Text="Save" HorizontalOptions="FillAndExpand" CornerRadius="5" BackgroundColor="{StaticResource PrimaryColor}" TextColor="White">
+                        <Button.Behaviors>
+                            <xct:EventToCommandBehavior Command="{Binding SaveButtonClickedCommand}" EventName="Clicked"/>
+                        </Button.Behaviors>
+                    </Button>
+
+                    <Button BackgroundColor="Transparent" Text="Cancel" TextColor="Black" CornerRadius="5">
+                        <Button.Behaviors>
+                            <xct:EventToCommandBehavior Command="{Binding CancelButtonClickedCommand}" EventName="Clicked"/>
+                        </Button.Behaviors>
+                    </Button>
+
+                </StackLayout>
+            </ScrollView>
+        </StackLayout>
+    </ContentPage.Content>
+</pages:PopupPage>
