@@ -1,5 +1,6 @@
 ﻿using MeroHisab.Core.Dto;
 using MeroHisab.Models;
+using MeroHisab.Partial.Journal;
 using MeroHisab.Partial.Payment;
 using MeroHisab.Partial.Receipt;
 using System;
@@ -44,7 +45,7 @@ namespace MeroHisab.ViewModels
                     await AddPayment(new PaymentDto());
                     break;
                 case "Journal":
-                    await AddPayment(new PaymentDto());
+                    await AddJournal(new JournalDto());
                     break;
                 case "Transfer":
                     await AddPayment(new PaymentDto());
@@ -54,7 +55,6 @@ namespace MeroHisab.ViewModels
         private async Task AddReceipt(ReceiptDto dto)
         {
             await _navigationService.ShowModal(new AddReceiptModal(dto));
-
             MessagingCenter.Subscribe<ReceiptDto>(this, "AddReceipt", AfterManipulatingReceiptModal);
         }
 
@@ -65,10 +65,18 @@ namespace MeroHisab.ViewModels
 		private async Task AddPayment(PaymentDto dto)
 		{
             await _navigationService.ShowModal(new AddPaymentModal(dto));
-
             MessagingCenter.Subscribe<PaymentDto>(this, "AddPayment", AfterManipulatingPaymentModal);
         }
         private void AfterManipulatingPaymentModal(PaymentDto obj)
+        {
+
+        }
+        private async Task AddJournal(JournalDto dto)
+        {
+            await _navigationService.ShowModal(new AddJournalModal(dto));
+            MessagingCenter.Subscribe<JournalDto>(this, "AddJournal", AfterManipulatingJournalModal);
+        }
+        private void AfterManipulatingJournalModal(JournalDto obj)
         {
 
         }

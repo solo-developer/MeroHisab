@@ -40,7 +40,19 @@ namespace MeroHisab.Core.Services.Implementations
             }).ToList();
         }
 
-        public async Task SaveOrUpdate(AccountHeadDto accountHead)
+		public async Task<List<AccountHeadDto>> GetAllAcountHead()
+		{
+            var accountHeads = await _repo.Get<AccountHead>(a => a.IsEnabled);
+            return accountHeads.Select(a => new AccountHeadDto {
+                Id = a.Id,
+                Name = a.Name,
+                HeadType = a.HeadType,
+                Code = a.Code,
+                LedgerType = a.LedgerType,
+            }).ToList();
+		}
+
+		public async Task SaveOrUpdate(AccountHeadDto accountHead)
         {
             var entity = (await _repo.Get(accountHead.Id)) ?? new AccountHead();
             entity.Name = accountHead.Name;
