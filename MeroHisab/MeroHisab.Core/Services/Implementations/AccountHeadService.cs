@@ -42,7 +42,7 @@ namespace MeroHisab.Core.Services.Implementations
 
 		public async Task<List<AccountHeadDto>> GetAllAcountHead()
 		{
-            var accountHeads = await _repo.Get<AccountHead>(a => a.IsEnabled);
+            var accountHeads = await _repo.Get<AccountHead>(a => a.IsEnabled && a.LedgerType!=LedgerType.PaymentMedium);
             return accountHeads.Select(a => new AccountHeadDto {
                 Id = a.Id,
                 Name = a.Name,

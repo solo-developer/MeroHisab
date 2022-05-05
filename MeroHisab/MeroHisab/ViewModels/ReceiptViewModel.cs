@@ -111,14 +111,21 @@ namespace MeroHisab.ViewModels
             dto.TransactionDate=DateTime.Now;
             Model = dto;
             var accountHeads = await _accountHeadService.GetAllAcountHead();
+            var paymentMediums = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.PaymentMedium);
             var accountHead = accountHeads.Select(a => new GenericDropDownDto<int, string>
             {
                 Text = a.Name,
                 Value = a.Id,
             }).ToList();
+            var paymentMedium = paymentMediums.Select(a => new GenericDropDownDto<int, string>
+            {
+                Text=a.Name,
+                Value=a.Id,
+            }).ToList();
+
             Ledgers.Clear();
             Ledgers.AddRange(accountHead);
-            PaymentReceiptTo.AddRange(accountHead);
+            PaymentReceiptTo.AddRange(paymentMedium);
             LedgerList = Ledgers.FirstOrDefault(a => a.Value == (int)dto.ReceiptFrom);
             PaymentReceiptToLedgerList = PaymentReceiptTo.FirstOrDefault(a => a.Value == (int)dto.ReceiptTo);
             //PaymentMediumList = new GenericDropDownDto<int, string>();

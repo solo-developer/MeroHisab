@@ -39,11 +39,10 @@ namespace MeroHisab.Core.Services.Implementations
 
                     transactionEntity.Amount = transactionDto.GetTransactionAmount();
                     transactionEntity.Remarks = transactionDto.Remarks;
-                    int tran_id = transactionEntity.Id;
 
                     await transactionRepo.Insert(transactionEntity);
 
-                    await transactionDetailService.AddTransactionDetail(transactionDto, tran_id);
+                    await transactionDetailService.AddTransactionDetail(transactionDto);
                     tx.Complete();
                 }
             }

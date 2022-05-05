@@ -22,9 +22,9 @@ namespace MeroHisab.Core.Services.Implementations
             _ledgerRepo = ledgerRepo;
 
         }
-        public Task<decimal> GetOldBalance(long ledger_id, DateTime last_date)
+        public async Task<decimal> GetOldBalance(long ledger_id, DateTime last_date)
         {
-            return transactionDetailRepo.GetOldBalance(ledger_id, last_date);
+            return await transactionDetailRepo.GetOldBalance(ledger_id, last_date);
         }
 
         public Task<decimal> GetEndBalance(long ledger_id)
@@ -80,13 +80,13 @@ namespace MeroHisab.Core.Services.Implementations
             }
         }
 
-        public async Task AddTransactionDetail(TransactionDto transaction_dto, int transaction_id)
+        public async Task AddTransactionDetail(TransactionDto transaction_dto)
         {
             try
             {
                 using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
                 {
-                    var transaction = await _transactionRepo.Get(transaction_id) ?? throw new ItemNotFoundException($"Transaction with id {transaction_id} doesnot exist.");
+                    //var transaction = await _transactionRepo.Get(transaction_id) ?? throw new ItemNotFoundException($"Transaction with id {transaction_id} doesnot exist.");
 
                     List<TransactionDetailDto> transactionDetailDtos = _transactionDetailDtoAssembler.GetTransactionDetails(transaction_dto);
 
@@ -97,7 +97,7 @@ namespace MeroHisab.Core.Services.Implementations
                     foreach (var transactionDetailDto in transactionDetailDtos)
                     {
                         TransactionDetail entity = new TransactionDetail();
-                        entity.TransactionId = transaction_id;
+                        //entity.TransactionId = transaction_id;
                         entity.TransactionDate = transactionDetailDto.TransactionDate;
                         entity.LedgerId = transactionDetailDto.LedgerId;
                         entity.RefLedgerId = transactionDetailDto.RefLedgerId;
