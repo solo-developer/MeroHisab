@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<pages:PopupPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MeroHisab.Partial.Settings.GoogleDriveSettingPopupPage"
+             xmlns:pages="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"
+             CloseWhenBackgroundIsClicked="False">
+    <Frame CornerRadius="5" BackgroundColor="AntiqueWhite" VerticalOptions="Center" Margin="20" HorizontalOptions="FillAndExpand">
+        <StackLayout Orientation="Horizontal" Spacing="40">
+            <ActivityIndicator Color="{StaticResource BackgroundColor}" IsRunning="True" IsEnabled="True"  HeightRequest="40" WidthRequest="40"/>
+            <Label Text="{Binding Text}" TextColor="Black" FontSize="Medium" VerticalOptions="Center" HorizontalOptions="Center"></Label>
+
+        </StackLayout>
+
+
+    </Frame>
+
+</pages:PopupPage>
