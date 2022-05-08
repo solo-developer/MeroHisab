@@ -1,4 +1,5 @@
 ﻿using MeroHisab.Core.Dto;
+using MeroHisab.Core.Services.Interface;
 using MeroHisab.Models;
 using MeroHisab.Partial.Journal;
 using MeroHisab.Partial.Payment;
@@ -16,9 +17,8 @@ namespace MeroHisab.ViewModels
         public IAsyncCommand SettingSelectedCommand { get; set; }
 
         public IAsyncCommand ReceiptSave { get; set; }
-        public DashboardHomePageModel()
+        public DashboardHomePageModel(IReceiptService receiptService)
         {
-            
             SettingSelectedCommand = new AsyncCommand(GetTabValue);
             Operations = new ObservableRangeCollection<GridItem>();
             this.SetAvailableOperations();
@@ -60,7 +60,8 @@ namespace MeroHisab.ViewModels
 
 		private void AfterManipulatingReceiptModal(ReceiptDto obj)
 		{
-		}
+
+        }
 
 		private async Task AddPayment(PaymentDto dto)
 		{

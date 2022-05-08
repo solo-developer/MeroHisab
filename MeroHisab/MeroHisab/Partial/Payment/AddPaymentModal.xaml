@@ -12,20 +12,19 @@
 
                     <StackLayout>
                         <Label Text="Payment From" VerticalOptions="Center"/>
-                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding Ledgers}" Title="--select--" SelectedItem="{Binding PaymentFrom}" FontSize="Small"/>
+                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PaymentFrom}" Title="--select--" SelectedItem="{Binding PaymentFromList}" FontSize="Small"/>
                     </StackLayout>
 
                     <StackLayout>
                         <Label Text="Payment To" VerticalOptions="Center"/>
-                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PaymentMediumList}" Title="--select--" SelectedItem="{Binding PaymentTo}" FontSize="Small"/>
-                    </StackLayout>
-
-                    <StackLayout>
-                        <Label Text="Transaction Date" VerticalOptions="Center"/>
-                        <DatePicker MaximumDate="{Binding MaxDate}" Date="{Binding TransactionDate}" />
+                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PaymentTo}" Title="--select--" SelectedItem="{Binding PaymentToList}" FontSize="Small"/>
                     </StackLayout>
 
                     <StackLayout BindingContext="{Binding Model}">
+                        <StackLayout>
+                            <Label Text="Transaction Date" VerticalOptions="Center"/>
+                            <DatePicker Date="{Binding TransactionDate}" />
+                        </StackLayout>
                         <Label VerticalOptions="Center" Text="Amount"/>
                         <Entry VerticalOptions="Center" Text="{Binding Amount}" FontSize="Small"/>
                         <Label x:Name="ReceiptDto_AmountError" IsVisible="False" TextColor="Red" />

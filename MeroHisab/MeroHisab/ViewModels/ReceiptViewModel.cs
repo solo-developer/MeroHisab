@@ -46,7 +46,7 @@ namespace MeroHisab.ViewModels
                 if (!ValidationHelper.IsFormValid(Model, page))
                     return;
                 Model.ReceiptFrom = LedgerList.Value;
-                Model.ReceiptTo = LedgerList.Value;
+                Model.ReceiptTo = PaymentReceiptToLedgerList.Value;
                 await _receiptService.MakeReceipt(Model);
                 await _notificationService.ShowInfo("Success", "Operation performed successfully.");
                 await _navigationService.HideModal();
