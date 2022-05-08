@@ -16,8 +16,9 @@ namespace MeroHisab.Core.Repository.Implementations
 
         public async Task<decimal> GetOldBalance(long ledger_id, DateTime last_date)
         {
+            var yesterday = last_date.AddDays(0);
             decimal bal = 0;
-            var totalPostBefore = await db.Table<TransactionDetail>().Where(a => a.LedgerId == ledger_id && a.TransactionDate.Date <= last_date.Date).OrderBy(a => a.TransactionDate).ToListAsync();
+            var totalPostBefore = await db.Table<TransactionDetail>().Where(a => a.LedgerId == ledger_id && a.TransactionDate <= yesterday).OrderBy(a => a.TransactionDate).ToListAsync();
 
             if (totalPostBefore.Count != 0)
             {

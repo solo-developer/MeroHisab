@@ -14,7 +14,7 @@ namespace MeroHisab.Droid.Services
             var dbase = "MeroHisab.db3";
             var dbpath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
             var path = Path.Combine(dbpath, dbase);
-            var connection = new SQLiteAsyncConnection(path);
+            var connection = new SQLiteAsyncConnection(path,true);
             return connection;
         }
     }

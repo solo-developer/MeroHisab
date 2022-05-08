@@ -1,24 +1,30 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <pages:PopupPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:pages="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"
-             x:Class="MeroHisab.Partial.Receipt.AddReceiptModal"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MeroHisab.Partial.Payment.AddPaymentModal"
              xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
              CloseWhenBackgroundIsClicked="True">
     <ContentPage.Content>
         <StackLayout  VerticalOptions="FillAndExpand" Margin="20"  BackgroundColor="WhiteSmoke">
             <ScrollView>
                 <StackLayout Margin="15">
-                    <StackLayout>
-                        <Label Text="Receipt From" VerticalOptions="Center"/>
-                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding Ledgers}" Title="--select--" SelectedItem="{Binding LedgerList}" FontSize="Small"/>
 
-                        <Label Text="Receipt To" VerticalOptions="Center"/>
-                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PaymentReceiptTo}" Title="--select--" SelectedItem="{Binding PaymentReceiptToLedgerList}" FontSize="Small"/>
+                    <StackLayout>
+                        <Label Text="Payment From" VerticalOptions="Center"/>
+                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PaymentFrom}" Title="--select--" SelectedItem="{Binding PaymentFromList}" FontSize="Small"/>
                     </StackLayout>
-                    <StackLayout  BindingContext="{Binding Model}">
-                        <Label Text="Transaction Date" VerticalOptions="Center"/>
-                        <DatePicker Date="{Binding TransactionDate}"/>
+
+                    <StackLayout>
+                        <Label Text="Payment To" VerticalOptions="Center"/>
+                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PaymentTo}" Title="--select--" SelectedItem="{Binding PaymentToList}" FontSize="Small"/>
+                    </StackLayout>
+
+                    <StackLayout BindingContext="{Binding Model}">
+                        <StackLayout>
+                            <Label Text="Transaction Date" VerticalOptions="Center"/>
+                            <DatePicker Date="{Binding TransactionDate}" />
+                        </StackLayout>
                         <Label VerticalOptions="Center" Text="Amount"/>
                         <Entry VerticalOptions="Center" Text="{Binding Amount}" FontSize="Small"/>
                         <Label x:Name="ReceiptDto_AmountError" IsVisible="False" TextColor="Red" />
@@ -26,10 +32,6 @@
                         <Label VerticalOptions="Center" Text="Discount"/>
                         <Entry VerticalOptions="Center" Text="{Binding Discount}" FontSize="Small"/>
                         <Label x:Name="ReceiptDto_DiscountError" IsVisible="False" TextColor="Red" />
-
-                        <Label VerticalOptions="Center" Text="CustomerName"/>
-                        <Entry VerticalOptions="Center" Text="{Binding CustomerName}" FontSize="Small"/>
-                        <Label x:Name="ReceiptDto_CustomerError" IsVisible="False" TextColor="Red" />
 
                         <Label VerticalOptions="Center" Text="Remarks"/>
                         <Entry VerticalOptions="Center" Text="{Binding Remarks}" FontSize="Small"/>
