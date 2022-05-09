@@ -1,7 +1,7 @@
 ﻿using MeroHisab.Core.Dto;
 using MeroHisab.Core.Services.Interface;
 using MeroHisab.Models;
-using MeroHisab.Partial.Journal;
+using MeroHisab.Views;
 using MeroHisab.Partial.Payment;
 using MeroHisab.Partial.Receipt;
 using System;
@@ -74,7 +74,7 @@ namespace MeroHisab.ViewModels
         }
         private async Task AddJournal(JournalDto dto)
         {
-            await _navigationService.ShowModal(new AddJournalModal(dto));
+            await _navigationService.NavigateToAsync<JournalViewModel>();
             MessagingCenter.Subscribe<JournalDto>(this, "AddJournal", AfterManipulatingJournalModal);
         }
         private void AfterManipulatingJournalModal(JournalDto obj)
