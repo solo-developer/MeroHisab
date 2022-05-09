@@ -2,7 +2,8 @@
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MeroHisab.LazyViews.DashboardProfilePage"
-             xmlns:tabs="http://sharpnado.com">
+             xmlns:tabs="http://sharpnado.com"
+             xmlns:xct="clr-namespace:MeroHisab.Behaviors">
     <ContentView.Resources>
         <Style x:Key="SegmentedTabStyle" TargetType="tabs:SegmentedTabItem">
             <Setter Property="SelectedTabColor" Value="{StaticResource Accent}" />
@@ -93,7 +94,11 @@
                                     <CollectionView.ItemsLayout>
                                         <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="10" VerticalItemSpacing="0" />
                                     </CollectionView.ItemsLayout>
+                                    <CollectionView.Behaviors>
+                                        <xct:EventToCommandBehavior Command="{Binding GeneralOptionSelectedCommand}" EventName="SelectionChanged"></xct:EventToCommandBehavior>
+                                    </CollectionView.Behaviors>
                                 </CollectionView>
+                               
                             </ScrollView>
                         </StackLayout>
 

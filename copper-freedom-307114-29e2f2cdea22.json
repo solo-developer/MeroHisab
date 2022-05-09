@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "copper-freedom-307114",
+  "private_key_id": "29e2f2cdea22fb5df2795dde936be5924cb9387c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCu8D8sJ3YgnI5Q\nVyNSmIYNtMuJ8XUl0YaHIP4uwkXH2O0BE8bmsdULE48tboS31oY2zreh6LzvnX6q\n0F7htafG6zlWovI14qG045aNVTDs9Vpj38qgO/Xi9RRSjB1rzh326qsc8cFief86\n4JqsIEB7iRqoxkih3GdKEV+RyVYPl2BgjhL5RK5hfOqJSRXlYjlkRZjRX/RAY7lL\nIel7mk6tOq5A1+LLhNYzK7VhUt+cGgAJAS/P0xtpHifQ4dkQZ0K85OuXSYSzLPgN\nn9QtFl3ZHZj9SLFb5mkhvwEpEtOtBv2cM8NOxBcldfa9SrYYsOWy2Bir5DCO/NaA\n7xnPLCxhAgMBAAECggEACGL6ZlWgeUUEIhghWIH5KEJPATaXDwh11nfXk7qK0Z9F\n0nfGIPRs0h5+jlcma/FQByPfJBcWKrceVdZOPCwjJltLyQpgCgMKzVMdWjp3sV58\nVj4p9sdVHQuyjRgMR4kuwNIEgMtaweu3F5WhuKeFq955bZau7/qS5ZdCYYj5VB8x\nhOfqZPB8BwD1hjX3s39Hs00I5O+UJKpOk068x/g20V1E7sDEwgdAHQDkBNzlArVx\nEfTT1BET5c0Xk2yWOrYaUAdJi7REk6BSFY4SHTKSOQNI8BSpqnDnE94+A3trpZQK\n8BBbxg3m8GsHDs2KBUSLbvq9pmALAeNtU9sMw7MIKQKBgQDfNhfmnMLMJVHD1a3a\nhhf2Xmbl3lJqgv/GS7x6rNiK12N1R1fQSvPzq6Dy/8SR2L7x5BfCNf4RHDAPjEm/\np3C9PpwvC/KhiNf/r+TvEQxGUft0qdD8CfhWHe7DoASyDGBzfDwED4vBA4qwfWqm\nj5i1eNiasBPYWs+OPoKWy0Uy+QKBgQDIotfswfW4b87AJSjcjYA/ICs2lTCre7OD\n4+wSQpIoQMawP9TpldJFb4kgvBEcH4ipTPUY6TtfMTJ3b23esyI2kbgaezOAjXiM\ns0/rFi2acv87UxUjXErwiXcsB4m0pevOcoYLdU730ugRbwi5MVCYzd66A8h9xY2A\ns7tYFeU2qQKBgQCApaCo3Xi4SFoT0Lfe1qJA8K/FlJlToiTgmQ4Mdkpn2zQLiA7o\nkgqASk79PsSAereymo/G8293VROuImDvAQZNTCSgSPaSe1himXINB3pXnTCcULOO\nUAC9QYs3XKbYJ6H/bX75qCwYFn58sgwh62lMTlYo8Yq+i7hMd2K0nntHoQKBgEOp\nDvIr0sa5BdssbOQ739Tp70i/9SLPW5GNym25/3oNpjOHwzBmsvtxiqf8ZDS8uaSG\nbF1TQg9vEtrOPBoPBOmsKI7dn1ep3c5tJfVcjFJ6l3IVKZq8JBWL9iFmBV1jWutL\nGcNBczkF6fb/H8z8QXbWblcCsZkghwCxG+uvrpXJAoGAASFBidW5mLmGwNBXrUWs\nlC4IX104wiM27dOPVglOXX6k0VgrhAuL+4YgZ9j9raHgVfbbADDgwJa7YN1uKPBl\nu5vVlwaGb7XRQCGVxRLaki5o5nS8MhK+7MtwVXRcsn+698LKR8iDepVuZGasdP0a\nAY2Kp+e/4WhoqwbxKYdosrk=\n-----END PRIVATE KEY-----\n",
+  "client_email": "merohisab@copper-freedom-307114.iam.gserviceaccount.com",
+  "client_id": "104955638983029877814",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/merohisab%40copper-freedom-307114.iam.gserviceaccount.com"
+}
