@@ -32,8 +32,11 @@
         <Style x:Key="PageBackgroundColor" TargetType="Page">
             <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
         </Style>
-        <Style TargetType="ContentView">
+        <Style TargetType="ContentView" x:Key="ContentViewStyle">
             <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+        </Style>
+        <Style TargetType="ContentPage" x:Key="LoginContentView">
+            <Setter Property="BackgroundColor" Value="Transparent"/>
         </Style>
         <ControlTemplate x:Key="CustomNavigationBar">
 

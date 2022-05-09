@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:fontAwesome="clr-namespace:FontAwesome"
+             xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+             Style="{StaticResource LoginContentView}"
+              xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             x:Class="MeroHisab.Views.LoginPage">
+    <Grid RowDefinitions="*">
+        <!--<StackLayout Grid.Row="0">
+            <Grid ColumnDefinitions="*,*" Margin="10,0">
+                <Label TextColor="{StaticResource BackgroundColor}" Text="Welcome Back !!" Grid.Column="0" FontSize="Medium"/>
+                <ImageButton Grid.Column="1" BackgroundColor="{StaticResource NavigationTextColor}" HorizontalOptions="End">
+                    <ImageButton.Source>
+                        <FontImageSource FontFamily="FontAwesomeSolid"
+                                         Color="{StaticResource BackgroundColor}"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.InfoCircle}"/>
+                    </ImageButton.Source>
+                </ImageButton>
+
+            </Grid>
+        </StackLayout>-->
+
+        <ScrollView Grid.Row="0">
+            <Frame Margin="20">
+                <StackLayout>
+                    <Label HorizontalOptions="Center" Text="Login to Continue !!" Margin="0,0,0,20"></Label>
+                    <material:MaterialTextField Placeholder="Username" HelperText="Required" InputType="Default" HelperTextColor="Red" BackgroundColor="Transparent"  UnderlineColor="{StaticResource BackgroundColor}" >
+                        <material:MaterialTextField.LeadingIcon>
+                            <FontImageSource  FontFamily="FontAwesomeSolid"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.User}"/>
+                        </material:MaterialTextField.LeadingIcon>
+                    </material:MaterialTextField>
+
+                    <material:MaterialTextField Placeholder="Password" HelperText="Required" ErrorText="Password is required"  InputType="Password" HelperTextColor="Red" BackgroundColor="Transparent" UnderlineColor="{StaticResource BackgroundColor}">
+                        <material:MaterialTextField.LeadingIcon>
+                            <FontImageSource FontFamily="FontAwesomeSolid"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.Lock}"/>
+                        </material:MaterialTextField.LeadingIcon>
+                    </material:MaterialTextField>
+
+                    <material:MaterialCheckbox Text="Remember Me" IsSelected="False"/>
+
+                    <material:MaterialButton BackgroundColor="#EAEAEA" HorizontalOptions="FillAndExpand" Text="Login" TextColor="Black" VerticalOptions="Center" FlowDirection="LeftToRight" Clicked="MaterialButton_Clicked">
+                        <material:MaterialButton.ImageSource>
+                            <FontImageSource  FontFamily="FontAwesomeSolid"
+                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowRight}"/>
+                        </material:MaterialButton.ImageSource>
+
+                        <material:MaterialButton.Behaviors>
+                            <xct:EventToCommandBehavior Command="{Binding LoginButtonClicked}" EventName="Clicked"/>
+                        </material:MaterialButton.Behaviors>
+                    </material:MaterialButton>
+                </StackLayout>
+
+            </Frame>
+
+        </ScrollView>
+    </Grid>
+</ContentPage>
