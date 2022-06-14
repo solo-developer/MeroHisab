@@ -26,7 +26,7 @@ namespace MeroHisab.Services.Implementations
 
         public Task InitializeAsync()
         {
-            return NavigateToAsync<MainPageModel>();
+            return NavigateToAsync<LoginPageModel>();
         }
 
         public Task NavigateToAsync<TViewModel>() where TViewModel : ViewModelBase

@@ -12,6 +12,7 @@
     <PackageReference Include="Sharpnado.Tabs" Version="2.2.0" />
     <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="XF.Material" Version="1.7.7" />
   </ItemGroup>
 
 </Project>

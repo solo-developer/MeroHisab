@@ -30,6 +30,7 @@ namespace MeroHisab
         public App(Action<IServiceCollection> addPlatformServices = null)
         {
             InitializeComponent();
+            XF.Material.Forms.Material.Init(this);
             Sharpnado.Tabs.Initializer.Initialize(false, false);
             Sharpnado.Shades.Initializer.Initialize(loggerEnable: false);
             SetupServices(addPlatformServices);
