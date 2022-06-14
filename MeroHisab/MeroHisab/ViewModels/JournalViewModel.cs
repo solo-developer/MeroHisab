@@ -2,6 +2,7 @@
 using MeroHisab.Core.Services.Interface;
 using MeroHisab.Helpers.Implementations;
 using MeroHisab.Helpers.Interface;
+using MeroHisab.Views;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,7 +30,8 @@ namespace MeroHisab.ViewModels
 
 		private async Task Cancel()
 		{
-			await _navigationService.HideModal();
+			await _navigationService.MoveBack();
+			//await _navigationService.HideModal();
 		}
 
 		private async Task Proceed()
