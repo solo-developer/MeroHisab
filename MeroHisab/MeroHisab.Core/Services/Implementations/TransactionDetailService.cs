@@ -3,6 +3,10 @@ using MeroHisab.Core.Entities;
 using MeroHisab.Core.Exceptions;
 using MeroHisab.Core.Makers.Interface;
 using MeroHisab.Core.Repository.Interface;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Transactions;
 
 namespace MeroHisab.Core.Services.Implementations

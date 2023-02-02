@@ -1,7 +1,10 @@
 ﻿using MeroHisab.Core.BaseRepository.Interface;
 using MeroHisab.Core.Repository.Interface;
 using SQLite;
+using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace MeroHisab.Core.BaseRepository.Implementations
 {

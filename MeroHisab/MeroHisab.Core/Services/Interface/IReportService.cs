@@ -1,5 +1,8 @@
 ﻿using MeroHisab.Core.Dto;
 using MeroHisab.Core.Entities;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MeroHisab.Core.Services.Interface
 {

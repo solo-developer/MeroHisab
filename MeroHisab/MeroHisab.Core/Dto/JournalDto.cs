@@ -1,4 +1,7 @@
-﻿namespace MeroHisab.Core.Dto
+﻿using System;
+using System.Collections.Generic;
+
+namespace MeroHisab.Core.Dto
 {
     public class JournalDto
     {

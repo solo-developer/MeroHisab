@@ -1,4 +1,6 @@
 ﻿using MeroHisab.Core.Enums;
+using System;
+using System.Collections.Generic;
 
 namespace MeroHisab.Core.Dto
 {

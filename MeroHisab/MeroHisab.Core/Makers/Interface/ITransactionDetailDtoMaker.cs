@@ -1,4 +1,5 @@
 ﻿using MeroHisab.Core.Dto;
+using System.Collections.Generic;
 
 namespace MeroHisab.Core.Makers.Interface
 {

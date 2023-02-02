@@ -1,5 +1,6 @@
 ﻿using MeroHisab.Core.Enums;
 using MeroHisab.Core.Exceptions;
+using System;
 
 namespace MeroHisab.Core.Entities
 {

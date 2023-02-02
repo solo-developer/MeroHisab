@@ -1,4 +1,7 @@
-﻿namespace MeroHisab.Core.Dto
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace MeroHisab.Core.Dto
 {
     public class ProfitAndLossDto
     {

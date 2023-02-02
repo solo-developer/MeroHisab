@@ -2,6 +2,7 @@
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Repository.Interface;
 using SQLite;
+using System.Threading.Tasks;
 
 namespace MeroHisab.Core.Repository.Implementations
 {

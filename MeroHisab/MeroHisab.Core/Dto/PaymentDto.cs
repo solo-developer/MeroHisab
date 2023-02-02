@@ -1,4 +1,5 @@
 ﻿using MeroHisab.Core.Exceptions;
+using System;
 
 namespace MeroHisab.Core.Dto
 {

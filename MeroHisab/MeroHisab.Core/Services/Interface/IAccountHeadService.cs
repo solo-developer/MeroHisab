@@ -1,5 +1,7 @@
 ﻿using MeroHisab.Core.Dto;
 using MeroHisab.Core.Enums;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MeroHisab.Core.Services.Interface
 {

@@ -1,4 +1,5 @@
 ﻿using MeroHisab.Core.Entities;
+using System.Collections.Generic;
 
 namespace MeroHisab.Core.Services.Interface
 {

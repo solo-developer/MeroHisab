@@ -3,6 +3,8 @@ using MeroHisab.Core.Entities;
 using MeroHisab.Core.Enums;
 using MeroHisab.Core.Repository.Interface;
 using SQLite;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MeroHisab.Core.Repository.Implementations
 {
