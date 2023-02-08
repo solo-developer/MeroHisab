@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.CommunityToolkit.ObjectModel;
 using Xamarin.CommunityToolkit.UI.Views;
+using Xamarin.Forms;
 
 namespace MeroHisab.ViewModels
 {
@@ -91,13 +92,27 @@ namespace MeroHisab.ViewModels
         }
 
         public async Task NavigateToAccountHeadListPage()
-        {
+        {           
             await _navigationService.NavigateToAsync<AccountHeadListPageModel>();
+            MessagingCenter.Subscribe<AccountHeadDto>(this, "AccountHeadListPage.BackButtonPressed", BackButtonPressedFromAccountHeadListPage);
+
+        }
+        private async void AfterManipulatingPaymentMediums(PaymentMediumDto obj)
+        {
+            MessagingCenter.Unsubscribe<PaymentMediumDto>(this, "PaymentMediumListPage.BackButtonPressed");
+            await LoadAccountHeads();
         } 
         
+        private async void BackButtonPressedFromAccountHeadListPage(AccountHeadDto obj)
+        {
+            MessagingCenter.Unsubscribe<AccountHeadDto>(this, "AccountHeadListPage.BackButtonPressed");
+            await LoadPaymentMediums();
+        }
+
         public async Task NavigateToPaymentMediumListPage()
         {
             await _navigationService.NavigateToAsync<PaymentMediumListPageModel>();
+            MessagingCenter.Subscribe<PaymentMediumDto>(this, "PaymentMediumListPage.BackButtonPressed", AfterManipulatingPaymentMediums);
         }
         private async Task LoadAccountHeads()
         {
@@ -105,7 +120,7 @@ namespace MeroHisab.ViewModels
             {
                 AccountHeadDataState = LayoutState.Loading;
                 AccountHeads.Clear();
-                var heads = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.Normal, 3);
+                var heads = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.Normal, 4);
                 AccountHeads.AddRange(heads);
                 AccountHeadDataState = LayoutState.Success;
             }
@@ -119,7 +134,7 @@ namespace MeroHisab.ViewModels
         {
             PaymentMediumDataState = LayoutState.Loading;
             PaymentMediums.Clear();
-            var heads = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.PaymentMedium, 3);
+            var heads = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.PaymentMedium, 4);
             PaymentMediums.AddRange(heads.Select(a => new PaymentMediumDto
             {
                 Id = a.Id,

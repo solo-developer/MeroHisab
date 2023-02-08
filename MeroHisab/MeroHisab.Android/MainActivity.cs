@@ -10,6 +10,9 @@ using MeroHisab.Droid.Services;
 using AndroidX.AppCompat.App;
 using FormsPinView.Droid;
 using MeroHisab.Core.Repository.Interface;
+using Android.Views;
+using System.Linq;
+using MeroHisab.CustomControls;
 
 namespace MeroHisab.Droid
 {
@@ -38,10 +41,61 @@ namespace MeroHisab.Droid
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            // check if the current item id 
+            // is equals to the back button id
+            if (item.ItemId == 16908332)
+            {
+                // retrieve the current xamarin forms page instance
+                var currentpage = (BackButtonEventOverrideableContentPage)
+                Xamarin.Forms.Application.
+                Current.MainPage.Navigation.
+                NavigationStack.LastOrDefault();
+
+                // check if the page has subscribed to 
+                // the custom back button event
+                if (currentpage?.CustomBackButtonAction != null)
+                {
+                    // invoke the Custom back button action
+                    currentpage?.CustomBackButtonAction.Invoke();
+                    // and disable the default back button action
+                    return false;
+                }
+
+                // if its not subscribed then go ahead 
+                // with the default back button action
+                return base.OnOptionsItemSelected(item);
+            }
+            else
+            {
+                // since its not the back button 
+                //click, pass the event to the base
+                return base.OnOptionsItemSelected(item);
+            }
+        }
+
         public override void OnBackPressed()
         {
+            // retrieve the current xamarin forms page instance
+            var currentpage = (BackButtonEventOverrideableContentPage)
+            Xamarin.Forms.Application.
+            Current.MainPage.Navigation.
+            NavigationStack.LastOrDefault();
+
+            // check if the page has subscribed to 
+            // the custom back button event
+            if (currentpage?.CustomBackButtonAction != null)
+            {
+                currentpage?.CustomBackButtonAction.Invoke();
+            }
+            else
+            {
+                base.OnBackPressed();
+            }
             Rg.Plugins.Popup.Popup.SendBackPressed(base.OnBackPressed);
         }
+       
         static void AddServices(IServiceCollection services)
         {
             services.AddTransient<IToastService, ToastService>();

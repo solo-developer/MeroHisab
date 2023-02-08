@@ -1,4 +1,6 @@
-﻿using MeroHisab.ViewModels;
+﻿using MeroHisab.Core.Dto;
+using MeroHisab.Core.Enums;
+using MeroHisab.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +13,19 @@ using Xamarin.Forms.Xaml;
 namespace MeroHisab.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class PaymentMediumListPage : ContentPage
+    public partial class PaymentMediumListPage : CustomControls.BackButtonEventOverrideableContentPage
     {
         public PaymentMediumListPage()
         {
             InitializeComponent();
             BindingContext = App.GetViewModel<PaymentMediumListPageModel>();
+
+            this.CustomBackButtonAction = async () =>
+            {
+                string key = "PaymentMediumListPage.BackButtonPressed";
+                MessagingCenter.Send(new PaymentMediumDto(), key);
+                
+            };
         }
     }
 }

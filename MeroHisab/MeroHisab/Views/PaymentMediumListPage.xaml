@@ -1,82 +1,132 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MeroHisab.Views.PaymentMediumListPage"
-             BackgroundColor="{StaticResource BackgroundColor}"
-             NavigationPage.HasBackButton="True"
-              xmlns:fontAwesome="clr-namespace:FontAwesome"
-             xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
-             xmlns:vm="clr-namespace:MeroHisab.ViewModels;assembly=MeroHisab"
-               xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView">
+<customControls:BackButtonEventOverrideableContentPage
+    x:Class="MeroHisab.Views.PaymentMediumListPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:customControls="clr-namespace:MeroHisab.CustomControls;assembly=MeroHisab"
+    xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
+    xmlns:fontAwesome="clr-namespace:FontAwesome"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
+    BackgroundColor="{StaticResource BackgroundColor}"
+    EnableBackButtonOverride="True"
+    NavigationPage.HasBackButton="True">
     <NavigationPage.TitleView>
-        <StackLayout Orientation="Horizontal" Margin="0,0,20,0">
-            <Label VerticalOptions="Center" HorizontalOptions="StartAndExpand" Text="Payment Mediums" FontSize="Large" TextColor="{StaticResource NavigationTextColor}"/>
+        <StackLayout Margin="0,0,20,0" Orientation="Horizontal">
+            <Label
+                FontSize="Large"
+                HorizontalOptions="StartAndExpand"
+                Text="Payment Mediums"
+                TextColor="{StaticResource NavigationTextColor}"
+                VerticalOptions="Center" />
 
-            <ImageButton HorizontalOptions="End" VerticalOptions="Center" HeightRequest="30" WidthRequest="30">
+            <ImageButton
+                HeightRequest="30"
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                WidthRequest="30">
                 <ImageButton.Source>
-                    <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="White"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.PlusCircle}"/>
+                    <FontImageSource
+                        FontFamily="FontAwesomeSolid"
+                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.PlusCircle}"
+                        Color="White" />
                 </ImageButton.Source>
                 <ImageButton.Behaviors>
-                    <xct:EventToCommandBehavior Command="{Binding AddPaymentMediumCommand}" EventName="Clicked"/>
+                    <xct:EventToCommandBehavior Command="{Binding AddPaymentMediumCommand}" EventName="Clicked" />
                 </ImageButton.Behaviors>
             </ImageButton>
         </StackLayout>
 
     </NavigationPage.TitleView>
     <ContentPage.Content>
-        <ScrollView VerticalScrollBarVisibility="Always" Margin="10,5">
-            <StackLayout Orientation="Vertical" Margin="10,5">
+        <ScrollView Margin="10,5" VerticalScrollBarVisibility="Always">
+            <StackLayout Margin="10,5" Orientation="Vertical">
                 <StackLayout xct:StateLayout.CurrentState="{Binding PaymentMediumDataState}" VerticalOptions="Fill">
                     <xct:StateLayout.StateViews>
                         <xct:StateView StateKey="Loading">
-                            <StackLayout BackgroundColor="White" VerticalOptions="Center" HorizontalOptions="Center">
+                            <StackLayout
+                                BackgroundColor="White"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center">
 
-                                <ActivityIndicator Color="Red" IsRunning="True" IsEnabled="True"/>
-                                <Label Text="Loading..." HorizontalOptions="Center" />
+                                <ActivityIndicator
+                                    IsEnabled="True"
+                                    IsRunning="True"
+                                    Color="Red" />
+                                <Label HorizontalOptions="Center" Text="Loading..." />
 
                             </StackLayout>
                         </xct:StateView>
                         <xct:StateView StateKey="Error">
-                            <Label TextColor="{StaticResource ErrorColor}" Text="Failed to load account heads." HorizontalOptions="Center" VerticalOptions="Center"></Label>
+                            <Label
+                                HorizontalOptions="Center"
+                                Text="Failed to load account heads."
+                                TextColor="{StaticResource ErrorColor}"
+                                VerticalOptions="Center" />
                         </xct:StateView>
                         <xct:StateView StateKey="Success">
-                            <CollectionView ItemsSource="{Binding PaymentMediums}" ItemSizingStrategy="MeasureFirstItem" HorizontalScrollBarVisibility="Default" HorizontalOptions="FillAndExpand" x:Name="AccountHeadCollectionView">
+                            <CollectionView
+                                x:Name="AccountHeadCollectionView"
+                                HorizontalOptions="FillAndExpand"
+                                HorizontalScrollBarVisibility="Default"
+                                ItemSizingStrategy="MeasureFirstItem"
+                                ItemsSource="{Binding PaymentMediums}">
                                 <CollectionView.ItemsLayout>
-                                    <GridItemsLayout Orientation="Vertical" Span="1" VerticalItemSpacing="10" />
+                                    <GridItemsLayout
+                                        Orientation="Vertical"
+                                        Span="1"
+                                        VerticalItemSpacing="10" />
                                 </CollectionView.ItemsLayout>
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="dto:AccountHeadDto">
                                         <SwipeView>
                                             <SwipeView.RightItems>
                                                 <SwipeItems>
-                                                    <SwipeItem Text="Edit" BackgroundColor="LightGreen" Command="{Binding Source={x:Reference AccountHeadCollectionView}, Path=BindingContext.OnEditButtonClicked}" CommandParameter="{Binding Id}" IsDestructive="False">
+                                                    <SwipeItem
+                                                        BackgroundColor="LightGreen"
+                                                        Command="{Binding Source={x:Reference AccountHeadCollectionView}, Path=BindingContext.OnEditButtonClicked}"
+                                                        CommandParameter="{Binding Id}"
+                                                        IsDestructive="False"
+                                                        Text="Edit">
                                                         <SwipeItem.IconImageSource>
-                                                            <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="White"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.Edit}"/>
+                                                            <FontImageSource
+                                                                FontFamily="FontAwesomeSolid"
+                                                                Glyph="{x:Static fontAwesome:FontAwesomeIcons.Edit}"
+                                                                Color="White" />
                                                         </SwipeItem.IconImageSource>
 
                                                     </SwipeItem>
 
-                                                    <SwipeItem Text="Delete" BackgroundColor="LightGreen" Command="{Binding Source={x:Reference AccountHeadCollectionView}, Path=BindingContext.OnDeleteButtonClicked}" CommandParameter="{Binding Id}" IsDestructive="False">
+                                                    <SwipeItem
+                                                        BackgroundColor="LightGreen"
+                                                        Command="{Binding Source={x:Reference AccountHeadCollectionView}, Path=BindingContext.OnDeleteButtonClicked}"
+                                                        CommandParameter="{Binding Id}"
+                                                        IsDestructive="False"
+                                                        Text="Delete">
                                                         <SwipeItem.IconImageSource>
-                                                            <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="White"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.Trash}"/>
+                                                            <FontImageSource
+                                                                FontFamily="FontAwesomeSolid"
+                                                                Glyph="{x:Static fontAwesome:FontAwesomeIcons.Trash}"
+                                                                Color="White" />
                                                         </SwipeItem.IconImageSource>
                                                     </SwipeItem>
                                                 </SwipeItems>
                                             </SwipeView.RightItems>
-                                            <yummy:PancakeView BackgroundColor="White" CornerRadius="10,10,10,10" HorizontalOptions="FillAndExpand" HeightRequest="80">
-                                                <StackLayout  VerticalOptions="Center" Padding="10">
-                                                    <Label Text="{Binding Name}" HorizontalOptions="FillAndExpand" TextColor="{StaticResource BackgroundColor}" FontSize="Medium"/>
-                                                    <Label Text="{Binding Code}" FontSize="Small"/>
+                                            <yummy:PancakeView
+                                                BackgroundColor="White"
+                                                CornerRadius="10,10,10,10"
+                                                HeightRequest="80"
+                                                HorizontalOptions="FillAndExpand">
+                                                <StackLayout Padding="10" VerticalOptions="Center">
+                                                    <Label
+                                                        FontSize="Medium"
+                                                        HorizontalOptions="FillAndExpand"
+                                                        Text="{Binding Name}"
+                                                        TextColor="{StaticResource BackgroundColor}" />
+                                                    <Label FontSize="Small" Text="{Binding Code}" />
                                                 </StackLayout>
                                                 <yummy:PancakeView.Border>
-                                                    <yummy:Border Thickness="2" Color="LightGreen"/>
+                                                    <yummy:Border Thickness="2" Color="LightGreen" />
                                                 </yummy:PancakeView.Border>
                                             </yummy:PancakeView>
                                         </SwipeView>
@@ -86,7 +136,13 @@
                                 </CollectionView.ItemTemplate>
 
                                 <CollectionView.EmptyView>
-                                    <Label Text="There are no payment mediums." FontSize="Small" TextColor="White" VerticalOptions="Center" HorizontalOptions="CenterAndExpand"  Padding="50,50"/>
+                                    <Label
+                                        Padding="50,50"
+                                        FontSize="Small"
+                                        HorizontalOptions="CenterAndExpand"
+                                        Text="There are no payment mediums."
+                                        TextColor="White"
+                                        VerticalOptions="Center" />
 
                                 </CollectionView.EmptyView>
                             </CollectionView>
@@ -101,4 +157,4 @@
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>
-</ContentPage>
+</customControls:BackButtonEventOverrideableContentPage>
