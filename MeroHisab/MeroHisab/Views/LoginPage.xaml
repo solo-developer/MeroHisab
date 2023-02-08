@@ -1,57 +1,90 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-              xmlns:fontAwesome="clr-namespace:FontAwesome"
-             xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
-             Style="{StaticResource LoginContentView}"
-              xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-             x:Class="MeroHisab.Views.LoginPage"
-             NavigationPage.HasBackButton="False">
+<ContentPage
+    x:Class="MeroHisab.Views.LoginPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ImageCircle.Forms.Plugin.Abstractions;assembly=ImageCircle.Forms.Plugin"
+    xmlns:fontAwesome="clr-namespace:FontAwesome"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    NavigationPage.HasBackButton="False"
+    NavigationPage.HasNavigationBar="False"
+    Style="{StaticResource LoginContentView}">
     <Grid RowDefinitions="*">
-        <!--<StackLayout Grid.Row="0">
-            <Grid ColumnDefinitions="*,*" Margin="10,0">
-                <Label TextColor="{StaticResource BackgroundColor}" Text="Welcome Back !!" Grid.Column="0" FontSize="Medium"/>
-                <ImageButton Grid.Column="1" BackgroundColor="{StaticResource NavigationTextColor}" HorizontalOptions="End">
-                    <ImageButton.Source>
-                        <FontImageSource FontFamily="FontAwesomeSolid"
-                                         Color="{StaticResource BackgroundColor}"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.InfoCircle}"/>
-                    </ImageButton.Source>
-                </ImageButton>
-
-            </Grid>
-        </StackLayout>-->
 
         <ScrollView Grid.Row="0">
             <Frame Margin="20">
                 <StackLayout>
-                    <Label HorizontalOptions="Center" Text="Login to Continue !!" Margin="0,0,0,20"></Label>
-                    <material:MaterialTextField Placeholder="Username" HelperText="Required" InputType="Default" HelperTextColor="Red" BackgroundColor="Transparent"  UnderlineColor="{StaticResource BackgroundColor}" >
-                        <material:MaterialTextField.LeadingIcon>
-                            <FontImageSource  FontFamily="FontAwesomeSolid"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.User}"/>
-                        </material:MaterialTextField.LeadingIcon>
-                    </material:MaterialTextField>
+                    <controls:CircleImage
+                        Margin="0,20,0,10"
+                        Aspect="AspectFit"
+                        Source="icon.png">
+                        <controls:CircleImage.WidthRequest>
+                            <OnPlatform x:TypeArguments="x:Double">
+                                <On Platform="Android, iOS">90</On>
+                                <On Platform="WinPhone">75</On>
+                            </OnPlatform>
+                        </controls:CircleImage.WidthRequest>
+                        <controls:CircleImage.HeightRequest>
+                            <OnPlatform x:TypeArguments="x:Double">
+                                <On Platform="Android, iOS">55</On>
+                                <On Platform="WinPhone">75</On>
+                            </OnPlatform>
+                        </controls:CircleImage.HeightRequest>
+                    </controls:CircleImage>
+                    <Label
+                        Margin="20"
+                        FontAttributes="Bold"
+                        FontSize="Subtitle"
+                        HorizontalOptions="Center"
+                        Text="Login to Continue !!" />
 
-                    <material:MaterialTextField Placeholder="Password" HelperText="Required" ErrorText="Password is required"  InputType="Password" HelperTextColor="Red" BackgroundColor="Transparent" UnderlineColor="{StaticResource BackgroundColor}">
-                        <material:MaterialTextField.LeadingIcon>
-                            <FontImageSource FontFamily="FontAwesomeSolid"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.Lock}"/>
-                        </material:MaterialTextField.LeadingIcon>
-                    </material:MaterialTextField>
+                    <StackLayout Margin="0,20,0,0">
+                        <material:MaterialTextField
+                            BackgroundColor="Transparent"
+                            HelperText="Required"
+                            HelperTextColor="Red"
+                            InputType="Default"
+                            Placeholder="Username"
+                            UnderlineColor="{StaticResource BackgroundColor}">
+                            <material:MaterialTextField.LeadingIcon>
+                                <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{x:Static fontAwesome:FontAwesomeIcons.User}" />
+                            </material:MaterialTextField.LeadingIcon>
+                        </material:MaterialTextField>
 
-                    <material:MaterialCheckbox Text="Remember Me" IsSelected="False"/>
+                        <material:MaterialTextField
+                            BackgroundColor="Transparent"
+                            ErrorText="Password is required"
+                            HelperText="Required"
+                            HelperTextColor="Red"
+                            InputType="Password"
+                            Placeholder="Password"
+                            UnderlineColor="{StaticResource BackgroundColor}">
+                            <material:MaterialTextField.LeadingIcon>
+                                <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{x:Static fontAwesome:FontAwesomeIcons.Lock}" />
+                            </material:MaterialTextField.LeadingIcon>
+                        </material:MaterialTextField>
 
-                    <material:MaterialButton BackgroundColor="#EAEAEA" HorizontalOptions="FillAndExpand" Text="Login" TextColor="Black" VerticalOptions="Center" FlowDirection="LeftToRight" Clicked="MaterialButton_Clicked">
-                        <material:MaterialButton.ImageSource>
-                            <FontImageSource  FontFamily="FontAwesomeSolid"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowRight}"/>
-                        </material:MaterialButton.ImageSource>
+                        <material:MaterialCheckbox IsSelected="False" Text="Remember Me" />
 
-                        <material:MaterialButton.Behaviors>
-                            <xct:EventToCommandBehavior Command="{Binding LoginButtonClicked}" EventName="Clicked"/>
-                        </material:MaterialButton.Behaviors>
-                    </material:MaterialButton>
+                        <material:MaterialButton
+                            BackgroundColor="#EAEAEA"
+                            Clicked="MaterialButton_Clicked"
+                            FlowDirection="LeftToRight"
+                            HorizontalOptions="FillAndExpand"
+                            Text="Login"
+                            TextColor="Black"
+                            VerticalOptions="Center">
+                            <material:MaterialButton.ImageSource>
+                                <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowRight}" />
+                            </material:MaterialButton.ImageSource>
+
+                            <material:MaterialButton.Behaviors>
+                                <xct:EventToCommandBehavior Command="{Binding LoginButtonClicked}" EventName="Clicked" />
+                            </material:MaterialButton.Behaviors>
+                        </material:MaterialButton>
+                    </StackLayout>
+
                 </StackLayout>
 
             </Frame>
