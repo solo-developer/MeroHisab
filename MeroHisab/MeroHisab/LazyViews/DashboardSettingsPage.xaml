@@ -87,16 +87,16 @@
                                     <DataTemplate x:DataType="dto:AccountHeadDto">
                                         <yummy:PancakeView
                                             BackgroundColor="White"
-                                            CornerRadius="10,10,10,10"
-                                            HeightRequest="80"
+                                            CornerRadius="10"
+                                            HeightRequest="60"
                                             HorizontalOptions="FillAndExpand">
                                             <StackLayout Padding="10" VerticalOptions="Center">
                                                 <Label
-                                                    FontSize="Medium"
+                                                    FontSize="Small"
                                                     HorizontalOptions="FillAndExpand"
                                                     Text="{Binding Name}"
                                                     TextColor="{StaticResource BackgroundColor}" />
-                                                <Label FontSize="Small" Text="{Binding HeadType}" />
+                                                <Label FontSize="Micro" Text="{Binding HeadType}" />
                                             </StackLayout>
                                             <yummy:PancakeView.Border>
                                                 <yummy:Border Thickness="2" Color="LightGreen" />
@@ -189,17 +189,17 @@
                                     <DataTemplate x:DataType="dto:PaymentMediumDto">
                                         <yummy:PancakeView
                                             BackgroundColor="White"
-                                            CornerRadius="10,10,10,10"
-                                            HeightRequest="80"
+                                            CornerRadius="10"
+                                            HeightRequest="60"
                                             HorizontalOptions="FillAndExpand">
                                             <StackLayout Padding="10" VerticalOptions="Center">
                                                 <Label
-                                                    FontSize="Medium"
+                                                    FontSize="Small"
                                                     HorizontalOptions="FillAndExpand"
                                                     Text="{Binding Name}"
                                                     TextColor="{StaticResource BackgroundColor}"
                                                     VerticalTextAlignment="Center" />
-                                                <Label FontSize="Small" Text="{Binding Code}" />
+                                                <Label FontSize="Micro" Text="{Binding Code}" />
 
                                             </StackLayout>
                                             <yummy:PancakeView.Border>

@@ -1,46 +1,84 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<pages:PopupPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MeroHisab.Partial.AccountHead.AddEditAccountHeadModal"
-             xmlns:pages="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"
-             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-             xmlns:converters="clr-namespace:MeroHisab.Converters"
-             xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
-             CloseWhenBackgroundIsClicked="True">
+<pages:PopupPage
+    x:Class="MeroHisab.Partial.AccountHead.AddEditAccountHeadModal"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:MeroHisab.Converters"
+    xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:pages="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    CloseWhenBackgroundIsClicked="True">
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:IsNegatedValueConverter x:Key="NegateBool" />
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.Content>
-        <StackLayout VerticalOptions="FillAndExpand" Margin="20"  BackgroundColor="WhiteSmoke" >
+        <StackLayout
+            Margin="20,50,20,20"
+            BackgroundColor="WhiteSmoke"
+            VerticalOptions="FillAndExpand">
             <ScrollView>
                 <StackLayout Margin="15">
-                    <StackLayout IsVisible="{Binding IsPaymentMedium,Converter={StaticResource NegateBool}}">
-                        <Label Text="Type" VerticalOptions="Center"/>
-                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PayHeadTypes}" Title="--select--" SelectedItem="{Binding SelectedPayHead}" FontSize="Small"/>
+                    <StackLayout IsVisible="{Binding IsPaymentMedium, Converter={StaticResource NegateBool}}">
+                        <Label Text="Type" VerticalOptions="Center" />
+                        <Picker
+                            Title="--select--"
+                            FontSize="Small"
+                            ItemDisplayBinding="{Binding Text}"
+                            ItemsSource="{Binding PayHeadTypes}"
+                            SelectedItem="{Binding SelectedPayHead}"
+                            VerticalOptions="Center" />
                     </StackLayout>
 
                     <StackLayout BindingContext="{Binding Model}">
-                        <Label VerticalOptions="Center" Text="Code"/>
-                        <Entry VerticalOptions="Center" Text="{Binding Code}" FontSize="Small"/>
-                        <Label x:Name="AccountHeadDto_CodeError" IsVisible="False" TextColor="Red" />
+                        <material:MaterialTextField
+                            BackgroundColor="Transparent"
+                            InputType="Text"
+                            Placeholder="Code"
+                            Text="{Binding Code}"
+                            UnderlineColor="{StaticResource BackgroundColor}"
+                            VerticalOptions="Center" />
+                        <Label
+                            x:Name="AccountHeadDto_CodeError"
+                            IsVisible="False"
+                            TextColor="Red" />
 
-                        <Label VerticalOptions="Center" Text="Name"/>
-                        <Entry VerticalOptions="Center" Text="{Binding Name}" FontSize="Small"/>
-                        <Label x:Name="AccountHeadDto_NameError" IsVisible="False" TextColor="Red" />
+
+                        <material:MaterialTextField
+                            BackgroundColor="Transparent"
+                            InputType="Text"
+                            Placeholder="Name"
+                            Text="{Binding Name}"
+                            UnderlineColor="{StaticResource BackgroundColor}"
+                            VerticalOptions="Center" />
+                        <Label
+                            x:Name="AccountHeadDto_NameError"
+                            IsVisible="False"
+                            TextColor="Red" />
 
                     </StackLayout>
 
-                    <Button VerticalOptions="Center" Text="Save" HorizontalOptions="FillAndExpand" CornerRadius="5" BackgroundColor="{StaticResource PrimaryColor}" TextColor="White">
+                    <Button
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        CornerRadius="5"
+                        HorizontalOptions="FillAndExpand"
+                        Text="Save"
+                        TextColor="White"
+                        VerticalOptions="Center">
                         <Button.Behaviors>
-                            <xct:EventToCommandBehavior Command="{Binding SaveButtonClickedCommand}" EventName="Clicked"/>
+                            <xct:EventToCommandBehavior Command="{Binding SaveButtonClickedCommand}" EventName="Clicked" />
                         </Button.Behaviors>
                     </Button>
 
-                    <Button BackgroundColor="Transparent" Text="Cancel" TextColor="Black" CornerRadius="5">
+                    <Button
+                        BackgroundColor="Transparent"
+                        CornerRadius="5"
+                        Text="Cancel"
+                        TextColor="Black">
                         <Button.Behaviors>
-                            <xct:EventToCommandBehavior Command="{Binding CancelButtonClickedCommand}" EventName="Clicked"/>
+                            <xct:EventToCommandBehavior Command="{Binding CancelButtonClickedCommand}" EventName="Clicked" />
                         </Button.Behaviors>
                     </Button>
 

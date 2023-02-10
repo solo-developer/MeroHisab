@@ -79,7 +79,7 @@
                                 </CollectionView.ItemsLayout>
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="dto:AccountHeadDto">
-                                        <SwipeView>
+                                        <SwipeView BackgroundColor="Transparent">
                                             <SwipeView.RightItems>
                                                 <SwipeItems>
                                                     <SwipeItem
@@ -114,16 +114,16 @@
                                             </SwipeView.RightItems>
                                             <yummy:PancakeView
                                                 BackgroundColor="White"
-                                                CornerRadius="10,10,10,10"
-                                                HeightRequest="80"
+                                                CornerRadius="10"
+                                                HeightRequest="60"
                                                 HorizontalOptions="FillAndExpand">
                                                 <StackLayout Padding="10" VerticalOptions="Center">
                                                     <Label
-                                                        FontSize="Medium"
+                                                        FontSize="Small"
                                                         HorizontalOptions="FillAndExpand"
                                                         Text="{Binding Name}"
                                                         TextColor="{StaticResource BackgroundColor}" />
-                                                    <Label FontSize="Small" Text="{Binding Code}" />
+                                                    <Label FontSize="Micro" Text="{Binding Code}" />
                                                 </StackLayout>
                                                 <yummy:PancakeView.Border>
                                                     <yummy:Border Thickness="2" Color="LightGreen" />
