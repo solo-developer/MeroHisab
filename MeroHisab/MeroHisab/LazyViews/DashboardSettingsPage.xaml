@@ -7,9 +7,97 @@
     xmlns:fontAwesome="clr-namespace:FontAwesome"
     xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
     xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView">
+
+    <ContentView.Resources>
+        <Style x:Key="FrameStyle" TargetType="Frame">
+            <Setter Property="CornerRadius" Value="10" />
+
+        </Style>
+        <Style x:Key="QuickLinksLabel" TargetType="Label">
+            <Setter Property="FontSize" Value="Micro" />
+            <Setter Property="HorizontalOptions" Value="CenterAndExpand" />
+            <Setter Property="VerticalOptions" Value="EndAndExpand" />
+
+        </Style>
+    </ContentView.Resources>
     <ContentView.Content>
         <ScrollView Margin="10,5" VerticalScrollBarVisibility="Default">
             <StackLayout Margin="10,5" Orientation="Vertical">
+
+                <Grid ColumnSpacing="10" RowSpacing="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="120" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Frame
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Style="{StaticResource FrameStyle}">
+
+                        <StackLayout>
+                            <Image>
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="FontAwesomeSolid"
+                                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.Heading}"
+                                        Color="Black" />
+                                </Image.Source>
+
+                            </Image>
+                            <Label Style="{StaticResource QuickLinksLabel}">Account Head</Label>
+                        </StackLayout>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="AccountHeadTappedEvent" />
+                        </Frame.GestureRecognizers>
+                    </Frame>
+                    <Frame
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Style="{StaticResource FrameStyle}">
+                        <StackLayout VerticalOptions="FillAndExpand">
+                            <Image>
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="FontAwesomeSolid"
+                                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.MoneyBill}"
+                                        Color="Black" />
+                                </Image.Source>
+
+                            </Image>
+                            <Label Style="{StaticResource QuickLinksLabel}">Payment Mediums</Label>
+                        </StackLayout>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="PaymentMediumTappedEvent" />
+                        </Frame.GestureRecognizers>
+                    </Frame>
+                    <Frame
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Style="{StaticResource FrameStyle}">
+                        <StackLayout>
+                            <Image>
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="FontAwesomeSolid"
+                                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.Bookmark}"
+                                        Color="Black" />
+                                </Image.Source>
+
+                            </Image>
+                            <Label Style="{StaticResource QuickLinksLabel}">
+                                Default A/c Setup
+                            </Label>
+                        </StackLayout>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="DefaultAccountSetupTappedEvent" />
+                        </Frame.GestureRecognizers>
+                    </Frame>
+
+                </Grid>
                 <!--  Account Heads  -->
                 <StackLayout Orientation="Horizontal">
                     <Label

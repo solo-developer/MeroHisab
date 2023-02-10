@@ -1,79 +1,152 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MeroHisab.LazyViews.DashboardHomePage"
-               xmlns:fontAwesome="clr-namespace:FontAwesome"
-             xmlns:models="clr-namespace:MeroHisab.Models;assembly=MeroHisab"
-             xmlns:xct="clr-namespace:MeroHisab.Behaviors">
-    <ContentView.Content  x:DataType="viewmodel:DashboardHomePageModel">
-        <Grid RowDefinitions="3*,30,7*" Margin="10,0">
-            <Frame BackgroundColor="{StaticResource CardColor}" Grid.Row="0" CornerRadius="10">
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    x:Class="MeroHisab.LazyViews.DashboardHomePage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:fontAwesome="clr-namespace:FontAwesome"
+    xmlns:models="clr-namespace:MeroHisab.Models;assembly=MeroHisab"
+    xmlns:xct="clr-namespace:MeroHisab.Behaviors">
+    <ContentView.Content x:DataType="viewmodel:DashboardHomePageModel">
+        <Grid Margin="10,0" RowDefinitions="3*,30,7*">
+            <Frame
+                Grid.Row="0"
+                BackgroundColor="{StaticResource CardColor}"
+                CornerRadius="10">
                 <StackLayout VerticalOptions="Start">
-                    <Label Text="Accounts Balance" HorizontalOptions="Center" FontSize="Small"/>
-                    <Label Text="NRs. 5000.00" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Center"/>
-                    <StackLayout Orientation="Horizontal" Margin="0,20,0,0">
-                        <Grid RowDefinitions="*,*" ColumnDefinitions="Auto,*" HorizontalOptions="StartAndExpand">
-                            <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+                    <Label
+                        FontSize="Small"
+                        HorizontalOptions="Center"
+                        Text="Accounts Balance" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        HorizontalOptions="Center"
+                        Text="NRs. 5000.00" />
+                    <StackLayout Margin="0,20,0,0" Orientation="Horizontal">
+                        <Grid
+                            ColumnDefinitions="Auto,*"
+                            HorizontalOptions="StartAndExpand"
+                            RowDefinitions="*,*">
+                            <Image
+                                Grid.Row="0"
+                                Grid.RowSpan="2"
+                                Grid.Column="0">
                                 <Image.Source>
-                                    <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="Green"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowUp}"/>
+                                    <FontImageSource
+                                        FontFamily="FontAwesomeSolid"
+                                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowUp}"
+                                        Color="Green" />
                                 </Image.Source>
                             </Image>
-                            <Label Text="Incomes" Grid.Row="0" Grid.Column="1"/>
-                            <Label Text="Nrs. 10000.00" Grid.Row="1" Grid.Column="1"/>
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Text="Incomes" />
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Text="Nrs. 10000.00" />
                         </Grid>
-                        <Grid RowDefinitions="*,*" ColumnDefinitions="Auto,*" HorizontalOptions="StartAndExpand">
-                            <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+                        <Grid
+                            ColumnDefinitions="Auto,*"
+                            HorizontalOptions="StartAndExpand"
+                            RowDefinitions="*,*">
+                            <Image
+                                Grid.Row="0"
+                                Grid.RowSpan="2"
+                                Grid.Column="0">
                                 <Image.Source>
-                                    <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="Red"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowDown}"/>
+                                    <FontImageSource
+                                        FontFamily="FontAwesomeSolid"
+                                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowDown}"
+                                        Color="Red" />
                                 </Image.Source>
                             </Image>
-                            <Label Text="Expenses" Grid.Row="0" Grid.Column="1"/>
-                            <Label Text="Nrs. 5000.00" Grid.Row="1" Grid.Column="1"/>
+                            <Label
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Text="Expenses" />
+                            <Label
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Text="Nrs. 5000.00" />
                         </Grid>
                     </StackLayout>
 
                 </StackLayout>
 
             </Frame>
-            <StackLayout  Grid.Row="1" VerticalOptions="Center" Orientation="Horizontal">
-                <Label Text="My Transaction Graph" FontSize="Subtitle" TextColor="{StaticResource HeadingColor}"/>
-                <Image HeightRequest="25" WidthRequest="30" VerticalOptions="Center" HorizontalOptions="Center">
+            <StackLayout
+                Grid.Row="1"
+                Orientation="Horizontal"
+                VerticalOptions="Center">
+                <Label
+                    FontSize="Subtitle"
+                    Text="My Transaction Graph"
+                    TextColor="{StaticResource HeadingColor}" />
+                <Image
+                    HeightRequest="25"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    WidthRequest="30">
                     <Image.Source>
-                        <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="{StaticResource HeadingColor}"
-                     Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowRight}"/>
+                        <FontImageSource
+                            FontFamily="FontAwesomeSolid"
+                            Glyph="{x:Static fontAwesome:FontAwesomeIcons.ArrowRight}"
+                            Color="{StaticResource HeadingColor}" />
                     </Image.Source>
                 </Image>
             </StackLayout>
 
-            <Frame BackgroundColor="{StaticResource CardColor}" Grid.Row="2" CornerRadius="10">
+            <Frame
+                Grid.Row="2"
+                BackgroundColor="{StaticResource CardColor}"
+                CornerRadius="10">
                 <StackLayout>
                     <ScrollView VerticalScrollBarVisibility="Never">
-                        <CollectionView  ItemsSource="{Binding Operations}" Margin="0,10" Grid.Row="1" SelectionMode="Single" BackgroundColor="White" Opacity="0.7" SelectedItem="{Binding SelectedItem}">
+                        <CollectionView
+                            Grid.Row="1"
+                            Margin="0,10"
+                            BackgroundColor="White"
+                            ItemsSource="{Binding Operations}"
+                            Opacity="0.7"
+                            SelectedItem="{Binding SelectedItem}"
+                            SelectionMode="Single">
                             <CollectionView.ItemsLayout>
-                                <GridItemsLayout Orientation="Vertical" Span="4" HorizontalItemSpacing="10" VerticalItemSpacing="35" />
+                                <GridItemsLayout
+                                    HorizontalItemSpacing="10"
+                                    Orientation="Vertical"
+                                    Span="4"
+                                    VerticalItemSpacing="35" />
                             </CollectionView.ItemsLayout>
 
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="models:GridItem">
                                     <StackLayout Orientation="Vertical">
-                                        <Image HeightRequest="40" WidthRequest="40" VerticalOptions="Center" HorizontalOptions="Center">
+                                        <Image
+                                            HeightRequest="40"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center"
+                                            WidthRequest="40">
                                             <Image.Source>
-                                                <FontImageSource FontFamily="FontAwesomeSolid"
-                     Color="{StaticResource BackgroundColor}"
-                     Glyph="{Binding IconName}"/>
+                                                <FontImageSource
+                                                    FontFamily="FontAwesomeSolid"
+                                                    Glyph="{Binding IconName}"
+                                                    Color="{StaticResource BackgroundColor}" />
                                             </Image.Source>
                                         </Image>
-                                        <Label Text="{Binding DisplayName}" VerticalOptions="Center" HorizontalOptions="FillAndExpand" TextColor="Black" FontSize="Small" HorizontalTextAlignment="Center"></Label>
+                                        <Label
+                                            FontSize="Small"
+                                            HorizontalOptions="FillAndExpand"
+                                            HorizontalTextAlignment="Center"
+                                            Text="{Binding DisplayName}"
+                                            TextColor="Black"
+                                            VerticalOptions="Center" />
                                     </StackLayout>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                             <CollectionView.Behaviors>
-                                <xct:EventToCommandBehavior Command="{Binding SettingSelectedCommand}" EventName="SelectionChanged"></xct:EventToCommandBehavior>
+                                <xct:EventToCommandBehavior Command="{Binding SettingSelectedCommand}" EventName="SelectionChanged" />
                             </CollectionView.Behaviors>
                         </CollectionView>
 

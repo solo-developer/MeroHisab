@@ -120,7 +120,7 @@ namespace MeroHisab.ViewModels
             {
                 AccountHeadDataState = LayoutState.Loading;
                 AccountHeads.Clear();
-                var heads = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.Normal, 4);
+                var heads = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.Normal, 3);
                 AccountHeads.AddRange(heads);
                 AccountHeadDataState = LayoutState.Success;
             }
@@ -134,7 +134,7 @@ namespace MeroHisab.ViewModels
         {
             PaymentMediumDataState = LayoutState.Loading;
             PaymentMediums.Clear();
-            var heads = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.PaymentMedium, 4);
+            var heads = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.PaymentMedium, 3);
             PaymentMediums.AddRange(heads.Select(a => new PaymentMediumDto
             {
                 Id = a.Id,

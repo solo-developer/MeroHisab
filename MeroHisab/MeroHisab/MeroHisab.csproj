@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="FormsPinView" Version="2.1.0-pre1" />
+    <PackageReference Include="Microcharts" Version="0.9.5.9" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Rg.Plugins.Popup" Version="2.0.0.14" />
     <PackageReference Include="Sharpnado.Tabs" Version="2.2.0" />

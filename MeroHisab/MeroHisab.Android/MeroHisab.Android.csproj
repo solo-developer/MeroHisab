@@ -60,6 +60,9 @@
     <PackageReference Include="Google.Apis.Sheets.v4">
       <Version>1.57.0.2657</Version>
     </PackageReference>
+    <PackageReference Include="Microcharts">
+      <Version>0.9.5.9</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection">
       <Version>6.0.0</Version>
     </PackageReference>
