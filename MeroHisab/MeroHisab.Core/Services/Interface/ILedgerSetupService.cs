@@ -1,4 +1,5 @@
-﻿using MeroHisab.Core.Entities;
+﻿using MeroHisab.Core.Dto;
+using MeroHisab.Core.Entities;
 using System.Collections.Generic;
 
 namespace MeroHisab.Core.Services.Interface
@@ -7,6 +8,8 @@ namespace MeroHisab.Core.Services.Interface
     {
         void saveOrUpdate(string key, string value);
         void saveOrUpdate(List<LedgerSetup> keyValue);
+
+        Task<List<LedgerSetupDto>> GetAllAsync();
 
     }
 

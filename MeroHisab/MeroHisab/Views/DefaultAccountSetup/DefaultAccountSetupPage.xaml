@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MeroHisab.Views.DefaultAccountSetupPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
+    xmlns:fontAwesome="clr-namespace:FontAwesome"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
+    Title="Account Setup">
+    <ContentPage.Resources>
+        <!--<Style x:Key="HeaderStyle" TargetType="Grid">
+            <Setter Property="fon" Value="Center" />
+        </Style>-->
+        <Style x:Key="HeaderLabelStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="Small" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextTransform" Value="Uppercase" />
+        </Style>
+
+        <Style x:Key="LineStyle" TargetType="BoxView">
+            <Setter Property="HeightRequest" Value="1" />
+            <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+            <Setter Property="VerticalOptions" Value="End" />
+            <Setter Property="Color" Value="Black" />
+        </Style>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <ScrollView Margin="10,5" VerticalScrollBarVisibility="Never">
+            <StackLayout Margin="10,5" Orientation="Vertical">
+                <StackLayout VerticalOptions="Fill">
+
+                    <CollectionView
+                        x:Name="SetupCollection"
+                        HorizontalOptions="FillAndExpand"
+                        HorizontalScrollBarVisibility="Default"
+                        ItemSizingStrategy="MeasureFirstItem"
+                        ItemsSource="{Binding AccountKeys}">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" Span="1" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.Header>
+
+                            <Grid Padding="10" VerticalOptions="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Label
+                                    Grid.Column="0"
+                                    Style="{StaticResource HeaderLabelStyle}"
+                                    Text="Account Type" />
+                                <Label
+                                    Grid.Column="1"
+                                    Style="{StaticResource HeaderLabelStyle}"
+                                    Text="Select Ledger" />
+                                <Label
+                                    Grid.Column="2"
+                                    Style="{StaticResource HeaderLabelStyle}"
+                                    Text="Action" />
+                                <BoxView
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="3"
+                                    Style="{StaticResource LineStyle}" />
+                            </Grid>
+
+
+                        </CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="10" VerticalOptions="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Column="0" Text="{Binding .}" />
+                                    <Label Grid.Column="1" Text="{Binding .}" />
+                                    <ImageButton Grid.Column="2" BackgroundColor="Transparent">
+                                        <ImageButton.Source>
+                                            <FontImageSource
+                                                FontFamily="FontAwesomeSolid"
+                                                Glyph="{x:Static fontAwesome:FontAwesomeIcons.File}"
+                                                Color="Black" />
+                                        </ImageButton.Source>
+                                    </ImageButton>
+                                    <BoxView
+                                        Grid.Row="1"
+                                        Grid.ColumnSpan="3"
+                                        Style="{StaticResource LineStyle}" />
+                                </Grid>
+
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                        <CollectionView.EmptyView>
+                            <Label
+                                Padding="50,50"
+                                FontSize="Small"
+                                HorizontalOptions="CenterAndExpand"
+                                Text="There are no accounts."
+                                TextColor="White"
+                                VerticalOptions="Center" />
+
+                        </CollectionView.EmptyView>
+                    </CollectionView>
+
+
+                </StackLayout>
+
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

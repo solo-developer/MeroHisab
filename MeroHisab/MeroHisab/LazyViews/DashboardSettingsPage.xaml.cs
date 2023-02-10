@@ -31,7 +31,7 @@ namespace MeroHisab.LazyViews
         }
         private async void DefaultAccountSetupTappedEvent(object sender, System.EventArgs e)
         {
-          //  await (Content.BindingContext as DashboardSettingsPageModel).NavigateToAccountHeadListPage();
+            await (Content.BindingContext as DashboardSettingsPageModel).NavigateToAccountSetupPage();
         }
 
         private async void PaymentMediumTappedEvent(object sender, System.EventArgs e)

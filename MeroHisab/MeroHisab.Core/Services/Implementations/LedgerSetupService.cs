@@ -1,4 +1,7 @@
-﻿using MeroHisab.Core.Entities;
+﻿using MeroHisab.Core.Dto;
+using MeroHisab.Core.Entities;
+using MeroHisab.Core.Enums;
+using MeroHisab.Core.Extensions;
 using MeroHisab.Core.Repository.Interface;
 using MeroHisab.Core.Services.Interface;
 using System;
@@ -73,6 +76,18 @@ namespace MeroHisab.Core.Services.Implementations
             ledgerSetup.Key = key;
             ledgerSetup.Value = value;
             await _ledgerSetupRepo.Insert(ledgerSetup);
+        }
+
+        public async Task<List<LedgerSetupDto>> GetAllAsync()
+        {
+            var setups =await _ledgerSetupRepo.Get();
+
+            return setups.Select(a=> new LedgerSetupDto
+            {
+                Key=a.Key,
+                Value=Convert.ToInt32(a.Value),
+                DisplayName= ((LedgerSetupType)(Convert.ToInt32(a.Value))).GetDisplayName()
+            }).ToList();
         }
     }
 }

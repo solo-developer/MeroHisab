@@ -97,6 +97,12 @@ namespace MeroHisab.ViewModels
             MessagingCenter.Subscribe<AccountHeadDto>(this, "AccountHeadListPage.BackButtonPressed", BackButtonPressedFromAccountHeadListPage);
 
         }
+        
+        public async Task NavigateToAccountSetupPage()
+        {           
+            await _navigationService.NavigateToAsync<DefaultAccountSetupPageModel>();
+
+        }
         private async void AfterManipulatingPaymentMediums(PaymentMediumDto obj)
         {
             MessagingCenter.Unsubscribe<PaymentMediumDto>(this, "PaymentMediumListPage.BackButtonPressed");
