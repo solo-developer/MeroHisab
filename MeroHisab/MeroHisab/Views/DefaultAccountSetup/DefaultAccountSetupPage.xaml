@@ -39,7 +39,7 @@
                         x:Name="SetupCollection"
                         HorizontalOptions="FillAndExpand"
                         HorizontalScrollBarVisibility="Default"
-                        ItemSizingStrategy="MeasureFirstItem"
+                        ItemSizingStrategy="MeasureAllItems"
                         ItemsSource="{Binding AccountKeys}">
                         <CollectionView.ItemsLayout>
                             <GridItemsLayout Orientation="Vertical" Span="1" />
@@ -75,7 +75,7 @@
                         </CollectionView.Header>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="10" VerticalOptions="Center">
+                                <Grid Padding="10,5" VerticalOptions="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="2*" />
                                         <ColumnDefinition Width="2*" />
@@ -90,27 +90,24 @@
                                         Title="Select Ledger"
                                         Grid.Column="1"
                                         FontSize="Small"
-                                        HorizontalOptions="CenterAndExpand"
+                                        HorizontalOptions="Fill"
                                         ItemDisplayBinding="{Binding Name}"
                                         VerticalOptions="Center">
-
                                         <Picker.ItemsSource>
                                             <MultiBinding Converter="{StaticResource LedgerFilterByGroupConverter}">
                                                 <Binding Path="GroupType" />
                                                 <Binding Path="BindingContext.Ledgers" Source="{x:Reference DefaultAccountPage}" />
-
-
                                             </MultiBinding>
                                         </Picker.ItemsSource>
                                     </Picker>
                                     <ImageButton
                                         Grid.Column="2"
-                                        BackgroundColor="Transparent"
-                                        HeightRequest="10">
+                                        Aspect="AspectFit"
+                                        BackgroundColor="Transparent">
                                         <ImageButton.Source>
                                             <FontImageSource
                                                 FontFamily="FontAwesomeSolid"
-                                                Glyph="{x:Static fontAwesome:FontAwesomeIcons.File}"
+                                                Glyph="{x:Static fontAwesome:FontAwesomeIcons.Save}"
                                                 Color="Black" />
                                         </ImageButton.Source>
                                     </ImageButton>
