@@ -1,4 +1,5 @@
-﻿using MeroHisab.Core.Dto;
+﻿using MeroHisab.Core.Attributes;
+using MeroHisab.Core.Dto;
 using MeroHisab.Core.Enums;
 using MeroHisab.Core.Extensions;
 using MeroHisab.Core.Services.Interface;
@@ -9,21 +10,39 @@ using Xamarin.CommunityToolkit.ObjectModel;
 
 namespace MeroHisab.ViewModels
 {
+    public class AccountKeysModel
+    {
+        public string Key { get; set; }
+        public LedgerGroupType GroupType { get; set; }
+    }
     public class DefaultAccountSetupPageModel : ViewModelBase
     {
         private readonly ILedgerSetupService _ledgerSetupService;
-        public DefaultAccountSetupPageModel(ILedgerSetupService ledgerSetupService)
+        private readonly ILedgerService _ledgerService;
+        public DefaultAccountSetupPageModel(ILedgerSetupService ledgerSetupService, ILedgerService ledgerService)
         {
             _ledgerSetupService = ledgerSetupService;
-            AccountKeys = new ObservableRangeCollection<string>();
+            _ledgerService = ledgerService;
+            AccountKeys = new ObservableRangeCollection<AccountKeysModel>();
             Setups = new ObservableRangeCollection<LedgerSetupDto>();
+            Ledgers = new ObservableRangeCollection<LedgerDto>();
             SetAccountKeys();
             LoadSetups();
+            LoadLedgers();
         }
 
-        public ObservableRangeCollection<string> AccountKeys
+        public ObservableRangeCollection<AccountKeysModel> AccountKeys
         {
-            get => GetValue<ObservableRangeCollection<string>>();
+            get => GetValue<ObservableRangeCollection<AccountKeysModel>>();
+            set
+            {
+                SetValue(value);
+            }
+        }
+
+        public ObservableRangeCollection<LedgerDto> Ledgers
+        {
+            get => GetValue<ObservableRangeCollection<LedgerDto>>();
             set
             {
                 SetValue(value);
@@ -38,6 +57,13 @@ namespace MeroHisab.ViewModels
             }
         }
 
+        private async Task LoadLedgers()
+        {
+            var ledgers = await _ledgerService.GetAllLedgersAsync();
+            Ledgers.Clear();
+            Ledgers.AddRange(ledgers);
+        }
+
         private async Task LoadSetups()
         {
             var setups = await _ledgerSetupService.GetAllAsync();
@@ -48,8 +74,11 @@ namespace MeroHisab.ViewModels
         {
             var keys = Enum.GetValues(typeof(LedgerSetupType))
                 .Cast<LedgerSetupType>()
-      .Select(s => s.GetDisplayName()).OrderBy(a => a)
-      .ToList();
+                .Select(s => new AccountKeysModel
+                {
+                    Key = s.GetDisplayName(),
+                    GroupType = (s.GetAttribute<LedgerGroupAttribute>()).GroupType
+                }).OrderBy(a => a.Key).ToList();
 
             AccountKeys.Clear();
             AccountKeys.AddRange(keys);
