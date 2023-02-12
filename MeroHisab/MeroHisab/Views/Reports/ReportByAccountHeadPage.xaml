@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MeroHisab.Views.ReportByAccountHeadPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:fontAwesome="clr-namespace:FontAwesome"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    Title="Reports By Account Head"
+    BackgroundColor="{StaticResource BackgroundColor}">
+    <NavigationPage.TitleView>
+        <StackLayout Margin="0,0,20,0" Orientation="Horizontal">
+            <Label
+                FontSize="Medium"
+                HorizontalOptions="StartAndExpand"
+                Text="Report By Account Head"
+                TextColor="{StaticResource NavigationTextColor}"
+                VerticalOptions="Center" />
+
+            <ImageButton
+                xct:TouchEffect.Command="{Binding FilterReportButtonClicked}"
+                BackgroundColor="Transparent"
+                HeightRequest="20"
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                WidthRequest="30">
+                <ImageButton.Source>
+                    <FontImageSource
+                        FontFamily="FontAwesomeSolid"
+                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.Filter}"
+                        Color="White" />
+                </ImageButton.Source>
+            </ImageButton>
+        </StackLayout>
+
+    </NavigationPage.TitleView>
+    <ContentPage.Content>
+        <StackLayout>
+            <Label
+                HorizontalOptions="CenterAndExpand"
+                Text="Welcome to Xamarin.Forms!"
+                VerticalOptions="CenterAndExpand" />
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

@@ -1,10 +1,67 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MeroHisab.LazyViews.DashboardReportsPage">
-  <ContentView.Content>
-        <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-          <Label Text="Reports Page !!" />
-      </StackLayout>
-  </ContentView.Content>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    x:Class="MeroHisab.LazyViews.DashboardReportsPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:fontAwesome="clr-namespace:FontAwesome"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView">
+    <ContentView.Resources>
+        <Style x:Key="FrameStyle" TargetType="Frame">
+            <Setter Property="CornerRadius" Value="10" />
+
+        </Style>
+        <Style x:Key="QuickLinksLabel" TargetType="Label">
+            <Setter Property="FontSize" Value="Small" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextTransform" Value="Uppercase" />
+            <Setter Property="HorizontalOptions" Value="CenterAndExpand" />
+            <Setter Property="VerticalOptions" Value="EndAndExpand" />
+
+        </Style>
+    </ContentView.Resources>
+    <ContentView.Content>
+        <ScrollView Margin="10,5" VerticalScrollBarVisibility="Default">
+            <StackLayout Margin="10,5" Orientation="Vertical">
+
+                <Grid ColumnSpacing="10" RowSpacing="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="60" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <!--<ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />-->
+                    </Grid.ColumnDefinitions>
+                    <Frame
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        xct:TouchEffect.Command="{Binding ReportsByAccountHeadCommand}"
+                        Style="{StaticResource FrameStyle}">
+
+                        <StackLayout Orientation="Horizontal">
+                            <ImageButton BackgroundColor="Transparent">
+                                <ImageButton.Source>
+                                    <FontImageSource
+                                        FontFamily="FontAwesomeSolid"
+                                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.ChartArea}"
+                                        Color="Black" />
+                                </ImageButton.Source>
+                            </ImageButton>
+                            <Label
+                                HorizontalOptions="CenterAndExpand"
+                                Style="{StaticResource QuickLinksLabel}"
+                                Text="Reports By Account Head"
+                                VerticalOptions="Center" />
+
+                        </StackLayout>
+
+                    </Frame>
+
+                </Grid>
+
+            </StackLayout>
+        </ScrollView>
+
+    </ContentView.Content>
 </ContentView>
