@@ -12,7 +12,8 @@ namespace MeroHisab.ViewModels
 {
     public class AccountKeysModel
     {
-        public string Key { get; set; }
+        public int Key { get; set; }
+        public string DisplayName { get; set; }
         public LedgerGroupType GroupType { get; set; }
     }
     public class DefaultAccountSetupPageModel : ViewModelBase
@@ -76,12 +77,18 @@ namespace MeroHisab.ViewModels
                 .Cast<LedgerSetupType>()
                 .Select(s => new AccountKeysModel
                 {
-                    Key = s.GetDisplayName(),
+                    Key = (int)s,
+                    DisplayName = s.GetDisplayName(),
                     GroupType = (s.GetAttribute<LedgerGroupAttribute>()).GroupType
                 }).OrderBy(a => a.Key).ToList();
 
             AccountKeys.Clear();
             AccountKeys.AddRange(keys);
+        }
+
+        public void SaveSetup(string key, string value)
+        {
+            _ledgerSetupService.saveOrUpdate(key, value);
         }
     }
 }
