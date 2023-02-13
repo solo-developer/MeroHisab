@@ -16,7 +16,7 @@ using MeroHisab.CustomControls;
 
 namespace MeroHisab.Droid
 {
-    [Activity(Label = "Mero Hisab", Icon = "@mipmap/ic_launcher", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize )]
+    [Activity(Label = "Mero Hisab", Icon = "@mipmap/ic_launcher", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
@@ -26,12 +26,12 @@ namespace MeroHisab.Droid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             Rg.Plugins.Popup.Popup.Init(this);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
-          
+
             ImageCircleRenderer.Init();
             PinItemViewRenderer.Init();
             FFImageLoading.Forms.Platform.CachedImageRenderer.Init(enableFastRenderer: true);
             AppCompatDelegate.DefaultNightMode = AppCompatDelegate.ModeNightNo;
-           XF.Material.Droid.Material.Init(this, savedInstanceState);
+            XF.Material.Droid.Material.Init(this, savedInstanceState);
             LoadApplication(new App(AddServices));
             // Window.SetStatusBarColor(Android.Graphics.Color.Rgb(0, 153, 51));
         }
@@ -48,10 +48,10 @@ namespace MeroHisab.Droid
             if (item.ItemId == 16908332)
             {
                 // retrieve the current xamarin forms page instance
-                var currentpage = (BackButtonEventOverrideableContentPage)
+                var currentpage = 
                 Xamarin.Forms.Application.
                 Current.MainPage.Navigation.
-                NavigationStack.LastOrDefault();
+                NavigationStack.LastOrDefault() as BackButtonEventOverrideableContentPage;
 
                 // check if the page has subscribed to 
                 // the custom back button event
@@ -78,10 +78,7 @@ namespace MeroHisab.Droid
         public override void OnBackPressed()
         {
             // retrieve the current xamarin forms page instance
-            var currentpage = (BackButtonEventOverrideableContentPage)
-            Xamarin.Forms.Application.
-            Current.MainPage.Navigation.
-            NavigationStack.LastOrDefault();
+            var currentpage = Xamarin.Forms.Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault() as BackButtonEventOverrideableContentPage;
 
             // check if the page has subscribed to 
             // the custom back button event
@@ -95,7 +92,7 @@ namespace MeroHisab.Droid
             }
             Rg.Plugins.Popup.Popup.SendBackPressed(base.OnBackPressed);
         }
-       
+
         static void AddServices(IServiceCollection services)
         {
             services.AddTransient<IToastService, ToastService>();
