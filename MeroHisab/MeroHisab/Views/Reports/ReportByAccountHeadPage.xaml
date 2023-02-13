@@ -3,10 +3,29 @@
     x:Class="MeroHisab.Views.ReportByAccountHeadPage"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:MeroHisab.Converters"
+    xmlns:dto="clr-namespace:MeroHisab.Core.Dto;assembly=MeroHisab.Core"
     xmlns:fontAwesome="clr-namespace:FontAwesome"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:reportDto="clr-namespace:MeroHisab.Core.Dto.Report;assembly=MeroHisab.Core"
     xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
     Title="Reports By Account Head"
     BackgroundColor="{StaticResource BackgroundColor}">
+    <ContentPage.Resources>
+        <Style x:Key="FilterByDaysBtnStyle" TargetType="material:MaterialButton">
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="TextColor" Value="Black" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="HorizontalOptions" Value="StartAndExpand" />
+            <Setter Property="FlowDirection" Value="LeftToRight" />
+            <Setter Property="FontSize" Value="Micro" />
+            <Setter Property="TextTransform" Value="Lowercase" />
+        </Style>
+        <ResourceDictionary>
+            <converters:AmountPrefixedByCurrencyConverter x:Key="AmountPrefixedByCurrencyConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <NavigationPage.TitleView>
         <StackLayout Margin="0,0,20,0" Orientation="Horizontal">
             <Label
@@ -17,7 +36,7 @@
                 VerticalOptions="Center" />
 
             <ImageButton
-                xct:TouchEffect.Command="{Binding FilterReportButtonClicked}"
+                xct:TouchEffect.Command="{Binding ExportButtonClicked}"
                 BackgroundColor="Transparent"
                 HeightRequest="20"
                 HorizontalOptions="End"
@@ -26,7 +45,7 @@
                 <ImageButton.Source>
                     <FontImageSource
                         FontFamily="FontAwesomeSolid"
-                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.Filter}"
+                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.FileExport}"
                         Color="White" />
                 </ImageButton.Source>
             </ImageButton>
@@ -34,11 +53,175 @@
 
     </NavigationPage.TitleView>
     <ContentPage.Content>
-        <StackLayout>
-            <Label
-                HorizontalOptions="CenterAndExpand"
-                Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" />
-        </StackLayout>
+        <RefreshView>
+            <Grid Margin="10,5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackLayout Grid.Row="0">
+                    <Grid ColumnSpacing="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <material:MaterialButton
+                            Grid.Column="0"
+                            Style="{x:StaticResource FilterByDaysBtnStyle}"
+                            Text="7 Days">
+                            <material:MaterialButton.Behaviors>
+                                <xct:EventToCommandBehavior
+                                    Command="{Binding FilterByDaysButtonClicked}"
+                                    CommandParameter="7"
+                                    EventName="Clicked" />
+                            </material:MaterialButton.Behaviors>
+                        </material:MaterialButton>
+                        <material:MaterialButton
+                            Grid.Column="1"
+                            Style="{x:StaticResource FilterByDaysBtnStyle}"
+                            Text="15 Days">
+                            <material:MaterialButton.Behaviors>
+                                <xct:EventToCommandBehavior
+                                    Command="{Binding FilterByDaysButtonClicked}"
+                                    CommandParameter="15"
+                                    EventName="Clicked" />
+                            </material:MaterialButton.Behaviors>
+                        </material:MaterialButton>
+                        <material:MaterialButton
+                            Grid.Column="2"
+                            Style="{x:StaticResource FilterByDaysBtnStyle}"
+                            Text="1 Month">
+                            <material:MaterialButton.Behaviors>
+                                <xct:EventToCommandBehavior
+                                    Command="{Binding FilterByDaysButtonClicked}"
+                                    CommandParameter="30"
+                                    EventName="Clicked" />
+                            </material:MaterialButton.Behaviors>
+                        </material:MaterialButton>
+                        <material:MaterialButton
+                            Grid.Column="3"
+                            Style="{x:StaticResource FilterByDaysBtnStyle}"
+                            Text="Filter">
+                            <!--<material:MaterialButton.ImageSource>
+                            <FontImageSource
+                                FontFamily="FontAwesomeSolid"
+                                Glyph="{x:Static fontAwesome:FontAwesomeIcons.Filter}"
+                                Color="Black" />
+                        </material:MaterialButton.ImageSource>-->
+                            <material:MaterialButton.Behaviors>
+                                <xct:EventToCommandBehavior Command="{Binding FilterButtonClicked}" EventName="Clicked" />
+                            </material:MaterialButton.Behaviors>
+                        </material:MaterialButton>
+                    </Grid>
+                    <Frame CornerRadius="5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <StackLayout Grid.Row="0" Orientation="Horizontal">
+                                <Label Grid.Column="0" Text="Opening Balance" />
+                                <Label
+                                    Grid.Column="1"
+                                    HorizontalOptions="EndAndExpand"
+                                    Text="{Binding Converter={converters:AmountPrefixedByCurrencyConverter}, ConverterParameter={Binding OpeningBalance}}" />
+                            </StackLayout>
+                            <BoxView
+                                Grid.Row="1"
+                                HeightRequest="1"
+                                Color="Black" />
+                            <StackLayout Grid.Row="2" Orientation="Horizontal">
+                                <Label Grid.Column="0" Text="Closing Balance" />
+                                <Label
+                                    Grid.Column="1"
+                                    HorizontalOptions="EndAndExpand"
+                                    Text="{Binding Converter={converters:AmountPrefixedByCurrencyConverter}, ConverterParameter={Binding ClosingBalance}}" />
+                            </StackLayout>
+                        </Grid>
+                    </Frame>
+
+                </StackLayout>
+
+                <ScrollView Grid.Row="1">
+                    <StackLayout
+                        xct:StateLayout.CurrentState="{Binding TransactionDetailLoadingState}"
+                        BackgroundColor="White"
+                        VerticalOptions="Fill">
+                        <xct:StateLayout.StateViews>
+                            <xct:StateView StateKey="Loading">
+                                <StackLayout
+                                    BackgroundColor="White"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center">
+
+                                    <ActivityIndicator
+                                        IsEnabled="True"
+                                        IsRunning="True"
+                                        Color="Red" />
+                                    <Label HorizontalOptions="Center" Text="Loading..." />
+
+                                </StackLayout>
+                            </xct:StateView>
+                            <xct:StateView StateKey="Error">
+                                <Label
+                                    HorizontalOptions="Center"
+                                    Text="{Binding ErrorMessage}"
+                                    TextColor="{StaticResource ErrorColor}"
+                                    VerticalOptions="CenterAndExpand" />
+                            </xct:StateView>
+                            <xct:StateView StateKey="Success">
+                                <StackLayout
+                                    Margin="0,10,0,0"
+                                    BindableLayout.ItemsSource="{Binding TransactionDetails}"
+                                    Spacing="10">
+                                    <BindableLayout.EmptyView>
+                                        <Frame
+                                            BackgroundColor="White"
+                                            CornerRadius="5"
+                                            HeightRequest="50">
+                                            <Label
+                                                FontSize="Small"
+                                                HorizontalOptions="Center"
+                                                Text="No Transaction have been made for the specified ledger."
+                                                TextColor="{StaticResource DarkColor}" />
+                                        </Frame>
+                                    </BindableLayout.EmptyView>
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="reportDto:ReportTransactionDetailDto">
+                                            <yummy:PancakeView
+                                                BackgroundColor="White"
+                                                CornerRadius="10"
+                                                HeightRequest="60"
+                                                HorizontalOptions="FillAndExpand">
+                                                <StackLayout Padding="10" VerticalOptions="Center">
+                                                    <Label
+                                                        FontSize="Small"
+                                                        HorizontalOptions="FillAndExpand"
+                                                        Text="{Binding RefLedgerName}"
+                                                        TextColor="{StaticResource BackgroundColor}" />
+                                                    <Label FontSize="Micro" Text="{Binding RefLedgerCode}" />
+                                                </StackLayout>
+                                                <yummy:PancakeView.Border>
+                                                    <yummy:Border Thickness="2" Color="LightGreen" />
+                                                </yummy:PancakeView.Border>
+                                            </yummy:PancakeView>
+
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </StackLayout>
+                            </xct:StateView>
+                        </xct:StateLayout.StateViews>
+
+                    </StackLayout>
+                </ScrollView>
+            </Grid>
+
+        </RefreshView>
     </ContentPage.Content>
 </ContentPage>

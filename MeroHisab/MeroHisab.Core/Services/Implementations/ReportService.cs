@@ -1,4 +1,5 @@
 ﻿using MeroHisab.Core.Dto;
+using MeroHisab.Core.Dto.Report;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Repository.Interface;
 using MeroHisab.Core.Services.Interface;
@@ -46,10 +47,10 @@ namespace MeroHisab.Core.Services.Implementations
         public async Task<TrialBalanceDto> GetTrialBalanceDto(DateTime start_date, DateTime end_date)
         {
             TrialBalanceDto trialBalanceDto = new TrialBalanceDto();
-            List<LedgerAmountDto> liabilyLedgerAmountDto =await getLiabilyLedgerAmountDtosof(start_date, end_date);
-            List<LedgerAmountDto> assetsLedgerAmountDto =await getAssetsLedgerAmountDtosof(start_date, end_date);
-            List<LedgerAmountDto> incomeLedgerAmountDto =await getIncomeLedgerAmountDtosof(start_date, end_date);
-            List<LedgerAmountDto> expensesLedgerAmountDto =await getExpensesLedgerAmountDtosof(start_date, end_date);
+            List<LedgerAmountDto> liabilyLedgerAmountDto = await getLiabilyLedgerAmountDtosof(start_date, end_date);
+            List<LedgerAmountDto> assetsLedgerAmountDto = await getAssetsLedgerAmountDtosof(start_date, end_date);
+            List<LedgerAmountDto> incomeLedgerAmountDto = await getIncomeLedgerAmountDtosof(start_date, end_date);
+            List<LedgerAmountDto> expensesLedgerAmountDto = await getExpensesLedgerAmountDtosof(start_date, end_date);
             trialBalanceDto.AddAssetsLedgerBalanceDto(assetsLedgerAmountDto);
             trialBalanceDto.AddLiabilityLedgerBalanceDto(liabilyLedgerAmountDto);
             trialBalanceDto.AddIncomeLedgerBalanceDto(incomeLedgerAmountDto);
@@ -61,14 +62,14 @@ namespace MeroHisab.Core.Services.Implementations
         public async Task<ProfitAndLossDto> GetProfitAndLossDto(DateTime start_date, DateTime end_date)
         {
             ProfitAndLossDto profitLossDto = new ProfitAndLossDto();
-            List<LedgerAmountDto> incomeLedgerAmountDto =await getIncomeLedgerAmountDtosof(start_date, end_date);
+            List<LedgerAmountDto> incomeLedgerAmountDto = await getIncomeLedgerAmountDtosof(start_date, end_date);
             CorrectIncomeLedgerDtoBalances(incomeLedgerAmountDto);
-            List<LedgerAmountDto> expensesLedgerAmountDto =await getExpensesLedgerAmountDtosof(start_date, end_date);
+            List<LedgerAmountDto> expensesLedgerAmountDto = await getExpensesLedgerAmountDtosof(start_date, end_date);
 
             profitLossDto.AddIncomeLedgerAmountDto(incomeLedgerAmountDto);
             profitLossDto.AddExpensesLedgerAmountDto(expensesLedgerAmountDto);
 
-            decimal netAmountLastYear =await getNetAmountOf(start_date);
+            decimal netAmountLastYear = await getNetAmountOf(start_date);
 
             profitLossDto.OpeningBalance = netAmountLastYear;
             return profitLossDto;
@@ -78,12 +79,12 @@ namespace MeroHisab.Core.Services.Implementations
         public async Task<BalanceSheetDto> GetBalanceSheetDto(DateTime start_date, DateTime end_date)
         {
             BalanceSheetDto balanceSheetDto = new BalanceSheetDto();
-            List<LedgerAmountDto> assetLedgerDto =await getAssetsLedgerAmountDtosof(start_date, end_date);
-            List<LedgerAmountDto> liabilitesLedgerDto =await getLiabilyLedgerAmountDtosof(start_date, end_date);
+            List<LedgerAmountDto> assetLedgerDto = await getAssetsLedgerAmountDtosof(start_date, end_date);
+            List<LedgerAmountDto> liabilitesLedgerDto = await getLiabilyLedgerAmountDtosof(start_date, end_date);
 
             correctLiabilityLedgerDtoBalance(liabilitesLedgerDto);
-            decimal netAmountLastyear =await getNetAmountOf(start_date);
-            decimal profitOrLossAmount =(await GetProfitAndLossDto(start_date, end_date)).OpeningBalance;
+            decimal netAmountLastyear = await getNetAmountOf(start_date);
+            decimal profitOrLossAmount = (await GetProfitAndLossDto(start_date, end_date)).OpeningBalance;
 
             balanceSheetDto.ProfitAndLossAmount = profitOrLossAmount;
             balanceSheetDto.ClosingBalance = netAmountLastyear;
@@ -108,12 +109,12 @@ namespace MeroHisab.Core.Services.Implementations
             decimal liabilityBalance = 0;
             foreach (var assetLedger in assetLedgers)
             {
-                assetBalance +=await getLedgerBalanceAmountTillDate(assetLedger.Id, start_date);
+                assetBalance += await getLedgerBalanceAmountTillDate(assetLedger.Id, start_date);
             }
 
             foreach (var liabilityLedger in liabilityLedgers)
             {
-                liabilityBalance +=await getLedgerBalanceAmountTillDate(liabilityLedger.Id, start_date);
+                liabilityBalance += await getLedgerBalanceAmountTillDate(liabilityLedger.Id, start_date);
             }
 
             decimal netAmount = assetBalance - liabilityBalance;
@@ -124,7 +125,7 @@ namespace MeroHisab.Core.Services.Implementations
         {
             List<LedgerAmountDto> dtos = new List<LedgerAmountDto>();
             List<Ledger> expensesLedger = await getAllLedgerBelongingToExpensesGroup();
-          await  AddDtoInDtosWithAmountBetweenTwoDates(start_date, end_date, dtos, expensesLedger);
+            await AddDtoInDtosWithAmountBetweenTwoDates(start_date, end_date, dtos, expensesLedger);
             return dtos;
         }
 
@@ -132,7 +133,7 @@ namespace MeroHisab.Core.Services.Implementations
         {
             List<LedgerAmountDto> dtos = new List<LedgerAmountDto>();
             List<Ledger> incomeLedger = await getAllLedgerBelongingToIncomeGroup();
-           await AddDtoInDtosWithAmountBetweenTwoDates(start_date, end_date, dtos, incomeLedger);
+            await AddDtoInDtosWithAmountBetweenTwoDates(start_date, end_date, dtos, incomeLedger);
             return dtos;
         }
 
@@ -140,7 +141,7 @@ namespace MeroHisab.Core.Services.Implementations
         {
             List<LedgerAmountDto> dtos = new List<LedgerAmountDto>();
             List<Ledger> assetsLedger = await getAllLedgersBelongingToAssetsGroup();
-           await AddDtoInDtosWithAmountBetweenTwoDates(start_date, end_date, dtos, assetsLedger);
+            await AddDtoInDtosWithAmountBetweenTwoDates(start_date, end_date, dtos, assetsLedger);
             return dtos;
         }
 
@@ -159,8 +160,8 @@ namespace MeroHisab.Core.Services.Implementations
             {
                 LedgerAmountDto dto = new LedgerAmountDto();
                 dto.Ledger = ledger;
-                decimal latestBalanceAmt =await getLedgerBalanceAmountBetweenDates(ledger.Id, start_date, end_date);
-                decimal startDateBalance =await getLedgerBalanceAmountTillDate(ledger.Id, start_date);
+                decimal latestBalanceAmt = await getLedgerBalanceAmountBetweenDates(ledger.Id, start_date, end_date);
+                decimal startDateBalance = await getLedgerBalanceAmountTillDate(ledger.Id, start_date);
                 dto.Amount = latestBalanceAmt;
                 dtos.Add(dto);
             }
@@ -172,7 +173,7 @@ namespace MeroHisab.Core.Services.Implementations
             {
                 LedgerAmountDto dto = new LedgerAmountDto();
                 dto.Ledger = ledger;
-                dto.Amount =await getLedgerBalanceAmountTillDate(ledger.Id, end_date);
+                dto.Amount = await getLedgerBalanceAmountTillDate(ledger.Id, end_date);
                 dtos.Add(dto);
             }
         }
@@ -199,10 +200,34 @@ namespace MeroHisab.Core.Services.Implementations
             return transactions;
         }
 
-        public Task<List<TransactionDetail>> GetTransactionDetailsWithinForLedger(DateTime start_date, DateTime end_date, long ledger_id)
+        public async Task<List<ReportTransactionDetailDto>> GetTransactionDetailsWithinForLedger(DateTime start_date, DateTime end_date, long ledger_id)
         {
-            var transactionDetails = transactionDetailRepo.AsQueryable().Where(a => a.TransactionDate.Date >= start_date.Date && a.TransactionDate.Date <= end_date.Date && a.LedgerId == ledger_id).OrderBy(a => a.TransactionDate).ToListAsync();
-            return transactionDetails;
+            var transactionDetails = await transactionDetailRepo.AsQueryable().Where(a => a.TransactionDate.Date >= start_date.Date && a.TransactionDate.Date <= end_date.Date && a.LedgerId == ledger_id).OrderBy(a => a.TransactionDate).ToListAsync();
+
+            var ledgerIds = transactionDetails.Select(a => a.LedgerId).Union(transactionDetails.Select(a => a.RefLedgerId)).Distinct();
+
+            var ledgers = await ledgerRepository.GetQueryable().Where(a => ledgerIds.Contains(a.Id)).ToListAsync();
+
+            var response = new List<ReportTransactionDetailDto>();
+            foreach (var transaction in transactionDetails)
+            {
+                var ledgerDetail = ledgers.Single(a => a.Id == transaction.LedgerId);
+                var refLedgerDetail = ledgers.Single(a => a.Id == transaction.RefLedgerId);
+                response.Add(new ReportTransactionDetailDto
+                {
+                    LedgerId=(int)transaction.LedgerId,
+                    RefLedgerId=(int)transaction.RefLedgerId,
+                    Balance=transaction.Balance,
+                    DebitAmount=transaction.DrAmount,
+                    CreditAmount=transaction.CrAmount,
+                    TransactionDate=transaction.TransactionDate,
+                    LedgerCode=ledgerDetail.Code,
+                    LedgerName=ledgerDetail.Name,
+                    RefLedgerCode=refLedgerDetail.Code,
+                    RefLedgerName=refLedgerDetail.Name
+                });
+            }
+            return response;
         }
 
         public Task<List<TransactionDetail>> GetTransactionDetailsForLedgerWithDate(DateTime date, long ledger_id)
