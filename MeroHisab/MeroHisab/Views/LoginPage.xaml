@@ -18,7 +18,7 @@
                     <controls:CircleImage
                         Margin="0,20,0,10"
                         Aspect="AspectFit"
-                        Source="icon.png">
+                        Source="MeroHisab.png">
                         <controls:CircleImage.WidthRequest>
                             <OnPlatform x:TypeArguments="x:Double">
                                 <On Platform="Android, iOS">90</On>
@@ -27,7 +27,7 @@
                         </controls:CircleImage.WidthRequest>
                         <controls:CircleImage.HeightRequest>
                             <OnPlatform x:TypeArguments="x:Double">
-                                <On Platform="Android, iOS">55</On>
+                                <On Platform="Android, iOS">75</On>
                                 <On Platform="WinPhone">75</On>
                             </OnPlatform>
                         </controls:CircleImage.HeightRequest>
@@ -68,9 +68,10 @@
                         <material:MaterialCheckbox IsSelected="False" Text="Remember Me" />
 
                         <material:MaterialButton
-                            BackgroundColor="#EAEAEA"
+                            BackgroundColor="{StaticResource BackgroundColor}"
                             Clicked="MaterialButton_Clicked"
                             FlowDirection="LeftToRight"
+                            HeightRequest="60"
                             HorizontalOptions="FillAndExpand"
                             Text="Login"
                             TextColor="Black"
