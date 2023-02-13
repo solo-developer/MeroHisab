@@ -3,11 +3,7 @@ using MeroHisab.Core.Dto;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Enums;
 using MeroHisab.Core.Exceptions;
-using MeroHisab.Core.Repository.Interface;
 using MeroHisab.Core.Services.Interface;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MeroHisab.Core.Services.Implementations
 {

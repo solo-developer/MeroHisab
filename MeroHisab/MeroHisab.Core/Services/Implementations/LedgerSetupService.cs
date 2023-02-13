@@ -22,45 +22,31 @@ namespace MeroHisab.Core.Services.Implementations
 
         public void saveOrUpdate(List<LedgerSetup> keyValue)
         {
-            try
+            using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
             {
-                using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
+                foreach (var kvp in keyValue)
                 {
-                    foreach (var kvp in keyValue)
-                    {
-                        saveOrUpdate(kvp.Key, kvp.Value);
-                    }
-                    tx.Complete();
+                    saveOrUpdate(kvp.Key, kvp.Value);
                 }
-            }
-            catch (Exception)
-            {
-                throw;
+                tx.Complete();
             }
         }
 
         public async void saveOrUpdate(string key, string value)
         {
-            try
+            using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
             {
-                using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
-                {
-                    var ledgerSetup = await _ledgerSetupRepo.GetByKey(key);
+                var ledgerSetup = await _ledgerSetupRepo.GetByKey(key);
 
-                    if (ledgerSetup == null)
-                    {
-                        await save(key, value);
-                    }
-                    else
-                    {
-                        await update(ledgerSetup, value);
-                    }
-                    tx.Complete();
+                if (ledgerSetup == null)
+                {
+                    await save(key, value);
                 }
-            }
-            catch (Exception)
-            {
-                throw;
+                else
+                {
+                    await update(ledgerSetup, value);
+                }
+                tx.Complete();
             }
         }
 
@@ -80,13 +66,13 @@ namespace MeroHisab.Core.Services.Implementations
 
         public async Task<List<LedgerSetupDto>> GetAllAsync()
         {
-            var setups =await _ledgerSetupRepo.Get();
+            var setups = await _ledgerSetupRepo.Get();
 
-            return setups.Select(a=> new LedgerSetupDto
+            return setups.Select(a => new LedgerSetupDto
             {
-                Key=a.Key,
-                Value=Convert.ToInt32(a.Value),
-                DisplayName= ((LedgerSetupType)(Convert.ToInt32(a.Value))).GetDisplayName()
+                Key = a.Key,
+                Value = Convert.ToInt32(a.Value),
+                DisplayName = ((LedgerSetupType)(Convert.ToInt32(a.Value))).GetDisplayName()
             }).ToList();
         }
     }

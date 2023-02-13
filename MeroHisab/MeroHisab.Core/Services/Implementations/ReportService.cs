@@ -3,44 +3,40 @@ using MeroHisab.Core.Dto.Report;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Repository.Interface;
 using MeroHisab.Core.Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MeroHisab.Core.Services.Implementations
 {
     public class ReportService : IReportService
     {
-        private readonly ILedgerRepository ledgerRepository;
-        private readonly ITransactionDetailRepository transactionDetailRepo;
+        private readonly ILedgerRepository _ledgerRepo;
+        private readonly ITransactionDetailRepository _transactionDetailRepo;
         private readonly ITransactionRepository _transactionRepo;
 
         public ReportService(ITransactionRepository transactionRepo, ILedgerRepository _ledgerRepository, ITransactionDetailRepository _transactionDetailRepo)
         {
-            ledgerRepository = _ledgerRepository;
-            transactionDetailRepo = _transactionDetailRepo;
+            _ledgerRepo = _ledgerRepository;
+            this._transactionDetailRepo = _transactionDetailRepo;
             _transactionRepo = transactionRepo;
         }
 
         private Task<List<Ledger>> getAllLedgersBelongingToAssetsGroup()
         {
-            return ledgerRepository.GetLedgersUnderAssetsGroup();
+            return _ledgerRepo.GetLedgersUnderAssetsGroup();
         }
 
         private Task<List<Ledger>> getAllLedgerBelongingToLiabilitiesGroup()
         {
-            return ledgerRepository.GetLedgersUnderLiabilitiesGroup();
+            return _ledgerRepo.GetLedgersUnderLiabilitiesGroup();
         }
 
         private Task<List<Ledger>> getAllLedgerBelongingToIncomeGroup()
         {
-            return ledgerRepository.GetLedgersUnderIncomeGroup();
+            return _ledgerRepo.GetLedgersUnderIncomeGroup();
         }
 
         private Task<List<Ledger>> getAllLedgerBelongingToExpensesGroup()
         {
-            return ledgerRepository.GetLedgersUnderExpensesGroup();
+            return _ledgerRepo.GetLedgersUnderExpensesGroup();
         }
 
 
@@ -179,13 +175,13 @@ namespace MeroHisab.Core.Services.Implementations
         }
         private async Task<decimal> getLedgerBalanceAmountBetweenDates(long ledger_id, DateTime start_date, DateTime end_date)
         {
-            decimal balance = await transactionDetailRepo.GetLedgerBalanceAmountBetweenDates(ledger_id, start_date, end_date);
+            decimal balance = await _transactionDetailRepo.GetLedgerBalanceAmountBetweenDates(ledger_id, start_date, end_date);
             return balance;
         }
 
         private async Task<decimal> getLedgerBalanceAmountTillDate(long ledger_id, DateTime end_date)
         {
-            decimal balance = await transactionDetailRepo.GetOldBalance(ledger_id, end_date);
+            decimal balance = await _transactionDetailRepo.GetOldBalance(ledger_id, end_date);
             return balance;
         }
 
@@ -202,11 +198,11 @@ namespace MeroHisab.Core.Services.Implementations
 
         public async Task<List<ReportTransactionDetailDto>> GetTransactionDetailsWithinForLedger(DateTime start_date, DateTime end_date, long ledger_id)
         {
-            var transactionDetails = await transactionDetailRepo.AsQueryable().Where(a => a.TransactionDate.Date >= start_date.Date && a.TransactionDate.Date <= end_date.Date && a.LedgerId == ledger_id).OrderBy(a => a.TransactionDate).ToListAsync();
+            var transactionDetails = await _transactionDetailRepo.AsQueryable().Where(a => a.TransactionDate.Date >= start_date.Date && a.TransactionDate.Date <= end_date.Date && a.LedgerId == ledger_id).OrderBy(a => a.TransactionDate).ToListAsync();
 
             var ledgerIds = transactionDetails.Select(a => a.LedgerId).Union(transactionDetails.Select(a => a.RefLedgerId)).Distinct();
 
-            var ledgers = await ledgerRepository.GetQueryable().Where(a => ledgerIds.Contains(a.Id)).ToListAsync();
+            var ledgers = await _ledgerRepo.GetQueryable().Where(a => ledgerIds.Contains(a.Id)).ToListAsync();
 
             var response = new List<ReportTransactionDetailDto>();
             foreach (var transaction in transactionDetails)
@@ -232,7 +228,7 @@ namespace MeroHisab.Core.Services.Implementations
 
         public Task<List<TransactionDetail>> GetTransactionDetailsForLedgerWithDate(DateTime date, long ledger_id)
         {
-            var transactionDetails = transactionDetailRepo.AsQueryable().Where(a => a.TransactionDate.Date == date && a.LedgerId == ledger_id).ToListAsync();
+            var transactionDetails = _transactionDetailRepo.AsQueryable().Where(a => a.TransactionDate.Date == date && a.LedgerId == ledger_id).ToListAsync();
             return transactionDetails;
         }
 

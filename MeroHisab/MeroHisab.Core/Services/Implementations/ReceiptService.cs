@@ -5,8 +5,6 @@ using MeroHisab.Core.Exceptions;
 using MeroHisab.Core.Makers.Interface;
 using MeroHisab.Core.Repository.Interface;
 using MeroHisab.Core.Services.Interface;
-using System;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace MeroHisab.Core.Services.Implementations
@@ -42,7 +40,7 @@ namespace MeroHisab.Core.Services.Implementations
                     throw new ItemUsedException("Receipt is already cancelled.");
                 }
 
-                TransactionDto transactionDto =await GetTransactionDtoForReverseEntry(receipt);
+                TransactionDto transactionDto = await GetTransactionDtoForReverseEntry(receipt);
                 await _transactionService.AddTransaction(transactionDto);
 
                 receipt.IsCancelled = true;
@@ -88,26 +86,19 @@ namespace MeroHisab.Core.Services.Implementations
 
         public async Task<int> MakeReceipt(ReceiptDto receiptDto)
         {
-            try
+            using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
             {
-                using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
-                {
-                    if (!receiptDto.IsValid())
-                        throw new InvalidValueException("The provided data are not valid.");
-                    Receipt receipt = new Receipt();
-                    _receiptMaker.Copy(receipt, receiptDto);
-                    await _receiptRepo.Insert(receipt);
-                    receiptDto.ReceiptId = receipt.Id;
-                    TransactionDto transactionDto = await _transactionDtoMaker.CreateTransactionDtoFrom(receiptDto);
+                if (!receiptDto.IsValid())
+                    throw new InvalidValueException("The provided data are not valid.");
+                Receipt receipt = new Receipt();
+                _receiptMaker.Copy(receipt, receiptDto);
+                await _receiptRepo.Insert(receipt);
+                receiptDto.ReceiptId = receipt.Id;
+                TransactionDto transactionDto = await _transactionDtoMaker.CreateTransactionDtoFrom(receiptDto);
 
-                    await _transactionService.AddTransaction(transactionDto);
-                    tx.Complete();
-                    return receipt.Id;
-                }
-            }
-            catch (Exception)
-            {
-                throw;
+                await _transactionService.AddTransaction(transactionDto);
+                tx.Complete();
+                return receipt.Id;
             }
         }
 

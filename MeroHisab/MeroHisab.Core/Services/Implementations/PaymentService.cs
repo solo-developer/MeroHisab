@@ -5,24 +5,22 @@ using MeroHisab.Core.Dto;
 using MeroHisab.Core.Exceptions;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Makers.Interface;
-using System.Threading.Tasks;
-using System;
 
 namespace MeroHisab.Core.Services.Implementations
 {
     public class PaymentService : IPaymentService
     {
-        private readonly IPaymentMaker paymentMaker;
-        private readonly IPaymentRepository paymentRepo;
-        private readonly ITransactionSummaryService transactionService;
+        private readonly IPaymentMaker _paymentMaker;
+        private readonly IPaymentRepository _paymentRepo;
+        private readonly ITransactionSummaryService _transactionService;
         private readonly ITransactionDtoMaker _transactionDtoMaker;
         private readonly ILedgerSetupRepository _ledgerSetupRepo;
 
         public PaymentService(ITransactionDtoMaker transactionDtoMaker, ITransactionSummaryService _transactionService, IPaymentMaker _paymentMaker, IPaymentRepository _paymentRepo, ILedgerSetupRepository ledgerSetupRepo)
         {
-            transactionService = _transactionService;
-            paymentMaker = _paymentMaker;
-            paymentRepo = _paymentRepo;
+            this._transactionService = _transactionService;
+            this._paymentMaker = _paymentMaker;
+            this._paymentRepo = _paymentRepo;
             _transactionDtoMaker = transactionDtoMaker;
             _ledgerSetupRepo = ledgerSetupRepo;
         }
@@ -31,7 +29,7 @@ namespace MeroHisab.Core.Services.Implementations
         {
             using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
             {
-                var payment = await paymentRepo.Get(payment_id);
+                var payment = await _paymentRepo.Get(payment_id);
                 if (payment == null)
                 {
                     throw new ItemNotFoundException("Payment doesnot exists.");
@@ -41,15 +39,13 @@ namespace MeroHisab.Core.Services.Implementations
                     throw new ItemUsedException("Payment is already cancelled.");
                 }
                 TransactionDto transactionDto = await getTransactionDtoForReverseEntry(payment);
-                await transactionService.AddTransaction(transactionDto);
+                await _transactionService.AddTransaction(transactionDto);
 
                 payment.IsCancelled = true;
                 payment.CancelledDate = DateTime.Now;
-                await paymentRepo.Update(payment);
+                await _paymentRepo.Update(payment);
                 tx.Complete();
             }
-
-
         }
 
         private async Task<TransactionDto> getTransactionDtoForReverseEntry(Payment payment)
@@ -87,25 +83,18 @@ namespace MeroHisab.Core.Services.Implementations
 
         public async Task DoPayment(PaymentDto paymentDto)
         {
-            try
+            using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
             {
-                using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
-                {
-                    if (!paymentDto.IsValid())
-                        throw new InvalidValueException("The provided data are not valid.");
-                    Payment payment = new Payment();
-                    paymentMaker.Copy(payment, paymentDto);
-                    await paymentRepo.Insert(payment);
-                    paymentDto.PaymentFrom = payment.Id;
-                    TransactionDto transactionDto = await _transactionDtoMaker.CreateTransactionDtoFrom(paymentDto);
+                if (!paymentDto.IsValid())
+                    throw new InvalidValueException("The provided data are not valid.");
+                Payment payment = new Payment();
+                _paymentMaker.Copy(payment, paymentDto);
+                await _paymentRepo.Insert(payment);
+                paymentDto.PaymentFrom = payment.Id;
+                TransactionDto transactionDto = await _transactionDtoMaker.CreateTransactionDtoFrom(paymentDto);
 
-                    await transactionService.AddTransaction(transactionDto);
-                    tx.Complete();
-                }
-            }
-            catch (Exception)
-            {
-                throw;
+                await _transactionService.AddTransaction(transactionDto);
+                tx.Complete();
             }
         }
     }
