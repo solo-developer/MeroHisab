@@ -1,48 +1,87 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-             x:Class="MeroHisab.Views.JournalView">
+<ContentPage
+    x:Class="MeroHisab.Views.JournalView"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    Title="Journal">
     <ContentPage.Content>
-        <StackLayout  VerticalOptions="FillAndExpand" Margin="20"  BackgroundColor="WhiteSmoke">
+        <StackLayout
+            Margin="20"
+            BackgroundColor="WhiteSmoke"
+            VerticalOptions="FillAndExpand">
             <ScrollView>
                 <StackLayout Margin="15">
 
                     <StackLayout>
-                        <Label Text="Receipt From" VerticalOptions="Center"/>
-                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding Ledgers}" Title="--select--" SelectedItem="{Binding ReceiptFrom}" FontSize="Small"/>
+                        <Label Text="Receipt From" VerticalOptions="Center" />
+                        <Picker
+                            Title="--select--"
+                            FontSize="Small"
+                            ItemDisplayBinding="{Binding Text}"
+                            ItemsSource="{Binding Ledgers}"
+                            SelectedItem="{Binding ReceiptFrom}"
+                            VerticalOptions="Center" />
                     </StackLayout>
 
                     <StackLayout>
-                        <Label Text="Receipt To" VerticalOptions="Center"/>
-                        <Picker VerticalOptions="Center" ItemDisplayBinding="{Binding Text}" ItemsSource="{Binding PaymentMediumList}" Title="--select--" SelectedItem="{Binding ReceiptTo}" FontSize="Small"/>
+                        <Label Text="Receipt To" VerticalOptions="Center" />
+                        <Picker
+                            Title="--select--"
+                            FontSize="Small"
+                            ItemDisplayBinding="{Binding Text}"
+                            ItemsSource="{Binding PaymentMediumList}"
+                            SelectedItem="{Binding ReceiptTo}"
+                            VerticalOptions="Center" />
                     </StackLayout>
 
                     <StackLayout>
-                        <Label Text="Transaction Date" VerticalOptions="Center"/>
-                        <DatePicker MaximumDate="{Binding MaxDate}" Date="{Binding TransactionDate}" />
+                        <Label Text="Transaction Date" VerticalOptions="Center" />
+                        <DatePicker Date="{Binding TransactionDate}" MaximumDate="{Binding MaxDate}" />
                     </StackLayout>
 
                     <StackLayout BindingContext="{Binding Model}">
-                        <Label VerticalOptions="Center" Text="Voucher No"/>
-                        <Entry VerticalOptions="Center" Text="{Binding VoucherNo}" FontSize="Small"/>
-                        <Label x:Name="ReceiptDto_CustomerError" IsVisible="False" TextColor="Red" />
+                        <Label Text="Voucher No" VerticalOptions="Center" />
+                        <Entry
+                            FontSize="Small"
+                            Text="{Binding VoucherNo}"
+                            VerticalOptions="Center" />
+                        <Label
+                            x:Name="ReceiptDto_CustomerError"
+                            IsVisible="False"
+                            TextColor="Red" />
 
-                        <Label VerticalOptions="Center" Text="Remarks"/>
-                        <Entry VerticalOptions="Center" Text="{Binding Remarks}" FontSize="Small"/>
-                        <Label x:Name="ReceiptDto_RemarksError" IsVisible="False" TextColor="Red" />
+                        <Label Text="Remarks" VerticalOptions="Center" />
+                        <Entry
+                            FontSize="Small"
+                            Text="{Binding Remarks}"
+                            VerticalOptions="Center" />
+                        <Label
+                            x:Name="ReceiptDto_RemarksError"
+                            IsVisible="False"
+                            TextColor="Red" />
 
                     </StackLayout>
 
-                    <Button VerticalOptions="Center" Text="Save" HorizontalOptions="FillAndExpand" CornerRadius="5" BackgroundColor="{StaticResource PrimaryColor}" TextColor="White">
+                    <Button
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        CornerRadius="5"
+                        HorizontalOptions="FillAndExpand"
+                        Text="Save"
+                        TextColor="White"
+                        VerticalOptions="Center">
                         <Button.Behaviors>
-                            <xct:EventToCommandBehavior Command="{Binding SaveButtonClickedCommand}" EventName="Clicked"/>
+                            <xct:EventToCommandBehavior Command="{Binding SaveButtonClickedCommand}" EventName="Clicked" />
                         </Button.Behaviors>
                     </Button>
 
-                    <Button BackgroundColor="Transparent" Text="Cancel" TextColor="Black" CornerRadius="5">
+                    <Button
+                        BackgroundColor="Transparent"
+                        CornerRadius="5"
+                        Text="Cancel"
+                        TextColor="Black">
                         <Button.Behaviors>
-                            <xct:EventToCommandBehavior Command="{Binding CancelButtonClickedCommand}" EventName="Clicked"/>
+                            <xct:EventToCommandBehavior Command="{Binding CancelButtonClickedCommand}" EventName="Clicked" />
                         </Button.Behaviors>
                     </Button>
                 </StackLayout>
