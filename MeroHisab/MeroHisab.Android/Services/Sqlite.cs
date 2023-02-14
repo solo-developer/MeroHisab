@@ -11,7 +11,7 @@ namespace MeroHisab.Droid.Services
     {
         public SQLiteAsyncConnection GetConnection()
         {
-            var dbase = "MeroHisab.db3";
+            var dbase = "MeroHisabDb.db3";
             var dbpath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData);
             var path = Path.Combine(dbpath, dbase);
             var connection = new SQLiteAsyncConnection(path,true);

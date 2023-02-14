@@ -20,10 +20,14 @@ namespace MeroHisab.Core.Entities
         }
 
         public LedgerGroupType Type { get; set; }
+        public LedgerType LedgerType { get; set; }
         public string Code { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-        public bool IsCurrentlyUsed { get; set; } = false;
+        public bool IsEnabled { get; set; } = true;
+
+        public void Enable() => IsEnabled = true;
+        public void Disable() => IsEnabled = false;
 
     }
 }

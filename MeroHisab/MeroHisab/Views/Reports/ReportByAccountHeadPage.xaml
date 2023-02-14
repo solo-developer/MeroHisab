@@ -192,18 +192,37 @@
                                     <BindableLayout.ItemTemplate>
                                         <DataTemplate x:DataType="reportDto:ReportTransactionDetailDto">
                                             <yummy:PancakeView
+                                                Margin="5"
                                                 BackgroundColor="White"
                                                 CornerRadius="10"
-                                                HeightRequest="60"
                                                 HorizontalOptions="FillAndExpand">
-                                                <StackLayout Padding="10" VerticalOptions="Center">
-                                                    <Label
-                                                        FontSize="Small"
-                                                        HorizontalOptions="FillAndExpand"
-                                                        Text="{Binding RefLedgerName}"
-                                                        TextColor="{StaticResource BackgroundColor}" />
-                                                    <Label FontSize="Micro" Text="{Binding RefLedgerCode}" />
-                                                </StackLayout>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="3*" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackLayout
+                                                        Grid.Column="0"
+                                                        Padding="10"
+                                                        VerticalOptions="Center">
+                                                        <Label
+                                                            FontSize="Small"
+                                                            HorizontalOptions="FillAndExpand"
+                                                            Text="{Binding RefLedgerName}"
+                                                            TextColor="{StaticResource BackgroundColor}" />
+                                                        <Label FontSize="Micro" Text="{Binding RefLedgerCode}" />
+                                                    </StackLayout>
+                                                    <StackLayout
+                                                        Grid.Column="1"
+                                                        Padding="10"
+                                                        HorizontalOptions="Center">
+                                                        <Label Text="{Binding Converter={converters:AmountPrefixedByCurrencyConverter}, ConverterParameter={Binding CreditAmount}}" />
+                                                        <Label Text="{Binding Converter={converters:AmountPrefixedByCurrencyConverter}, ConverterParameter={Binding Balance}}" />
+
+                                                    </StackLayout>
+
+                                                </Grid>
+
                                                 <yummy:PancakeView.Border>
                                                     <yummy:Border Thickness="2" Color="LightGreen" />
                                                 </yummy:PancakeView.Border>

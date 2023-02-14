@@ -7,20 +7,20 @@ namespace MeroHisab.Core.Services.Implementations
 {
     public class LedgerService : ILedgerService
     {
-        private readonly IBaseRepository<AccountHead> _ledgerRepo;
-        public LedgerService(IBaseRepository<AccountHead> ledgerRepo)
+        private readonly IBaseRepository<Ledger> _ledgerRepo;
+        public LedgerService(IBaseRepository<Ledger> ledgerRepo)
         {
             _ledgerRepo = ledgerRepo;
         }
         public async Task<List<LedgerDto>> GetAllLedgersAsync()
         {
-            var accountHeads = await _ledgerRepo.Get<AccountHead>(a => a.IsEnabled);
+            var accountHeads = await _ledgerRepo.Get<Ledger>(a => a.IsEnabled);
 
             return accountHeads.Select(a => new LedgerDto
             {
                 LedgerId = a.Id,
                 Name = a.Name,
-                Type = a.HeadType,
+                Type = a.Type,
                 Code = a.Code
             }).ToList();
         }

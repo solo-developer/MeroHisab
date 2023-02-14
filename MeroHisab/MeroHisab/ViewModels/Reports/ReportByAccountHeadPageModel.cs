@@ -3,12 +3,14 @@ using MeroHisab.Core.Dto.Report;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Services.Interface;
 using MeroHisab.Helpers.Interface;
+using MeroHisab.Partial.ReportFilter;
 using MeroHisab.ViewModels.DefaultAccountSetup;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xamarin.CommunityToolkit.ObjectModel;
 using Xamarin.CommunityToolkit.UI.Views;
+using Xamarin.Forms;
 
 namespace MeroHisab.ViewModels
 {
@@ -16,6 +18,7 @@ namespace MeroHisab.ViewModels
     {
         public IAsyncCommand ExportButtonClicked { get; set; }
         public IAsyncCommand ApplyFilterButtonClicked { get; set; }
+        public IAsyncCommand FilterButtonClicked { get; set; }
 
         private readonly IReportService _reportService;
         private readonly INotificationService _notificationService;
@@ -34,7 +37,21 @@ namespace MeroHisab.ViewModels
 
             ExportButtonClicked = new AsyncCommand(OnExportButtonClicked);
             ApplyFilterButtonClicked = new AsyncCommand(OnApplyFilterButtonClicked);
+            FilterButtonClicked = new AsyncCommand(OnFilterButtonClicked);
 
+        }
+
+        private async Task OnFilterButtonClicked()
+        {
+            await _navigationService.ShowModal(new TransactionFilterPopupModal(FilterModel));
+            MessagingCenter.Subscribe<TransactionFilterViewModel>(this, "TransactionFilterPopuPage.ApplyFilterButtonPressed", OnApplyButtonClickedFromTransactionFilterPopup);
+        }
+
+        private async void OnApplyButtonClickedFromTransactionFilterPopup(TransactionFilterViewModel obj)
+        {
+            MessagingCenter.Unsubscribe<TransactionFilterViewModel>(this, "TransactionFilterPopuPage.ApplyFilterButtonPressed");
+            this.FilterModel = obj;
+            await LoadTransactionDetail();
         }
 
         private async Task OnApplyFilterButtonClicked()

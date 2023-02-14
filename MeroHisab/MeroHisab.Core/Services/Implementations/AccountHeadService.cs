@@ -9,8 +9,8 @@ namespace MeroHisab.Core.Services.Implementations
 {
     public class AccountHeadService : IAccountHeadService
     {
-        private readonly IBaseRepository<AccountHead> _repo;
-        public AccountHeadService(IBaseRepository<AccountHead> repo)
+        private readonly IBaseRepository<Ledger> _repo;
+        public AccountHeadService(IBaseRepository<Ledger> repo)
         {
             _repo = repo;
         }
@@ -24,7 +24,7 @@ namespace MeroHisab.Core.Services.Implementations
 
         public async Task<List<AccountHeadDto>> GetAccountHeads(LedgerType ledgerType, int? take = null)
         {
-            var accountHeads = await _repo.Get<AccountHead>(a => a.IsEnabled && a.LedgerType == ledgerType);
+            var accountHeads = await _repo.Get<Ledger>(a => a.IsEnabled && a.LedgerType == ledgerType);
             if (take.HasValue)
             {
                 accountHeads = accountHeads.Take(take.Value).ToList();
@@ -33,7 +33,7 @@ namespace MeroHisab.Core.Services.Implementations
             {
                 Id = a.Id,
                 Name = a.Name,
-                HeadType = a.HeadType,
+                HeadType = a.Type,
                 Code = a.Code,
                 LedgerType = a.LedgerType,
             }).ToList();
@@ -41,11 +41,11 @@ namespace MeroHisab.Core.Services.Implementations
 
 		public async Task<List<AccountHeadDto>> GetAllAcountHead()
 		{
-            var accountHeads = await _repo.Get<AccountHead>(a => a.IsEnabled && a.LedgerType!=LedgerType.PaymentMedium);
+            var accountHeads = await _repo.Get<Ledger>(a => a.IsEnabled && a.LedgerType!=LedgerType.PaymentMedium);
             return accountHeads.Select(a => new AccountHeadDto {
                 Id = a.Id,
                 Name = a.Name,
-                HeadType = a.HeadType,
+                HeadType = a.Type,
                 Code = a.Code,
                 LedgerType = a.LedgerType,
             }).ToList();
@@ -53,9 +53,9 @@ namespace MeroHisab.Core.Services.Implementations
 
 		public async Task SaveOrUpdate(AccountHeadDto accountHead)
         {
-            var entity = (await _repo.Get(accountHead.Id)) ?? new AccountHead();
+            var entity = (await _repo.Get(accountHead.Id)) ?? new Ledger();
             entity.Name = accountHead.Name;
-            entity.HeadType = accountHead.HeadType;
+            entity.Type = accountHead.HeadType;
             entity.LedgerType = accountHead.LedgerType;
             entity.Code = accountHead.Code;
 

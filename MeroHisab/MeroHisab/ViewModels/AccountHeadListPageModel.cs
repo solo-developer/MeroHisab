@@ -17,13 +17,13 @@ namespace MeroHisab.ViewModels
     public class AccountHeadListPageModel : ViewModelBase
     {
         private readonly IAccountHeadService _accountHeadService;
-        private readonly IBaseRepository<AccountHead> _accountHeadRepo;
+        private readonly IBaseRepository<Ledger> _accountHeadRepo;
         private readonly INotificationService _notificationService;
 
         public IAsyncCommand AddAccountHeadCommand { get; set; }
         public ICommand OnEditButtonClicked { get; set; }
         public ICommand OnDeleteButtonClicked { get; set; }
-        public AccountHeadListPageModel(IAccountHeadService accountHeadService, IBaseRepository<AccountHead> accountHeadRepo, INotificationService notificationService)
+        public AccountHeadListPageModel(IAccountHeadService accountHeadService, IBaseRepository<Ledger> accountHeadRepo, INotificationService notificationService)
         {
             _accountHeadService = accountHeadService;
             _accountHeadRepo = accountHeadRepo;
@@ -93,7 +93,7 @@ namespace MeroHisab.ViewModels
                     Id = accountHead.Id,
                     Name = accountHead.Name,
                     Code = accountHead.Code,
-                    HeadType = accountHead.HeadType,
+                    HeadType = accountHead.Type,
                     LedgerType = accountHead.LedgerType
                 };
 

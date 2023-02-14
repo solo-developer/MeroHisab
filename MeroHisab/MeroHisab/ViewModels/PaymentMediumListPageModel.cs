@@ -18,14 +18,14 @@ namespace MeroHisab.ViewModels
     public class PaymentMediumListPageModel :ViewModelBase
     {
         private readonly IAccountHeadService _accountHeadService;
-        private readonly IBaseRepository<AccountHead> _accountHeadRepo;
+        private readonly IBaseRepository<Ledger> _accountHeadRepo;
         private readonly INotificationService _notificationService;
 
         public IAsyncCommand AddPaymentMediumCommand { get; set; }
         public ICommand OnEditButtonClicked { get; set; }
         public ICommand OnDeleteButtonClicked { get; set; }
 
-        public PaymentMediumListPageModel(IAccountHeadService accountHeadService, IBaseRepository<AccountHead> accountHeadRepo,INotificationService notificationService)
+        public PaymentMediumListPageModel(IAccountHeadService accountHeadService, IBaseRepository<Ledger> accountHeadRepo,INotificationService notificationService)
         {
             _accountHeadService = accountHeadService;
             _accountHeadRepo = accountHeadRepo;
@@ -94,7 +94,7 @@ namespace MeroHisab.ViewModels
                     Id = accountHead.Id,
                     Name = accountHead.Name,
                     Code = accountHead.Code,
-                    HeadType = accountHead.HeadType,
+                    HeadType = accountHead.Type,
                     LedgerType = accountHead.LedgerType
                 };
 
