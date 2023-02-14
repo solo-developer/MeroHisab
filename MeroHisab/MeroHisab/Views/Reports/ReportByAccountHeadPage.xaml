@@ -65,54 +65,43 @@
                             <RowDefinition Height="40" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="3*" />
+                            <!--<ColumnDefinition Width="*" />-->
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <material:MaterialButton
-                            Grid.Column="0"
-                            Style="{x:StaticResource FilterByDaysBtnStyle}"
-                            Text="7 Days">
+                        <Picker
+                            Title="Select Account Head"
+                            BackgroundColor="White"
+                            FontSize="Small"
+                            HorizontalOptions="Fill"
+                            ItemDisplayBinding="{Binding Name}"
+                            ItemsSource="{Binding Ledgers}"
+                            SelectedItem="{Binding SelectedLedger}"
+                            VerticalOptions="Center" />
+                        <material:MaterialButton Grid.Column="1" Style="{x:StaticResource FilterByDaysBtnStyle}">
+                            <material:MaterialButton.ImageSource>
+                                <FontImageSource
+                                    FontFamily="FontAwesomeSolid"
+                                    Glyph="{x:Static fontAwesome:FontAwesomeIcons.Undo}"
+                                    Size="Medium"
+                                    Color="{StaticResource BackgroundColor}" />
+                            </material:MaterialButton.ImageSource>
                             <material:MaterialButton.Behaviors>
-                                <xct:EventToCommandBehavior
-                                    Command="{Binding FilterByDaysButtonClicked}"
-                                    CommandParameter="7"
-                                    EventName="Clicked" />
-                            </material:MaterialButton.Behaviors>
-                        </material:MaterialButton>
-                        <material:MaterialButton
-                            Grid.Column="1"
-                            Style="{x:StaticResource FilterByDaysBtnStyle}"
-                            Text="15 Days">
-                            <material:MaterialButton.Behaviors>
-                                <xct:EventToCommandBehavior
-                                    Command="{Binding FilterByDaysButtonClicked}"
-                                    CommandParameter="15"
-                                    EventName="Clicked" />
+                                <xct:EventToCommandBehavior Command="{Binding ApplyFilterButtonClicked}" EventName="Clicked" />
                             </material:MaterialButton.Behaviors>
                         </material:MaterialButton>
                         <material:MaterialButton
                             Grid.Column="2"
                             Style="{x:StaticResource FilterByDaysBtnStyle}"
-                            Text="1 Month">
-                            <material:MaterialButton.Behaviors>
-                                <xct:EventToCommandBehavior
-                                    Command="{Binding FilterByDaysButtonClicked}"
-                                    CommandParameter="30"
-                                    EventName="Clicked" />
-                            </material:MaterialButton.Behaviors>
-                        </material:MaterialButton>
-                        <material:MaterialButton
-                            Grid.Column="3"
-                            Style="{x:StaticResource FilterByDaysBtnStyle}"
-                            Text="Filter">
-                            <!--<material:MaterialButton.ImageSource>
-                            <FontImageSource
-                                FontFamily="FontAwesomeSolid"
-                                Glyph="{x:Static fontAwesome:FontAwesomeIcons.Filter}"
-                                Color="Black" />
-                        </material:MaterialButton.ImageSource>-->
+                            VerticalOptions="Start">
+                            <material:MaterialButton.ImageSource>
+                                <FontImageSource
+                                    FontFamily="FontAwesomeSolid"
+                                    Glyph="{x:Static fontAwesome:FontAwesomeIcons.Filter}"
+                                    Size="Medium"
+                                    Color="{StaticResource BackgroundColor}" />
+                            </material:MaterialButton.ImageSource>
                             <material:MaterialButton.Behaviors>
                                 <xct:EventToCommandBehavior Command="{Binding FilterButtonClicked}" EventName="Clicked" />
                             </material:MaterialButton.Behaviors>
@@ -169,11 +158,18 @@
                                 </StackLayout>
                             </xct:StateView>
                             <xct:StateView StateKey="Error">
-                                <Label
-                                    HorizontalOptions="Center"
-                                    Text="{Binding ErrorMessage}"
-                                    TextColor="{StaticResource ErrorColor}"
-                                    VerticalOptions="CenterAndExpand" />
+                                <Frame
+                                    Margin="20"
+                                    BackgroundColor="White"
+                                    CornerRadius="5"
+                                    HeightRequest="50">
+                                    <Label
+                                        HorizontalOptions="Center"
+                                        Text="{Binding ErrorMessage}"
+                                        TextColor="{StaticResource ErrorColor}"
+                                        VerticalOptions="CenterAndExpand" />
+                                </Frame>
+
                             </xct:StateView>
                             <xct:StateView StateKey="Success">
                                 <StackLayout
@@ -182,6 +178,7 @@
                                     Spacing="10">
                                     <BindableLayout.EmptyView>
                                         <Frame
+                                            Margin="20"
                                             BackgroundColor="White"
                                             CornerRadius="5"
                                             HeightRequest="50">

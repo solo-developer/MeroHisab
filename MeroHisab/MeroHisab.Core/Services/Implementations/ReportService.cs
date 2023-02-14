@@ -198,11 +198,11 @@ namespace MeroHisab.Core.Services.Implementations
 
         public async Task<List<ReportTransactionDetailDto>> GetTransactionDetailsWithinForLedger(DateTime start_date, DateTime end_date, long ledger_id)
         {
-            var transactionDetails = await _transactionDetailRepo.AsQueryable().Where(a => a.TransactionDate.Date >= start_date.Date && a.TransactionDate.Date <= end_date.Date && a.LedgerId == ledger_id).OrderBy(a => a.TransactionDate).ToListAsync();
+            var transactionDetails = await _transactionDetailRepo.AsQueryable().Where(a => a.TransactionDate >= start_date && a.TransactionDate <= end_date && a.LedgerId == ledger_id).OrderBy(a => a.TransactionDate).ToListAsync();
 
-            var ledgerIds = transactionDetails.Select(a => a.LedgerId).Union(transactionDetails.Select(a => a.RefLedgerId)).Distinct();
+            var ledgerIds = transactionDetails.Select(a => a.LedgerId).Union(transactionDetails.Select(a => a.RefLedgerId)).Distinct().ToList();
 
-            var ledgers = await _ledgerRepo.GetQueryable().Where(a => ledgerIds.Contains(a.Id)).ToListAsync();
+            var ledgers = await _ledgerRepo.GetQueryable().ToListAsync();
 
             var response = new List<ReportTransactionDetailDto>();
             foreach (var transaction in transactionDetails)

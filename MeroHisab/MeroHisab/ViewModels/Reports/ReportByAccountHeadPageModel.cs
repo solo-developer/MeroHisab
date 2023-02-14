@@ -15,39 +15,74 @@ namespace MeroHisab.ViewModels
     public class ReportByAccountHeadPageModel : ViewModelBase
     {
         public IAsyncCommand ExportButtonClicked { get; set; }
+        public IAsyncCommand ApplyFilterButtonClicked { get; set; }
 
         private readonly IReportService _reportService;
         private readonly INotificationService _notificationService;
+        private readonly ILedgerService _ledgerService;
 
-        public ReportByAccountHeadPageModel(IReportService reportService, INotificationService notificationService)
+        public ReportByAccountHeadPageModel(IReportService reportService, INotificationService notificationService, ILedgerService ledgerService)
         {
             _reportService = reportService;
             _notificationService = notificationService;
+            _ledgerService = ledgerService;
             TransactionDetails = new ObservableRangeCollection<ReportTransactionDetailDto>();
+            Ledgers = new ObservableRangeCollection<LedgerDto>();
             FilterModel = new TransactionFilterViewModel();
             LoadTransactionDetail();
+            LoadLedgers();
 
             ExportButtonClicked = new AsyncCommand(OnExportButtonClicked);
+            ApplyFilterButtonClicked = new AsyncCommand(OnApplyFilterButtonClicked);
+
+        }
+
+        private async Task OnApplyFilterButtonClicked()
+        {
+            try
+            {
+                FilterModel.LedgerId = null;
+                if (SelectedLedger != null)
+                {
+                    FilterModel.LedgerId = SelectedLedger.LedgerId;
+                }
+                await LoadTransactionDetail();
+            }
+            catch (Exception ex)
+            {
+                await _notificationService.ShowInfo("Error!!", "Failed to load transaction detail.");
+            }
         }
 
         public string ErrorMessage
         {
             get => GetValue<string>();
-            set=> SetValue(value);
+            set => SetValue(value);
         }
         public decimal OpeningBalance
         {
             get => GetValue<decimal>();
-            set=> SetValue(value);
+            set => SetValue(value);
         }
         public decimal ClosingBalance
         {
             get => GetValue<decimal>();
-            set=> SetValue(value);
+            set => SetValue(value);
+        }
+        public LedgerDto SelectedLedger
+        {
+            get => GetValue<LedgerDto>();
+            set => SetValue(value);
         }
         public ObservableRangeCollection<ReportTransactionDetailDto> TransactionDetails
         {
             get => GetValue<ObservableRangeCollection<ReportTransactionDetailDto>>();
+            set => SetValue(value);
+        }
+
+        public ObservableRangeCollection<LedgerDto> Ledgers
+        {
+            get => GetValue<ObservableRangeCollection<LedgerDto>>();
             set => SetValue(value);
         }
 
@@ -63,6 +98,19 @@ namespace MeroHisab.ViewModels
             set
             {
                 SetValue(value);
+            }
+        }
+        private async Task LoadLedgers()
+        {
+            try
+            {
+                var ledgers = await _ledgerService.GetAllLedgersAsync();
+                Ledgers.Clear();
+                Ledgers.AddRange(ledgers);
+            }
+            catch (Exception)
+            {
+                await _notificationService.ShowInfo("Error!!", "Failed to load account heads");
             }
         }
 
@@ -88,6 +136,7 @@ namespace MeroHisab.ViewModels
             }
             catch (Exception ex)
             {
+                ErrorMessage = "Failed to get transaction detail of specified ledger";
                 TransactionDetailLoadingState = LayoutState.Error;
             }
         }
