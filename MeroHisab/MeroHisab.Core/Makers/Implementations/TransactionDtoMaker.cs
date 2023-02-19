@@ -4,8 +4,6 @@ using MeroHisab.Core.Enums;
 using MeroHisab.Core.Exceptions;
 using MeroHisab.Core.Makers.Interface;
 using MeroHisab.Core.Repository.Interface;
-using System;
-using System.Threading.Tasks;
 
 namespace MeroHisab.Core.Makers.Implementations
 {
@@ -75,14 +73,14 @@ namespace MeroHisab.Core.Makers.Implementations
 
             if (paymentDto.Discount > 0)
             {
-                LedgerTransactionDto crTransactionDetailDto = new LedgerTransactionDto();
+                LedgerTransactionDto discountTransactionDetailDto = new LedgerTransactionDto();
                 //check whether settings is available or not
                 LedgerSetup discount_setting = await ledgerSetupRepo.GetByKey(Enums.LedgerSetupType.discount_received.ToString());
                 if (discount_setting == null)
                     throw new ItemNotFoundException("No setup found for discount received.");
-                crTransactionDetailDto.LedgerId = Convert.ToInt32(discount_setting.Value);
-                crTransactionDetailDto.Amount = paymentDto.Discount;
-                transactionDto.AddCreditData(crTransactionDetailDto);
+                discountTransactionDetailDto.LedgerId = Convert.ToInt32(discount_setting.Value);
+                discountTransactionDetailDto.Amount = paymentDto.Discount;
+                transactionDto.AddCreditData(discountTransactionDetailDto);
             }
 
             return transactionDto;
@@ -108,14 +106,14 @@ namespace MeroHisab.Core.Makers.Implementations
 
             if (receiptDto.Discount > 0)
             {
-                TransactionDetailDto crTransactionDetailDto = new TransactionDetailDto();
+                LedgerTransactionDto discountTransactionDetailDto = new LedgerTransactionDto();
                 //check whether settings is available or not
                 LedgerSetup discount_setting = await ledgerSetupRepo.GetByKey(Enums.LedgerSetupType.discount_allowed.ToString());
                 if (discount_setting == null)
                     throw new ItemNotFoundException("No setup found for discount allowed.");
-                creditTransactionDetailDto.LedgerId = Convert.ToInt32(discount_setting.Value);
-                creditTransactionDetailDto.Amount = receiptDto.Discount;
-                transactionDto.AddCreditData(creditTransactionDetailDto);
+                discountTransactionDetailDto.LedgerId = Convert.ToInt32(discount_setting.Value);
+                discountTransactionDetailDto.Amount = receiptDto.Discount;
+                transactionDto.AddCreditData(discountTransactionDetailDto);
             }
             return transactionDto;
         }
