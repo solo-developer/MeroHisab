@@ -21,21 +21,36 @@
         </Style>
     </ContentView.Resources>
     <ContentView.Content>
-        <ScrollView Margin="10,5" VerticalScrollBarVisibility="Default">
+        <ScrollView Margin="10,0" VerticalScrollBarVisibility="Default">
             <StackLayout Margin="10,5" Orientation="Vertical">
 
-                <Grid ColumnSpacing="10" RowSpacing="20">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="60" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <!--<ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />-->
-                    </Grid.ColumnDefinitions>
+                <Grid ColumnSpacing="10" RowSpacing="10">
+
                     <Frame
                         Grid.Row="0"
-                        Grid.Column="0"
+                        xct:TouchEffect.Command="{Binding ReportsByAccountHeadCommand}"
+                        Style="{StaticResource FrameStyle}">
+
+                        <StackLayout Orientation="Horizontal">
+                            <ImageButton BackgroundColor="Transparent">
+                                <ImageButton.Source>
+                                    <FontImageSource
+                                        FontFamily="FontAwesomeSolid"
+                                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.ChartBar}"
+                                        Color="Black" />
+                                </ImageButton.Source>
+                            </ImageButton>
+                            <Label
+                                HorizontalOptions="CenterAndExpand"
+                                Style="{StaticResource QuickLinksLabel}"
+                                Text="Transactions Report"
+                                VerticalOptions="Center" />
+
+                        </StackLayout>
+
+                    </Frame>
+                    <Frame
+                        Grid.Row="1"
                         xct:TouchEffect.Command="{Binding ReportsByAccountHeadCommand}"
                         Style="{StaticResource FrameStyle}">
 
@@ -53,9 +68,51 @@
                                 Style="{StaticResource QuickLinksLabel}"
                                 Text="Reports By Account Head"
                                 VerticalOptions="Center" />
+                        </StackLayout>
+                    </Frame>
+
+                    <Frame
+                        Grid.Row="2"
+                        xct:TouchEffect.Command="{Binding ReportsByAccountHeadCommand}"
+                        Style="{StaticResource FrameStyle}">
+                        <StackLayout Orientation="Horizontal">
+                            <ImageButton BackgroundColor="Transparent">
+                                <ImageButton.Source>
+                                    <FontImageSource
+                                        FontFamily="FontAwesomeSolid"
+                                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.Receipt}"
+                                        Color="Black" />
+                                </ImageButton.Source>
+                            </ImageButton>
+                            <Label
+                                HorizontalOptions="CenterAndExpand"
+                                Style="{StaticResource QuickLinksLabel}"
+                                Text="Receipts List"
+                                VerticalOptions="Center" />
 
                         </StackLayout>
+                    </Frame>
+                    <Frame
+                        Grid.Row="3"
+                        xct:TouchEffect.Command="{Binding ReportsByAccountHeadCommand}"
+                        Style="{StaticResource FrameStyle}">
 
+                        <StackLayout Orientation="Horizontal">
+                            <ImageButton BackgroundColor="Transparent">
+                                <ImageButton.Source>
+                                    <FontImageSource
+                                        FontFamily="FontAwesomeSolid"
+                                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.CreditCard}"
+                                        Color="Black" />
+                                </ImageButton.Source>
+                            </ImageButton>
+                            <Label
+                                HorizontalOptions="CenterAndExpand"
+                                Style="{StaticResource QuickLinksLabel}"
+                                Text="Payments List"
+                                VerticalOptions="Center" />
+
+                        </StackLayout>
                     </Frame>
 
                 </Grid>
