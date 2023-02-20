@@ -43,6 +43,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\Payment\AddPaymentView.xaml.cs">
+      <DependentUpon>AddPaymentView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="LazyViews\DashboardHomePage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
@@ -58,7 +64,7 @@
     <EmbeddedResource Update="Partial\AccountHead\AddEditAccountHeadModal.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="Partial\Payment\AddPaymentModal.xaml">
+    <EmbeddedResource Update="Views\Payment\AddPaymentView.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Partial\Receipt\AddReceiptModal.xaml">

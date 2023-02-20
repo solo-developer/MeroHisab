@@ -1,8 +1,6 @@
 ﻿using MeroHisab.Core.Dto;
 using MeroHisab.Core.Services.Interface;
 using MeroHisab.Models;
-using MeroHisab.Views;
-using MeroHisab.Partial.Payment;
 using MeroHisab.Partial.Receipt;
 using System;
 using System.Collections.Generic;
@@ -65,21 +63,12 @@ namespace MeroHisab.ViewModels
 
 		private async Task AddPayment(PaymentDto dto)
 		{
-            await _navigationService.ShowModal(new AddPaymentModal(dto));
-            MessagingCenter.Subscribe<PaymentDto>(this, "AddPayment", AfterManipulatingPaymentModal);
+          await _navigationService.NavigateToAsync<AddPaymentViewModel>(dto);           
         }
-        private void AfterManipulatingPaymentModal(PaymentDto obj)
-        {
 
-        }
         private async Task AddJournal(JournalDto dto)
         {
             await _navigationService.NavigateToAsync<JournalViewModel>();
-            MessagingCenter.Subscribe<JournalDto>(this, "AddJournal", AfterManipulatingJournalModal);
-        }
-        private void AfterManipulatingJournalModal(JournalDto obj)
-        {
-
         }
         public GridItem SelectedItem
         {

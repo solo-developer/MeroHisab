@@ -29,13 +29,22 @@ namespace MeroHisab
 
         public App(Action<IServiceCollection> addPlatformServices = null)
         {
-            InitializeComponent();
-            XF.Material.Forms.Material.Init(this);
-            Sharpnado.Tabs.Initializer.Initialize(false, false);
-            Sharpnado.Shades.Initializer.Initialize(loggerEnable: false);
-            SetupServices(addPlatformServices);
-            SetStatusBarColor();
-            InitNavigation();
+            try
+            {
+                InitializeComponent();
+                XF.Material.Forms.Material.Init(this);
+                Sharpnado.Tabs.Initializer.Initialize(false, false);
+                Sharpnado.Shades.Initializer.Initialize(loggerEnable: false);
+                SetupServices(addPlatformServices);
+                SetStatusBarColor();
+                InitNavigation();
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+          
         }
 
         protected override void OnStart()

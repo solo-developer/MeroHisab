@@ -12,7 +12,7 @@ using Xamarin.Forms;
 
 namespace MeroHisab.ViewModels
 {
-	public class PaymentViewModel : ViewModelBase
+	public class AddPaymentViewModel : ViewModelBase
 	{
 		public IAsyncCommand SaveButtonClickedCommand { get; set; }
 		public IAsyncCommand CancelButtonClickedCommand { get; set; }
@@ -22,7 +22,7 @@ namespace MeroHisab.ViewModels
 		private readonly IAccountHeadService _accountHeadService;
 		public Page page;
 
-		public PaymentViewModel(IPaymentService paymentService, INotificationService notificationService, IAccountHeadService accountHeadService)
+		public AddPaymentViewModel(IPaymentService paymentService, INotificationService notificationService, IAccountHeadService accountHeadService)
 		{
 			_accountHeadService= accountHeadService;
 			SaveButtonClickedCommand = new AsyncCommand(Proceed);
@@ -31,12 +31,14 @@ namespace MeroHisab.ViewModels
 			_notificationService = notificationService;
 			PaymentTo = new ObservableRangeCollection<GenericDropDownDto<int, string>>();
 			PaymentFrom = new ObservableRangeCollection<GenericDropDownDto<int, string>>();
+			Model = new PaymentDto();
+			this.SetValues();
 		}
 
 		private async Task Cancel()
 		{
-			await _navigationService.HideModal();
-		}
+            await _navigationService.MoveBack();
+        }
 		public PaymentDto Model
 		{
 			get => GetValue<PaymentDto>();
@@ -52,19 +54,15 @@ namespace MeroHisab.ViewModels
 				Model.PaymentFrom = PaymentFromList.Value;
 				await _paymentService.DoPayment(Model);
 				await _notificationService.ShowInfo("Success", "Operation performed successfully.");
-				await _navigationService.HideModal();
-				string key = "PaymentSave";
-				MessagingCenter.Send(Model, key);
+				await _navigationService.MoveBack();
 			}
 			catch (Exception ex)
 			{
 				await _notificationService.ShowInfo("Error", "Failed to perform specified operation");
 			}
 		}
-		public async Task SetValues(PaymentDto dto)
+		public async Task SetValues()
 		{
-			dto.TransactionDate = DateTime.Now;
-			Model = dto;
 			var accountHeads = await _accountHeadService.GetAllAcountHead();
 			var paymentMediums = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.PaymentMedium);
 			var accountHead = accountHeads.Select(a => new GenericDropDownDto<int, string>
@@ -80,8 +78,8 @@ namespace MeroHisab.ViewModels
 			PaymentFrom.Clear();
 			PaymentFrom.AddRange(paymentMedium);
 			PaymentTo.AddRange(accountHead);
-			PaymentFromList = PaymentFrom.FirstOrDefault(a => a.Value == (int)dto.PaymentFrom);
-			PaymentToList = PaymentTo.FirstOrDefault(a => a.Value == (int)dto.PaymentTo);
+			PaymentFromList = PaymentFrom.FirstOrDefault(a => a.Value == (int)Model.PaymentFrom);
+			PaymentToList = PaymentTo.FirstOrDefault(a => a.Value == (int)Model.PaymentTo);
 		}
 
 		public ObservableRangeCollection<GenericDropDownDto<int, string>> PaymentFrom

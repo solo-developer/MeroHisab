@@ -142,7 +142,7 @@ namespace MeroHisab.ViewModels
                     return;
                 }
                 TransactionDetailLoadingState = LayoutState.Loading;
-                TransactionDetails.Clear();
+                TransactionDetails=new ObservableRangeCollection<ReportTransactionDetailDto>();
                 var transactions = await _reportService.GetTransactionDetailsWithinForLedger(FilterModel.FromDate, FilterModel.ToDate, FilterModel.LedgerId.Value);
 
                 OpeningBalance = transactions.OrderBy(a => a.TransactionDate).FirstOrDefault()?.Balance ?? 0;

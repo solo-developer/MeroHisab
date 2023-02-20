@@ -11,7 +11,7 @@ namespace MeroHisab.Core.Dto
         public int PaymentId { get; set; }
         public int PaymentTo { get; set; }
         public int PaymentFrom { get; set; }
-        public DateTime TransactionDate { get; set; }
+        public DateTime TransactionDate { get; set; } = DateTime.Now;
         public decimal Amount {
             get => _amount;
             set

@@ -1,20 +1,19 @@
 ﻿using MeroHisab.Core.Dto;
 using MeroHisab.ViewModels;
-using Rg.Plugins.Popup.Pages;
+using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace MeroHisab.Partial.Payment
+namespace MeroHisab.Views
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class AddPaymentModal : PopupPage
+	public partial class AddPaymentView : ContentPage
 	{
-		public AddPaymentModal(PaymentDto dto)
+		public AddPaymentView()
 		{
 			InitializeComponent();
-			var vm = App.GetViewModel<PaymentViewModel>();
+			var vm = App.GetViewModel<AddPaymentViewModel>();
 			vm.page = this;
 			vm.page.BindingContext = vm;
-			vm.SetValues(dto);
 		}
 	}
 }
