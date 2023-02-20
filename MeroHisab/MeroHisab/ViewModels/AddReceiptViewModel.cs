@@ -13,7 +13,7 @@ using Xamarin.Forms;
 
 namespace MeroHisab.ViewModels
 {
-	public class ReceiptViewModel : ViewModelBase
+	public class AddReceiptViewModel : ViewModelBase
 	{
 		public IAsyncCommand SaveButtonClickedCommand { get; set; }
 		public IAsyncCommand CancelButtonClickedCommand { get; set; }
@@ -23,7 +23,7 @@ namespace MeroHisab.ViewModels
         private readonly IAccountHeadService _accountHeadService;
 		public Page page;
 
-		public ReceiptViewModel(IReceiptService receiptService, INotificationService notificationService, IAccountHeadService accountHeadService)
+		public AddReceiptViewModel(IReceiptService receiptService, INotificationService notificationService, IAccountHeadService accountHeadService)
 		{
             _accountHeadService = accountHeadService;
 			SaveButtonClickedCommand = new AsyncCommand(Proceed);
@@ -32,6 +32,8 @@ namespace MeroHisab.ViewModels
 			_notificationService = notificationService;
             Ledgers = new ObservableRangeCollection<GenericDropDownDto<int, string>>();
             PaymentReceiptTo = new ObservableRangeCollection<GenericDropDownDto<int, string>>();
+            Model = new ReceiptDto();
+            this.SetValues();
 		}
         public DateTime MaxDate { get; set; } = DateTime.Now;
 		public ReceiptDto Model
@@ -49,9 +51,7 @@ namespace MeroHisab.ViewModels
                 Model.ReceiptTo = PaymentReceiptToLedgerList.Value;
                 await _receiptService.MakeReceipt(Model);
                 await _notificationService.ShowInfo("Success", "Operation performed successfully.");
-                await _navigationService.HideModal();
-                string key = "ReceiptSave";
-                MessagingCenter.Send(Model, key);
+                await _navigationService.MoveBack();
             }
             catch (ItemNotFoundException ex)
 			{
@@ -104,12 +104,11 @@ namespace MeroHisab.ViewModels
 
         private async Task Cancel()
         {
-            await _navigationService.HideModal();
+            await _navigationService.MoveBack();
         }
-        public async Task SetValues(ReceiptDto dto)
+        public async Task SetValues()
         {
-            dto.TransactionDate=DateTime.Now;
-            Model = dto;
+            var dto = new ReceiptDto();
             var accountHeads = await _accountHeadService.GetAllAcountHead();
             var paymentMediums = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.PaymentMedium);
             var accountHead = accountHeads.Select(a => new GenericDropDownDto<int, string>
@@ -128,7 +127,6 @@ namespace MeroHisab.ViewModels
             PaymentReceiptTo.AddRange(paymentMedium);
             LedgerList = Ledgers.FirstOrDefault(a => a.Value == (int)dto.ReceiptFrom);
             PaymentReceiptToLedgerList = PaymentReceiptTo.FirstOrDefault(a => a.Value == (int)dto.ReceiptTo);
-            //PaymentMediumList = new GenericDropDownDto<int, string>();
         }
     }
 }

@@ -29,7 +29,7 @@ namespace MeroHisab.Core.Dto
             }
         }
 
-        public DateTime TransactionDate { get; set; }
+        public DateTime TransactionDate { get; set; } = DateTime.Now;
         public decimal Amount {
             get => _amount;
             set

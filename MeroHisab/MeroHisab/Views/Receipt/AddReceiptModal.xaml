@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MeroHisab.Views.AddReceiptView"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    Title="Add Receipt">
+    <ContentPage.Content>
+        <StackLayout
+            Margin="20"
+            BackgroundColor="WhiteSmoke"
+            VerticalOptions="FillAndExpand">
+            <ScrollView>
+                <StackLayout Margin="15">
+                    <StackLayout>
+                        <Label Text="Receipt From" VerticalOptions="Center" />
+                        <Picker
+                            Title="Select Account Head"
+                            FontSize="Small"
+                            ItemDisplayBinding="{Binding Text}"
+                            ItemsSource="{Binding Ledgers}"
+                            SelectedItem="{Binding LedgerList}"
+                            VerticalOptions="Center" />
+
+                        <Label Text="Receipt To" VerticalOptions="Center" />
+                        <Picker
+                            Title="Select Account Head"
+                            FontSize="Small"
+                            ItemDisplayBinding="{Binding Text}"
+                            ItemsSource="{Binding PaymentReceiptTo}"
+                            SelectedItem="{Binding PaymentReceiptToLedgerList}"
+                            VerticalOptions="Center" />
+                    </StackLayout>
+                    <StackLayout BindingContext="{Binding Model}">
+                        <Label Text="Transaction Date" VerticalOptions="Center" />
+                        <DatePicker Date="{Binding TransactionDate}" />
+                        <Label Text="Amount" VerticalOptions="Center" />
+                        <Entry
+                            FontSize="Small"
+                            Keyboard="Numeric"
+                            Text="{Binding Amount}"
+                            VerticalOptions="Center" />
+                        <Label
+                            x:Name="ReceiptDto_AmountError"
+                            IsVisible="False"
+                            TextColor="Red" />
+
+                        <Label Text="Discount" VerticalOptions="Center" />
+                        <Entry
+                            FontSize="Small"
+                            Keyboard="Numeric"
+                            Text="{Binding Discount}"
+                            VerticalOptions="Center" />
+                        <Label
+                            x:Name="ReceiptDto_DiscountError"
+                            IsVisible="False"
+                            TextColor="Red" />
+
+                        <Label
+                            x:Name="ReceiptDto_CustomerError"
+                            IsVisible="False"
+                            TextColor="Red" />
+
+                        <Label Text="Remarks" VerticalOptions="Center" />
+                        <Entry
+                            FontSize="Small"
+                            Text="{Binding Remarks}"
+                            VerticalOptions="Center" />
+                        <Label
+                            x:Name="ReceiptDto_RemarksError"
+                            IsVisible="False"
+                            TextColor="Red" />
+
+                    </StackLayout>
+
+                    <Button
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        CornerRadius="5"
+                        HorizontalOptions="FillAndExpand"
+                        Text="Save"
+                        TextColor="White"
+                        VerticalOptions="Center">
+                        <Button.Behaviors>
+                            <xct:EventToCommandBehavior Command="{Binding SaveButtonClickedCommand}" EventName="Clicked" />
+                        </Button.Behaviors>
+                    </Button>
+
+                    <Button
+                        BackgroundColor="Transparent"
+                        CornerRadius="5"
+                        Text="Cancel"
+                        TextColor="Black">
+                        <Button.Behaviors>
+                            <xct:EventToCommandBehavior Command="{Binding CancelButtonClickedCommand}" EventName="Clicked" />
+                        </Button.Behaviors>
+                    </Button>
+
+                </StackLayout>
+            </ScrollView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

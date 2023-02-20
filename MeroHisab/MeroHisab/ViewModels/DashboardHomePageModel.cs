@@ -1,8 +1,5 @@
-﻿using MeroHisab.Core.Dto;
-using MeroHisab.Core.Services.Interface;
+﻿using MeroHisab.Core.Services.Interface;
 using MeroHisab.Models;
-using MeroHisab.Partial.Receipt;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xamarin.CommunityToolkit.ObjectModel;
@@ -15,7 +12,7 @@ namespace MeroHisab.ViewModels
         public IAsyncCommand SettingSelectedCommand { get; set; }
 
         public IAsyncCommand ReceiptSave { get; set; }
-        public DashboardHomePageModel(IReceiptService receiptService)
+        public DashboardHomePageModel()
         {
             SettingSelectedCommand = new AsyncCommand(GetTabValue);
             Operations = new ObservableRangeCollection<GridItem>();
@@ -37,36 +34,30 @@ namespace MeroHisab.ViewModels
             switch (selectedItem)
             {
                 case "Receipt":
-                    await AddReceipt(new ReceiptDto());
+                    await AddReceipt();
                     break;
                 case "Payment":
-                    await AddPayment(new PaymentDto());
+                    await AddPayment();
                     break;
                 case "Journal":
-                    await AddJournal(new JournalDto());
+                    await AddJournal();
                     break;
                 case "Transfer":
-                    await AddPayment(new PaymentDto());
+                    await AddPayment();
                     break;
             }
         }
-        private async Task AddReceipt(ReceiptDto dto)
+        private async Task AddReceipt()
         {
-            await _navigationService.ShowModal(new AddReceiptModal(dto));
-            MessagingCenter.Subscribe<ReceiptDto>(this, "AddReceipt", AfterManipulatingReceiptModal);
+            await _navigationService.NavigateToAsync<AddReceiptViewModel>();
         }
 
-		private void AfterManipulatingReceiptModal(ReceiptDto obj)
+		private async Task AddPayment()
 		{
-
+          await _navigationService.NavigateToAsync<AddPaymentViewModel>();           
         }
 
-		private async Task AddPayment(PaymentDto dto)
-		{
-          await _navigationService.NavigateToAsync<AddPaymentViewModel>(dto);           
-        }
-
-        private async Task AddJournal(JournalDto dto)
+        private async Task AddJournal()
         {
             await _navigationService.NavigateToAsync<JournalViewModel>();
         }

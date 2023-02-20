@@ -67,7 +67,7 @@
     <EmbeddedResource Update="Views\Payment\AddPaymentView.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="Partial\Receipt\AddReceiptModal.xaml">
+    <EmbeddedResource Update="Views\Receipt\AddReceiptModal.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Partial\ReportFilter\TransactionFilterPopupModal.xaml">
