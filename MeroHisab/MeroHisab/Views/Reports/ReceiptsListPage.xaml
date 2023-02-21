@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MeroHisab.Views.ReceiptsListPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:MeroHisab.Converters"
+    xmlns:fontAwesome="clr-namespace:FontAwesome"
+    xmlns:reportDto="clr-namespace:MeroHisab.Core.Dto.Report;assembly=MeroHisab.Core"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView">
+    <ContentPage.Resources>
+
+        <ResourceDictionary>
+            <converters:AmountPrefixedByCurrencyConverter x:Key="AmountPrefixedByCurrencyConverter" />
+            <converters:ConcatenatedStringConverter x:Key="ConcatenatedStringConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <NavigationPage.TitleView>
+        <StackLayout Margin="0,0,20,0" Orientation="Horizontal">
+            <Label
+                FontSize="Medium"
+                HorizontalOptions="StartAndExpand"
+                Text="Receipts"
+                TextColor="{StaticResource NavigationTextColor}"
+                VerticalOptions="Center" />
+
+            <ImageButton
+                xct:TouchEffect.Command="{Binding FilterButtonClicked}"
+                BackgroundColor="Transparent"
+                HeightRequest="20"
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                WidthRequest="30">
+                <ImageButton.Source>
+                    <FontImageSource
+                        FontFamily="FontAwesomeSolid"
+                        Glyph="{x:Static fontAwesome:FontAwesomeIcons.Filter}"
+                        Color="White" />
+                </ImageButton.Source>
+            </ImageButton>
+        </StackLayout>
+
+    </NavigationPage.TitleView>
+    <ContentPage.Content>
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+            <StackLayout
+                xct:StateLayout.CurrentState="{Binding LoadingState}"
+                BackgroundColor="White"
+                VerticalOptions="Fill">
+                <xct:StateLayout.StateViews>
+                    <xct:StateView StateKey="Loading">
+                        <StackLayout
+                            BackgroundColor="White"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+
+                            <ActivityIndicator
+                                IsEnabled="True"
+                                IsRunning="True"
+                                Color="Red" />
+                            <Label HorizontalOptions="Center" Text="Loading..." />
+
+                        </StackLayout>
+                    </xct:StateView>
+                    <xct:StateView StateKey="Error">
+                        <Frame
+                            Margin="20"
+                            BackgroundColor="White"
+                            CornerRadius="5"
+                            HeightRequest="50">
+                            <Label
+                                HorizontalOptions="Center"
+                                Text="Failed to load receipts"
+                                TextColor="{StaticResource ErrorColor}"
+                                VerticalOptions="CenterAndExpand" />
+                        </Frame>
+
+                    </xct:StateView>
+                    <xct:StateView StateKey="Success">
+                        <StackLayout
+                            Margin="0,10,0,0"
+                            BindableLayout.ItemsSource="{Binding Receipts}"
+                            Spacing="10">
+                            <BindableLayout.EmptyView>
+                                <Frame
+                                    Margin="20"
+                                    BackgroundColor="White"
+                                    CornerRadius="5"
+                                    HeightRequest="50">
+                                    <Label
+                                        FontSize="Small"
+                                        HorizontalOptions="Center"
+                                        Text="No Receipts have been recorded during the specified duration."
+                                        TextColor="{StaticResource DarkColor}" />
+                                </Frame>
+                            </BindableLayout.EmptyView>
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="reportDto:ReceiptDto">
+                                    <yummy:PancakeView
+                                        Margin="5"
+                                        BackgroundColor="White"
+                                        CornerRadius="10"
+                                        HorizontalOptions="FillAndExpand">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackLayout
+                                                Grid.Column="0"
+                                                Padding="10"
+                                                VerticalOptions="Center">
+                                                <Label
+                                                    FontSize="Small"
+                                                    HorizontalOptions="FillAndExpand"
+                                                    TextColor="{StaticResource BackgroundColor}">
+                                                    <Label.Text>
+                                                        <MultiBinding Converter="{StaticResource ConcatenatedStringConverter}">
+                                                            <Binding StringFormat="From" />
+                                                            <Binding StringFormat=":" />
+                                                            <Binding Path="From" />
+                                                        </MultiBinding>
+                                                    </Label.Text>
+                                                </Label>
+                                                <Label FontSize="Micro">
+                                                    <Label.Text>
+                                                        <MultiBinding Converter="{StaticResource ConcatenatedStringConverter}">
+                                                            <Binding StringFormat="Into" />
+                                                            <Binding StringFormat=":" />
+                                                            <Binding Path="To" />
+                                                        </MultiBinding>
+                                                    </Label.Text>
+                                                </Label>
+                                            </StackLayout>
+                                            <StackLayout
+                                                Grid.Column="1"
+                                                Padding="10"
+                                                HorizontalOptions="Center">
+                                                <Label>
+                                                    <Label.Text>
+                                                        <MultiBinding Converter="{StaticResource ConcatenatedStringConverter}">
+                                                            <Binding StringFormat="Amount" />
+                                                            <Binding StringFormat=":" />
+                                                            <Binding Path="Amount" />
+                                                        </MultiBinding>
+                                                    </Label.Text>
+                                                </Label>
+                                                <Label>
+                                                    <Label.Text>
+                                                        <MultiBinding Converter="{StaticResource ConcatenatedStringConverter}">
+                                                            <Binding StringFormat="Discount" />
+                                                            <Binding StringFormat=":" />
+                                                            <Binding Path="DiscountAllowed" />
+                                                        </MultiBinding>
+                                                    </Label.Text>
+                                                </Label>
+
+                                            </StackLayout>
+
+                                        </Grid>
+
+                                        <yummy:PancakeView.Border>
+                                            <yummy:Border Thickness="2" Color="LightGreen" />
+                                        </yummy:PancakeView.Border>
+                                    </yummy:PancakeView>
+
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </StackLayout>
+                    </xct:StateView>
+                </xct:StateLayout.StateViews>
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

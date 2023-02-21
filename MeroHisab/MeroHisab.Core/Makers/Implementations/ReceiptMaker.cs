@@ -6,7 +6,7 @@ namespace MeroHisab.Core.Makers.Implementations
 {
     public class ReceiptMaker:IReceiptMaker
     {
-        public void Copy(Receipt receipt, ReceiptDto receipt_dto)
+        public void Copy(Receipt receipt, AddReceiptDto receipt_dto)
         {
             receipt.ReceiptFrom = receipt_dto.ReceiptFrom;
             receipt.ReceiptTo = receipt_dto.ReceiptTo;

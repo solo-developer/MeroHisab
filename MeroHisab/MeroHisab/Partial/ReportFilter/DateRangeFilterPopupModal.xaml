@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<pages:PopupPage
+    x:Class="MeroHisab.Partial.ReportFilter.DateRangeFilterPopupModal"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:animations="clr-namespace:Rg.Plugins.Popup.Animations;assembly=Rg.Plugins.Popup"
+    xmlns:fontAwesome="clr-namespace:FontAwesome"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:pages="clr-namespace:Rg.Plugins.Popup.Pages;assembly=Rg.Plugins.Popup"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
+    <pages:PopupPage.Animation>
+        <animations:ScaleAnimation
+            DurationIn="400"
+            DurationOut="300"
+            EasingIn="SinOut"
+            EasingOut="SinIn"
+            HasBackgroundAnimation="True"
+            PositionIn="Center"
+            PositionOut="Center"
+            ScaleIn="1.2"
+            ScaleOut="0.8" />
+    </pages:PopupPage.Animation>
+    <ContentPage.Content>
+        <StackLayout
+            Margin="10"
+            BackgroundColor="WhiteSmoke"
+            HorizontalOptions="FillAndExpand"
+            VerticalOptions="EndAndExpand">
+            <Frame
+                CornerRadius="20"
+                HeightRequest="250"
+                HorizontalOptions="FillAndExpand">
+                <StackLayout Spacing="10" VerticalOptions="EndAndExpand">
+                    <Label Text="From Date" />
+                    <material:MaterialDatePicker Date="{Binding Path=FromDate}" />
+                    <Label Text="To Date" />
+                    <material:MaterialDatePicker Date="{Binding Path=ToDate}" />
+                    <material:MaterialButton
+                        Grid.Column="1"
+                        BackgroundColor="{StaticResource BackgroundColor}"
+                        Text="Apply">
+                        <material:MaterialButton.ImageSource>
+                            <FontImageSource
+                                FontFamily="FontAwesomeSolid"
+                                Glyph="{x:Static fontAwesome:FontAwesomeIcons.Undo}"
+                                Size="Medium"
+                                Color="White" />
+                        </material:MaterialButton.ImageSource>
+                        <material:MaterialButton.Behaviors>
+                            <xct:EventToCommandBehavior Command="{Binding ApplyFilterButtonClicked}" EventName="Clicked" />
+                        </material:MaterialButton.Behaviors>
+                    </material:MaterialButton>
+                </StackLayout>
+            </Frame>
+        </StackLayout>
+    </ContentPage.Content>
+</pages:PopupPage>

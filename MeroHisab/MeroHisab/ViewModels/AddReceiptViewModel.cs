@@ -32,13 +32,13 @@ namespace MeroHisab.ViewModels
 			_notificationService = notificationService;
             Ledgers = new ObservableRangeCollection<GenericDropDownDto<int, string>>();
             PaymentReceiptTo = new ObservableRangeCollection<GenericDropDownDto<int, string>>();
-            Model = new ReceiptDto();
+            Model = new AddReceiptDto();
             this.SetValues();
 		}
         public DateTime MaxDate { get; set; } = DateTime.Now;
-		public ReceiptDto Model
+		public AddReceiptDto Model
         {
-            get => GetValue<ReceiptDto>();
+            get => GetValue<AddReceiptDto>();
             set => SetValue(value);
         }
         private async Task Proceed()
@@ -108,7 +108,7 @@ namespace MeroHisab.ViewModels
         }
         public async Task SetValues()
         {
-            var dto = new ReceiptDto();
+            var dto = new AddReceiptDto();
             var accountHeads = await _accountHeadService.GetAllAcountHead();
             var paymentMediums = await _accountHeadService.GetAccountHeads(Core.Enums.LedgerType.PaymentMedium);
             var accountHead = accountHeads.Select(a => new GenericDropDownDto<int, string>

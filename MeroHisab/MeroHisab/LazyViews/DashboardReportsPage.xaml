@@ -73,7 +73,7 @@
 
                     <Frame
                         Grid.Row="2"
-                        xct:TouchEffect.Command="{Binding ReportsByAccountHeadCommand}"
+                        xct:TouchEffect.Command="{Binding ReceiptsListCommand}"
                         Style="{StaticResource FrameStyle}">
                         <StackLayout Orientation="Horizontal">
                             <ImageButton BackgroundColor="Transparent">
@@ -94,7 +94,7 @@
                     </Frame>
                     <Frame
                         Grid.Row="3"
-                        xct:TouchEffect.Command="{Binding ReportsByAccountHeadCommand}"
+                        xct:TouchEffect.Command="{Binding PaymentsListCommand}"
                         Style="{StaticResource FrameStyle}">
 
                         <StackLayout Orientation="Horizontal">

@@ -86,7 +86,7 @@ namespace MeroHisab.Core.Makers.Implementations
             return transactionDto;
         }
 
-        public async Task<TransactionDto> CreateTransactionDtoFrom(ReceiptDto receiptDto)
+        public async Task<TransactionDto> CreateTransactionDtoFrom(AddReceiptDto receiptDto)
         {
             TransactionDto transactionDto = new TransactionDto();
             transactionDto.TransactionDate = receiptDto.TransactionDate;

@@ -5,6 +5,6 @@ namespace MeroHisab.Core.Makers.Interface
 {
     public interface IReceiptMaker
     {
-        void Copy(Receipt receipt, ReceiptDto receipt_dto);
+        void Copy(Receipt receipt, AddReceiptDto receipt_dto);
     }
 }

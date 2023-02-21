@@ -7,6 +7,6 @@ namespace MeroHisab.Core.Makers.Interface
     {
         Task<TransactionDto> CreateTransactionDtoFrom(LedgerDto ledgerDto);
         Task<TransactionDto> CreateTransactionDtoFrom(PaymentDto paymentDto);
-        Task<TransactionDto> CreateTransactionDtoFrom(ReceiptDto receiptDto);
+        Task<TransactionDto> CreateTransactionDtoFrom(AddReceiptDto receiptDto);
     }
 }

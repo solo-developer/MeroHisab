@@ -1,4 +1,5 @@
 ﻿using MeroHisab.Core.Dto;
+using MeroHisab.Core.Dto.Report;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Enums;
 using MeroHisab.Core.Exceptions;
@@ -16,14 +17,16 @@ namespace MeroHisab.Core.Services.Implementations
         private readonly IReceiptMaker _receiptMaker;
         private readonly ITransactionDtoMaker _transactionDtoMaker;
         private readonly ILedgerSetupRepository _ledgerSetupRepo;
+        private readonly ILedgerRepository _ledgerRepo;
 
-        public ReceiptService(ITransactionDtoMaker transactionDtoMaker, IReceiptMaker receiptMaker, IReceiptRepository receiptRepo, ITransactionSummaryService transactionService, ILedgerSetupRepository ledgerSetupRepo)
+        public ReceiptService(ITransactionDtoMaker transactionDtoMaker, IReceiptMaker receiptMaker, IReceiptRepository receiptRepo, ITransactionSummaryService transactionService, ILedgerSetupRepository ledgerSetupRepo, ILedgerRepository ledgerRepo)
         {
             _receiptRepo = receiptRepo;
             _transactionService = transactionService;
             _receiptMaker = receiptMaker;
             _transactionDtoMaker = transactionDtoMaker;
             _ledgerSetupRepo = ledgerSetupRepo;
+            _ledgerRepo = ledgerRepo;
         }
 
         public async Task Cancel(int receipt_id)
@@ -84,7 +87,7 @@ namespace MeroHisab.Core.Services.Implementations
             return transactionDto;
         }
 
-        public async Task<int> MakeReceipt(ReceiptDto receiptDto)
+        public async Task<int> MakeReceipt(AddReceiptDto receiptDto)
         {
             using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
             {
@@ -102,5 +105,27 @@ namespace MeroHisab.Core.Services.Implementations
             }
         }
 
+        public async Task<List<ReceiptDto>> Get(DateTime fromDate, DateTime toDate)
+        {
+            var receipts = await _receiptRepo.AsQueryable().Where(a => a.TransactionDate >= fromDate && a.TransactionDate <= toDate).ToListAsync();
+
+            var ledgers = await _ledgerRepo.Get();
+
+            var response = new List<ReceiptDto>();
+            foreach (var receipt in receipts)
+            {
+                response.Add(new ReceiptDto
+                {
+                    Id = receipt.Id,
+                    From = ledgers.Single(a => a.Id == receipt.ReceiptFrom).Name,
+                    To = ledgers.Single(a => a.Id == receipt.ReceiptTo).Name,
+                    DiscountAllowed = receipt.Discount,
+                    Amount = receipt.Amount,
+                    Remarks = receipt.Remarks
+                });
+            }
+
+            return response;
+        }
     }
 }
