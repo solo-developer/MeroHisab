@@ -25,7 +25,7 @@ namespace MeroHisab.ViewModels
 
         private async Task NavigateToPaymentsListPage()
         {
-            throw new NotImplementedException();
+            await _navigationService.NavigateToAsync<PaymentsListPageModel>();
         }
 
         private async Task NavigateToReceiptsListPage()

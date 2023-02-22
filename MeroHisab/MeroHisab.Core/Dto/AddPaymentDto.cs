@@ -3,7 +3,7 @@ using System;
 
 namespace MeroHisab.Core.Dto
 {
-    public class PaymentDto
+    public class AddPaymentDto
     {
         private decimal _amount,_discount;
         private long _userId;

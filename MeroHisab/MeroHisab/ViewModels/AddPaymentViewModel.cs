@@ -31,7 +31,7 @@ namespace MeroHisab.ViewModels
 			_notificationService = notificationService;
 			PaymentTo = new ObservableRangeCollection<GenericDropDownDto<int, string>>();
 			PaymentFrom = new ObservableRangeCollection<GenericDropDownDto<int, string>>();
-			Model = new PaymentDto();
+			Model = new AddPaymentDto();
 			this.SetValues();
 		}
 
@@ -39,9 +39,9 @@ namespace MeroHisab.ViewModels
 		{
             await _navigationService.MoveBack();
         }
-		public PaymentDto Model
+		public AddPaymentDto Model
 		{
-			get => GetValue<PaymentDto>();
+			get => GetValue<AddPaymentDto>();
 			set => SetValue(value);
 		}
 		private async Task Proceed()

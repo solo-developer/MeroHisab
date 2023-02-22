@@ -5,6 +5,7 @@ using MeroHisab.Core.Dto;
 using MeroHisab.Core.Exceptions;
 using MeroHisab.Core.Entities;
 using MeroHisab.Core.Makers.Interface;
+using MeroHisab.Core.Dto.Report;
 
 namespace MeroHisab.Core.Services.Implementations
 {
@@ -15,14 +16,16 @@ namespace MeroHisab.Core.Services.Implementations
         private readonly ITransactionSummaryService _transactionService;
         private readonly ITransactionDtoMaker _transactionDtoMaker;
         private readonly ILedgerSetupRepository _ledgerSetupRepo;
+        private readonly ILedgerRepository _ledgerRepo;
 
-        public PaymentService(ITransactionDtoMaker transactionDtoMaker, ITransactionSummaryService _transactionService, IPaymentMaker _paymentMaker, IPaymentRepository _paymentRepo, ILedgerSetupRepository ledgerSetupRepo)
+        public PaymentService(ITransactionDtoMaker transactionDtoMaker, ITransactionSummaryService _transactionService, IPaymentMaker _paymentMaker, IPaymentRepository _paymentRepo, ILedgerSetupRepository ledgerSetupRepo, ILedgerRepository ledgerRepo)
         {
             this._transactionService = _transactionService;
             this._paymentMaker = _paymentMaker;
             this._paymentRepo = _paymentRepo;
             _transactionDtoMaker = transactionDtoMaker;
             _ledgerSetupRepo = ledgerSetupRepo;
+            _ledgerRepo = ledgerRepo;
         }
 
         public async Task Cancel(int payment_id)
@@ -81,7 +84,7 @@ namespace MeroHisab.Core.Services.Implementations
             return transactionDto;
         }
 
-        public async Task DoPayment(PaymentDto paymentDto)
+        public async Task DoPayment(AddPaymentDto paymentDto)
         {
             using (TransactionScope tx = new TransactionScope(TransactionScopeOption.Required))
             {
@@ -96,6 +99,29 @@ namespace MeroHisab.Core.Services.Implementations
                 await _transactionService.AddTransaction(transactionDto);
                 tx.Complete();
             }
+        }
+
+        public async Task<List<PaymentDto>> Get(DateTime fromDate, DateTime toDate)
+        {
+            var payemnts = await _paymentRepo.AsQueryable().Where(a => a.TransactionDate >= fromDate && a.TransactionDate <= toDate).ToListAsync();
+
+            var ledgers = await _ledgerRepo.Get();
+
+            var response = new List<PaymentDto>();
+            foreach (var payment in payemnts)
+            {
+                response.Add(new PaymentDto
+                {
+                    Id = payment.Id,
+                    From = ledgers.Single(a => a.Id == payment.PaymentFrom).Name,
+                    To = ledgers.Single(a => a.Id == payment.PaymentTo).Name,
+                    DiscountReceived = payment.Discount,
+                    Amount = payment.Amount,
+                    Remarks = payment.Remarks
+                });
+            }
+
+            return response;
         }
     }
 }

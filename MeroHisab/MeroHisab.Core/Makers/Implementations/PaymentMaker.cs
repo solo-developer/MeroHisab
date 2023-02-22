@@ -6,7 +6,7 @@ namespace MeroHisab.Core.Makers.Implementations
 {
     public class PaymentMaker:IPaymentMaker
     {
-        public void Copy(Payment payment,PaymentDto payment_dto)
+        public void Copy(Payment payment,AddPaymentDto payment_dto)
         {
             payment.TransactionDate = payment_dto.TransactionDate;
             payment.Remarks = payment_dto.Remarks;
