@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import RegisterScreen from './src/screens/RegisterScreen';
 import { getUser } from './src/storage/userStorage';
+import MainContainer from './src/navigation/MainContainer';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -23,11 +24,7 @@ const App = () => {
     return <RegisterScreen onRegistered={() => setIsRegistered(true)} />;
   }
 
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Welcome to Mero Hisab</Text>
-    </View>
-  );
+  return <MainContainer />;
 };
 
 export default App;
