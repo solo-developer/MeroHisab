@@ -1,45 +1,132 @@
-import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
 import { SwipeTabRoutes } from '../navigation/navigationRef';
 
 type Props = {
   activeTab: SwipeTabRoutes;
   onTabPress: (route: SwipeTabRoutes) => void;
-  onFabPress: () => void;
 };
 
-const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress, onFabPress }) => {
+type FabItemProps = {
+  label: string;
+  icon: string;
+  style: object;
+  onPress: () => void;
+};
+
+const FabItem: React.FC<FabItemProps> = ({
+  label,
+  icon,
+  style,
+  onPress,
+}) => {
+  return (
+    <TouchableOpacity style={[styles.fabItem, style]} onPress={onPress}>
+      <MaterialCommunityIcons name={icon} size={20} color="#fff" />
+      <Text style={styles.fabLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+};
+
+const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
+  const [isFabOpen, setIsFabOpen] = useState(false);
+
   const renderTab = (label: SwipeTabRoutes, icon: string) => {
     const isActive = activeTab === label;
+
     return (
-      <TouchableOpacity style={styles.tab} onPress={() => onTabPress(label)}>
+      <TouchableOpacity
+        style={styles.tab}
+        onPress={() => onTabPress(label)}
+      >
         <MaterialCommunityIcons
           name={icon}
-          size={22}
+          size={isActive ? 24 : 22}
           color={isActive ? '#0a84ff' : '#666'}
         />
-        <Text style={[styles.label, isActive && styles.active]}>{label}</Text>
+        <Text style={[styles.label, isActive && styles.activeLabel]}>
+          {label}
+        </Text>
       </TouchableOpacity>
     );
   };
 
+  const { width } = Dimensions.get('window');
+  const fabBottom = 32;
+  const fabRadius = 80;
+
+  // Updated FAB items: Income / Expense / Transfer
+  const fabItems = [
+    { label: 'Income', icon: 'plus-circle-outline' },
+    { label: 'Expense', icon: 'minus-circle-outline' },
+    { label: 'Transfer', icon: 'swap-horizontal-bold' }, // changed here
+  ];
+
+  const totalItems = fabItems.length;
+  const startAngle = -90 - 60;
+  const endAngle = -90 + 60;
+
   return (
     <>
+      {isFabOpen && (
+        <View style={styles.fabOverlay}>
+          {fabItems.map((item, index) => {
+            const angle =
+              startAngle + (index * (endAngle - startAngle)) / (totalItems - 1);
+            const rad = (angle * Math.PI) / 180;
+            const x = fabRadius * Math.cos(rad);
+            const y = fabRadius * Math.sin(rad);
+
+            return (
+              <FabItem
+                key={item.label}
+                label={item.label}
+                icon={item.icon}
+                style={{
+                  position: 'absolute',
+                  bottom: fabBottom + 32,
+                  left: width / 2 - 32 + x,
+                  transform: [{ translateY: y }],
+                }}
+                onPress={() => {
+                  setIsFabOpen(false);
+                  console.log(`Add ${item.label}`);
+                }}
+              />
+            );
+          })}
+          <TouchableOpacity
+            style={styles.fabOverlayTouchable}
+            onPress={() => setIsFabOpen(false)}
+          />
+        </View>
+      )}
+
       <View style={styles.container}>
         {renderTab('Dashboard', 'home-variant-outline')}
         {renderTab('Transactions', 'swap-horizontal')}
-
         <View style={{ width: 70, pointerEvents: 'none' }} />
-
         {renderTab('Reports', 'chart-line')}
         {renderTab('Settings', 'cog-outline')}
       </View>
 
-      {/* Floating Add Button */}
-      <TouchableOpacity style={styles.fab} onPress={onFabPress}>
-        <MaterialCommunityIcons name="plus" size={32} color="#fff" />
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => setIsFabOpen(prev => !prev)}
+        activeOpacity={0.85}
+      >
+        <MaterialCommunityIcons
+          name={isFabOpen ? 'close' : 'plus'}
+          size={32}
+          color="#fff"
+        />
       </TouchableOpacity>
     </>
   );
@@ -56,7 +143,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopWidth: 0.5,
     borderTopColor: '#ddd',
-
     zIndex: 1,
   },
 
@@ -65,31 +151,64 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   label: {
     fontSize: 11,
     color: '#666',
     marginTop: 2,
   },
-  active: {
+
+  activeLabel: {
     color: '#0a84ff',
     fontWeight: '600',
   },
-  spacer: {
-    width: 70,
-  },
+
   fab: {
     position: 'absolute',
     alignSelf: 'center',
-    bottom: 32, // 👈 move above tab bar
+    bottom: 32,
     width: 64,
     height: 64,
     borderRadius: 32,
     backgroundColor: '#0a84ff',
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 12,
+    zIndex: 100,
+  },
 
-    zIndex: 100, // 👈 iOS
-    elevation: 12, // 👈 Android
+  fabOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 99,
+  },
+
+  fabOverlayTouchable: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+
+  fabItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0a84ff',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 24,
+    elevation: 6,
+  },
+
+  fabLabel: {
+    color: '#fff',
+    fontSize: 13,
+    marginLeft: 6,
+    fontWeight: '500',
   },
 });
 
