@@ -1,34 +1,36 @@
-// src/navigation/MainContainer.tsx
-import React, { useRef } from 'react';
-import { View, StyleSheet, Platform } from 'react-native';
-import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
-import SwipeTabs, { TopTabParamList } from './SwipeTabs';
-import BottomTabs from '../components/BottomTabs';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 
-type NavRef = NavigationContainerRef<TopTabParamList>;
+import SwipeTabs from './SwipeTabs';
+import BottomTabs from '../components/BottomTabs';
+import { navigationRef, SwipeTabRoutes } from './navigationRef';
 
 const MainContainer: React.FC = () => {
-  const navRef = useRef<NavRef | null>(null);
+  const [activeTab, setActiveTab] = useState<SwipeTabRoutes>('Dashboard');
+
+  useEffect(() => {
+    const unsubscribe = navigationRef.addListener('state', () => {
+      const route = navigationRef.getCurrentRoute();
+      if (route?.name) {
+        setActiveTab(route.name as SwipeTabRoutes);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
-    <NavigationContainer ref={navRef}>
+    <NavigationContainer ref={navigationRef}>
       <View style={styles.container}>
-        {/* Swipe-enabled top tabs (full screen) */}
         <SwipeTabs />
 
-        {/* Custom bottom tabs overlayed on top of navigator */}
         <BottomTabs
-          onTabPress={(routeName) => {
-            // navigate to top tab when bottom button pressed
-            if (navRef.current) {
-              // routeName must match one of: 'Dashboard'|'Transactions'|'Reports'|'Settings'
-              navRef.current.navigate(routeName as keyof TopTabParamList);
-            }
-          }}
+          activeTab={activeTab}
+          onTabPress={(route) => navigationRef.navigate(route)}
           onFabPress={() => {
-            // handle FAB press (open add modal / screen etc.)
-            // for now navigate to Transactions to show example
-            if (navRef.current) navRef.current.navigate('Transactions');
+            // later: open add-transaction modal
+            navigationRef.navigate('Transactions');
           }}
         />
       </View>
