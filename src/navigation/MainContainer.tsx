@@ -29,8 +29,7 @@ const MainContainer: React.FC = () => {
           activeTab={activeTab}
           onTabPress={(route) => navigationRef.navigate(route)}
           onFabPress={() => {
-            // later: open add-transaction modal
-            navigationRef.navigate('Transactions');
+            navigationRef.navigate('Dashboard');
           }}
         />
       </View>

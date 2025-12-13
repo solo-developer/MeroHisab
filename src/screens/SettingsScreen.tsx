@@ -10,7 +10,7 @@ const Tab = createMaterialTopTabNavigator();
 const ManageScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.item}>
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageCategories')}>
         <Icon name="category" size={24} color="#333" />
         <Text style={styles.itemText}>Manage Categories</Text>
       </TouchableOpacity>
