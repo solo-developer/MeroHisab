@@ -1,23 +1,100 @@
-// src/screens/DashboardScreen.tsx
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+// SettingsScreen.js
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const SettingsScreen: React.FC = () => {
-  useEffect(() => {
-   
-  }, []);
+const Tab = createMaterialTopTabNavigator();
 
+// --- Manage Tab ---
+const ManageScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Settings Content</Text>
-      <Text>Load heavy widgets here only when user lands on this tab.</Text>
+      <TouchableOpacity style={styles.item}>
+        <Icon name="category" size={24} color="#333" />
+        <Text style={styles.itemText}>Manage Categories</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.item}>
+        <Icon name="account-balance" size={24} color="#333" />
+        <Text style={styles.itemText}>Manage Accounts</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
+// --- General Tab ---
+const GeneralScreen = ({ navigation }) => {
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.item}>
+        <Icon name="bar-chart" size={24} color="#333" />
+        <Text style={styles.itemText}>Charts</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.item}>
+        <Icon name="backup" size={24} color="#333" />
+        <Text style={styles.itemText}>Backup & Sync</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+// --- About Tab ---
+const AboutScreen = ({ navigation }) => {
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.item}>
+        <Icon name="info" size={24} color="#333" />
+        <Text style={styles.itemText}>About Us</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.item}>
+        <Icon name="help-outline" size={24} color="#333" />
+        <Text style={styles.itemText}>Help Center</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.item}>
+        <Icon name="description" size={24} color="#333" />
+        <Text style={styles.itemText}>Terms of Use</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+// --- Main Settings Top Tabs ---
+const SettingsScreen = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold' },
+        tabBarIndicatorStyle: { backgroundColor: '#4CAF50' },
+      }}
+    >
+      <Tab.Screen name="Manage" component={ManageScreen} />
+      <Tab.Screen name="General" component={GeneralScreen} />
+      <Tab.Screen name="About" component={AboutScreen} />
+    </Tab.Navigator>
+  );
+};
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, paddingTop: 80 },
-  title: { fontSize: 20, marginBottom: 8 },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 10,
+  },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  itemText: {
+    fontSize: 16,
+    marginLeft: 15,
+  },
 });
 
 export default SettingsScreen;
