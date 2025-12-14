@@ -13,6 +13,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SettingsStackParamList } from '../navigation/SettingsStack';
 import WalletRepository from '../repositories/WalletRepository';
+import { WalletsService } from '../services/WalletsService';
 import Wallet from '../models/Wallet';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'ManageWallets'>;
@@ -21,8 +22,9 @@ const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editing, setEditing] = useState<Wallet | null>(null);
+
   const [name, setName] = useState('');
-  const [balance, setBalance] = useState('');
+  const [openingBalance, setOpeningBalance] = useState('');
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -45,32 +47,36 @@ const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
   const openAdd = () => {
     setEditing(null);
     setName('');
-    setBalance('');
+    setOpeningBalance('');
     setModalVisible(true);
   };
 
   const openEdit = (wallet: Wallet) => {
     setEditing(wallet);
     setName(wallet.name);
-    setBalance(wallet.balance.toString());
+    setOpeningBalance('');
     setModalVisible(true);
   };
 
   const save = async () => {
     if (!name.trim()) return;
 
-    if (editing) {
-      editing.name = name.trim();
-      editing.balance = Number(balance) || 0;
-      await WalletRepository.update(editing);
-    } else {
-      await WalletRepository.add(
-        new Wallet(name.trim(), Number(balance) || 0)
-      );
-    }
+    try {
+      if (editing) {
+        editing.name = name.trim();
+        await WalletRepository.update(editing);
+      } else {
+        await WalletsService.createWallet({
+          name: name.trim(),
+          openingBalance: Number(openingBalance) || 0,
+        });
+      }
 
-    setModalVisible(false);
-    load();
+      setModalVisible(false);
+      load();
+    } catch (e) {
+      Alert.alert('Error', 'Failed to save wallet');
+    }
   };
 
   const remove = (wallet: Wallet) => {
@@ -110,25 +116,31 @@ const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
         )}
       />
 
+      {/* -------- MODAL -------- */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.overlay}>
           <View style={styles.modal}>
             <Text style={styles.title}>
               {editing ? 'Edit Wallet' : 'Add Wallet'}
             </Text>
+
             <TextInput
               placeholder="Wallet Name"
               value={name}
               onChangeText={setName}
               style={styles.input}
             />
-            <TextInput
-              placeholder="Initial Balance"
-              keyboardType="numeric"
-              value={balance}
-              onChangeText={setBalance}
-              style={styles.input}
-            />
+
+            {!editing && (
+              <TextInput
+                placeholder="Opening Balance"
+                keyboardType="numeric"
+                value={openingBalance}
+                onChangeText={setOpeningBalance}
+                style={styles.input}
+              />
+            )}
+
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={save} style={styles.save}>
                 <Text style={styles.btnText}>Save</Text>
@@ -150,12 +162,7 @@ const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
 export default ManageWalletsScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-
+  container: { flex: 1, backgroundColor: '#fff', padding: 20 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -164,53 +171,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-
-  name: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#111',
-  },
-
-  balance: {
-    marginTop: 4,
-    fontSize: 14,
-    color: '#666',
-  },
-
-  actions: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-
-  action: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#007AFF',
-  },
-
-  /* ---------- MODAL ---------- */
-
-  overlay: {
+  name: { fontSize: 16, fontWeight: '500', color: '#111' },
+  balance: { marginTop: 4, fontSize: 14, color: '#666' },
+  actions: { flexDirection: 'row', gap: 16 },
+  action: { fontSize: 14, fontWeight: '500', color: '#007AFF' },
+  /* ---------- MODAL ---------- */ overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   modal: {
     width: '85%',
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
   },
-
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 16,
-    color: '#111',
-  },
-
+  title: { fontSize: 20, fontWeight: '600', marginBottom: 16, color: '#111' },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -220,13 +197,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 14,
   },
-
   modalActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
   },
-
   save: {
     flex: 1,
     backgroundColor: '#4CAF50',
@@ -234,14 +209,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 10,
   },
-
   cancel: {
     flex: 1,
     backgroundColor: '#F44336',
     paddingVertical: 12,
     borderRadius: 8,
   },
-
   btnText: {
     color: '#fff',
     fontSize: 15,

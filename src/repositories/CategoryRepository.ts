@@ -1,70 +1,107 @@
-import Category from '../models/Category';
+// src/repositories/CategoryRepository.ts
 import { getDatabase } from './Database';
+import Category from '../models/Category';
 
 export default class CategoryRepository {
-  private static getDB() {
-    return getDatabase();
-  }
 
-  static getAllCategories(): Promise<Category[]> {
-    const db = this.getDB();
+  static getAll(): Promise<Category[]> {
+    const db = getDatabase();
+
     return new Promise((resolve, reject) => {
-      db.transaction((tx) => {
+      db.transaction(tx => {
         tx.executeSql(
-          'SELECT * FROM categories;',
+          `
+          SELECT id, name, type, icon, color, ledgerId
+          FROM categories
+          WHERE deletedAt IS NULL
+          ORDER BY name;
+          `,
           [],
-          (_, result) => {
+          (_, res) => {
             const categories: Category[] = [];
-            for (let i = 0; i < result.rows.length; i++) {
-              const row = result.rows.item(i);
-              categories.push(new Category(row.name, row.type, row.icon, row.color, row.id));
+            for (let i = 0; i < res.rows.length; i++) {
+              const r = res.rows.item(i);
+              categories.push(
+                new Category(
+                  r.name,
+                  r.type,
+                  r.icon,
+                  r.color,
+                  r.id,
+                  r.ledgerId
+                )
+              );
             }
             resolve(categories);
           },
-          (_, error) => reject(error)
+          (_, err) => reject(err),
         );
       });
     });
   }
 
-  static addCategory(category: Category): Promise<number> {
-    const database = this.getDB();
+  static add(category: Category): Promise<void> {
+    const db = getDatabase();
+
     return new Promise((resolve, reject) => {
-      database.transaction((tx) => {
+      db.transaction(tx => {
         tx.executeSql(
-          'INSERT INTO categories (name, type, icon, color) VALUES (?, ?, ?, ?);',
-          [category.name, category.type, category.icon, category.color],
-          (_, result) => resolve(result.insertId),
-          (_, error) => reject(error)
+          `
+          INSERT INTO categories (name, type, icon, color, ledgerId)
+          VALUES (?, ?, ?, ?, ?);
+          `,
+          [
+            category.name,
+            category.type,
+            category.icon,
+            category.color,
+            category.ledgerId,
+          ],
+          () => resolve(),
+          (_, err) => reject(err),
         );
       });
     });
   }
 
-  static updateCategory(category: Category): Promise<number> {
-    if (!category.id) throw new Error('Category ID is missing');
-    const database = this.getDB();
+  static update(category: Category): Promise<void> {
+    const db = getDatabase();
+
     return new Promise((resolve, reject) => {
-      database.transaction((tx) => {
+      db.transaction(tx => {
         tx.executeSql(
-          'UPDATE categories SET name=?, type=?, icon=?, color=? WHERE id=?;',
-          [category.name, category.type, category.icon, category.color, category.id],
-          (_, result) => resolve(result.rowsAffected),
-          (_, error) => reject(error)
+          `
+          UPDATE categories
+          SET name = ?, icon = ?, color = ?
+          WHERE id = ? AND deletedAt IS NULL;
+          `,
+          [
+            category.name,
+            category.icon,
+            category.color,
+            category.id,
+          ],
+          () => resolve(),
+          (_, err) => reject(err),
         );
       });
     });
   }
 
-  static deleteCategory(id: number): Promise<number> {
-    const database = this.getDB();
+  static delete(id: number): Promise<void> {
+    const db = getDatabase();
+
     return new Promise((resolve, reject) => {
-      database.transaction((tx) => {
+      db.transaction(tx => {
         tx.executeSql(
-          'DELETE FROM categories WHERE id=?;',
+          `
+          UPDATE categories
+          SET deletedAt = CURRENT_TIMESTAMP
+          WHERE id = ? AND deletedAt IS NULL;
+          `,
           [id],
-          (_, result) => resolve(result.rowsAffected),
-          (_, error) => reject(error)
+          () => resolve(),
+          (_, err) => reject(err),
         );
       });
     });

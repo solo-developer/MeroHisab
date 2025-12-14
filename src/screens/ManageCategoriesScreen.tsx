@@ -1,5 +1,5 @@
 // src/screens/ManageCategoriesScreen.tsx
-import React, { useEffect, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SettingsStackParamList } from '../navigation/SettingsStack';
 import CategoryRepository from '../repositories/CategoryRepository';
+import { CategoriesService } from '../services/CategoriesService';
 import Category from '../models/Category';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'ManageCategories'>;
@@ -20,133 +21,144 @@ type Props = NativeStackScreenProps<SettingsStackParamList, 'ManageCategories'>;
 const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [categoryName, setCategoryName] = useState('');
+  const [editing, setEditing] = useState<Category | null>(null);
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
+  const [name, setName] = useState('');
+  const [icon, setIcon] = useState('');
+  const [color, setColor] = useState('');
+  const [type, setType] = useState<'expense' | 'income'>('expense');
 
-  // Add "+" icon to header
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => openAddModal()}
-          style={{ marginRight: 15 }}
-        >
-          <Text style={{ fontSize: 28, fontWeight: 'bold' }}>+</Text>
+        <TouchableOpacity onPress={openAdd} style={{ marginRight: 15 }}>
+          <Text style={{ fontSize: 28 }}>+</Text>
         </TouchableOpacity>
       ),
     });
-  }, [navigation]);
+  }, []);
 
-  const loadCategories = async () => {
-    try {
-      const data = await CategoryRepository.getAllCategories();
-      setCategories(data);
-    } catch (error) {
-      console.error(error);
-    }
+  useEffect(() => {
+    load();
+  }, []);
+
+  const load = async () => {
+    setCategories(await CategoryRepository.getAll());
   };
 
-  const openAddModal = () => {
-    setEditingCategory(null);
-    setCategoryName('');
+  const openAdd = () => {
+    setEditing(null);
+    setName('');
+    setIcon('');
+    setColor('');
+    setType('expense');
     setModalVisible(true);
   };
 
-  const openEditModal = (category: Category) => {
-    setEditingCategory(category);
-    setCategoryName(category.name);
+  const openEdit = (category: Category) => {
+    setEditing(category);
+    setName(category.name);
+    setIcon(category.icon || '');
+    setColor(category.color || '');
     setModalVisible(true);
   };
 
-  const saveCategory = async () => {
-    try {
-      if (!categoryName.trim()) return;
+  const save = async () => {
+    if (!name.trim()) return;
 
-      if (editingCategory) {
-        editingCategory.name = categoryName.trim();
-        await CategoryRepository.updateCategory(editingCategory);
+    try {
+      if (editing) {
+        editing.name = name.trim();
+        editing.icon = icon;
+        editing.color = color;
+        await CategoryRepository.update(editing);
       } else {
-        await CategoryRepository.addCategory(
-          new Category(categoryName.trim(), 'expense')
-        );
+        await CategoriesService.createCategory({
+          name: name.trim(),
+          type,
+          icon,
+          color,
+        });
       }
 
       setModalVisible(false);
-      setCategoryName('');
-      setEditingCategory(null);
-      loadCategories();
-    } catch (error) {
-      console.error(error);
+      load();
+    } catch {
+      Alert.alert('Error', 'Failed to save category');
     }
   };
 
-  const deleteCategory = (category: Category) => {
-    Alert.alert(
-      'Delete Category',
-      `Are you sure you want to delete "${category.name}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            await CategoryRepository.deleteCategory(category.id!);
-            loadCategories();
-          },
+  const remove = (category: Category) => {
+    Alert.alert('Delete Category', `Delete "${category.name}"?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          await CategoryRepository.delete(category.id!);
+          load();
         },
-      ]
-    );
+      },
+    ]);
   };
-
-  const renderItem = ({ item }: { item: Category }) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemText}>{item.name}</Text>
-      <View style={styles.itemActions}>
-        <TouchableOpacity onPress={() => openEditModal(item)} style={styles.editButton}>
-          <Text style={styles.actionText}>Edit</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => deleteCategory(item)} style={styles.deleteButton}>
-          <Text style={styles.actionText}>Delete</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
 
   return (
     <View style={styles.container}>
       <FlatList
         data={categories}
-        keyExtractor={(item) => item.id!.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        keyExtractor={i => i.id!.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.row}>
+            <Text style={styles.name}>{item.name}</Text>
+            <View style={styles.actions}>
+              <TouchableOpacity onPress={() => openEdit(item)}>
+                <Text style={styles.action}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => remove(item)}>
+                <Text style={styles.action}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       />
 
-      {/* Add/Edit Modal */}
-      <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {editingCategory ? 'Edit Category' : 'Add Category'}
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View style={styles.overlay}>
+          <View style={styles.modal}>
+            <Text style={styles.title}>
+              {editing ? 'Edit Category' : 'Add Category'}
             </Text>
+
             <TextInput
-              style={styles.input}
               placeholder="Category Name"
-              value={categoryName}
-              onChangeText={setCategoryName}
+              value={name}
+              onChangeText={setName}
+              style={styles.input}
             />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.saveButton} onPress={saveCategory}>
-                <Text style={styles.buttonText}>Save</Text>
+
+            <TextInput
+              placeholder="Icon"
+              value={icon}
+              onChangeText={setIcon}
+              style={styles.input}
+            />
+
+            <TextInput
+              placeholder="Color"
+              value={color}
+              onChangeText={setColor}
+              style={styles.input}
+            />
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity onPress={save} style={styles.save}>
+                <Text style={styles.btnText}>Save</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.cancelButton}
                 onPress={() => setModalVisible(false)}
+                style={styles.cancel}
               >
-                <Text style={styles.buttonText}>Cancel</Text>
+                <Text style={styles.btnText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -160,41 +172,63 @@ export default ManageCategoriesScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 20 },
-  itemContainer: {
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  itemText: { fontSize: 16 },
-  itemActions: { flexDirection: 'row' },
-  editButton: { marginRight: 10, padding: 5 },
-  deleteButton: { padding: 5 },
-  actionText: { color: '#007AFF', fontWeight: '500' },
-  modalOverlay: {
+  name: { fontSize: 16, fontWeight: '500', color: '#111' },
+  balance: { marginTop: 4, fontSize: 14, color: '#666' },
+  actions: { flexDirection: 'row', gap: 16 },
+  action: { fontSize: 14, fontWeight: '500', color: '#007AFF' },
+  /* ---------- MODAL ---------- */ overlay: {
     flex: 1,
-    backgroundColor: '#00000066',
+    backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalContent: {
+  modal: {
     width: '85%',
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 10,
     padding: 20,
   },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 15 },
+  title: { fontSize: 20, fontWeight: '600', marginBottom: 16, color: '#111' },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 20,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    marginBottom: 14,
   },
-  modalButtons: { flexDirection: 'row', justifyContent: 'space-between' },
-  saveButton: { flex: 1, backgroundColor: '#4CAF50', padding: 12, borderRadius: 6, marginRight: 10 },
-  cancelButton: { flex: 1, backgroundColor: '#f44336', padding: 12, borderRadius: 6 },
-  buttonText: { color: '#fff', textAlign: 'center', fontWeight: 'bold' },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  save: {
+    flex: 1,
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  cancel: {
+    flex: 1,
+    backgroundColor: '#F44336',
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  btnText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
 });
+

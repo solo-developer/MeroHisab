@@ -1,7 +1,8 @@
 export default class Wallet {
   constructor(
     public name: string,
-    public balance: number = 0,
-    public id?: number
+    public balance: number,
+    public id?: number,
+    public ledgerId?: number,
   ) {}
 }
