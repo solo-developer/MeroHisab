@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SwipeTabRoutes } from '../navigation/navigationRef';
+import TransferModal from '../screens/TransferModal';
 
 type Props = {
   activeTab: SwipeTabRoutes;
@@ -15,45 +16,33 @@ type Props = {
 };
 
 type FabItemProps = {
-  label: string;
+  label: 'Income' | 'Expense' | 'Transfer';
   icon: string;
   style: object;
   onPress: () => void;
 };
 
-const FabItem: React.FC<FabItemProps> = ({
-  label,
-  icon,
-  style,
-  onPress,
-}) => {
-  return (
-    <TouchableOpacity style={[styles.fabItem, style]} onPress={onPress}>
-      <MaterialCommunityIcons name={icon} size={20} color="#fff" />
-      <Text style={styles.fabLabel}>{label}</Text>
-    </TouchableOpacity>
-  );
-};
+const FabItem: React.FC<FabItemProps> = ({ label, icon, style, onPress }) => (
+  <TouchableOpacity style={[styles.fabItem, style]} onPress={onPress}>
+    <MaterialCommunityIcons name={icon} size={20} color="#fff" />
+    <Text style={styles.fabLabel}>{label}</Text>
+  </TouchableOpacity>
+);
 
 const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
   const [isFabOpen, setIsFabOpen] = useState(false);
+  const [transferModalVisible, setTransferModalVisible] = useState(false);
 
   const renderTab = (label: SwipeTabRoutes, icon: string) => {
     const isActive = activeTab === label;
-
     return (
-      <TouchableOpacity
-        style={styles.tab}
-        onPress={() => onTabPress(label)}
-      >
+      <TouchableOpacity style={styles.tab} onPress={() => onTabPress(label)}>
         <MaterialCommunityIcons
           name={icon}
           size={isActive ? 24 : 22}
           color={isActive ? '#0a84ff' : '#666'}
         />
-        <Text style={[styles.label, isActive && styles.activeLabel]}>
-          {label}
-        </Text>
+        <Text style={[styles.label, isActive && styles.activeLabel]}>{label}</Text>
       </TouchableOpacity>
     );
   };
@@ -62,11 +51,11 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
   const fabBottom = 32;
   const fabRadius = 80;
 
-  // Updated FAB items: Income / Expense / Transfer
-  const fabItems = [
-    { label: 'Income', icon: 'plus-circle-outline' },
-    { label: 'Expense', icon: 'minus-circle-outline' },
-    { label: 'Transfer', icon: 'swap-horizontal-bold' }, // changed here
+  // FAB items
+  const fabItems: FabItemProps[] = [
+    { label: 'Income', icon: 'plus-circle-outline', style: {}, onPress: () => console.log('Income') },
+    { label: 'Expense', icon: 'minus-circle-outline', style: {}, onPress: () => console.log('Expense') },
+    { label: 'Transfer', icon: 'swap-horizontal-bold', style: {}, onPress: () => setTransferModalVisible(true) },
   ];
 
   const totalItems = fabItems.length;
@@ -75,11 +64,11 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
 
   return (
     <>
+      {/* FAB Overlay */}
       {isFabOpen && (
         <View style={styles.fabOverlay}>
           {fabItems.map((item, index) => {
-            const angle =
-              startAngle + (index * (endAngle - startAngle)) / (totalItems - 1);
+            const angle = startAngle + (index * (endAngle - startAngle)) / (totalItems - 1);
             const rad = (angle * Math.PI) / 180;
             const x = fabRadius * Math.cos(rad);
             const y = fabRadius * Math.sin(rad);
@@ -97,7 +86,7 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
                 }}
                 onPress={() => {
                   setIsFabOpen(false);
-                  console.log(`Add ${item.label}`);
+                  item.onPress();
                 }}
               />
             );
@@ -109,6 +98,7 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
         </View>
       )}
 
+      {/* Bottom tabs */}
       <View style={styles.container}>
         {renderTab('Dashboard', 'home-variant-outline')}
         {renderTab('Transactions', 'swap-horizontal')}
@@ -117,6 +107,7 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
         {renderTab('Settings', 'cog-outline')}
       </View>
 
+      {/* FAB */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => setIsFabOpen(prev => !prev)}
@@ -128,9 +119,20 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
           color="#fff"
         />
       </TouchableOpacity>
+
+      {/* Transfer Modal */}
+      <TransferModal
+        visible={transferModalVisible}
+        onClose={() => setTransferModalVisible(false)}
+        onSaved={() => {
+          console.log('Transfer saved!');
+        }}
+      />
     </>
   );
 };
+
+export default BottomTabs;
 
 const styles = StyleSheet.create({
   container: {
@@ -145,24 +147,9 @@ const styles = StyleSheet.create({
     borderTopColor: '#ddd',
     zIndex: 1,
   },
-
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  label: {
-    fontSize: 11,
-    color: '#666',
-    marginTop: 2,
-  },
-
-  activeLabel: {
-    color: '#0a84ff',
-    fontWeight: '600',
-  },
-
+  tab: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  label: { fontSize: 11, color: '#666', marginTop: 2 },
+  activeLabel: { color: '#0a84ff', fontWeight: '600' },
   fab: {
     position: 'absolute',
     alignSelf: 'center',
@@ -176,24 +163,8 @@ const styles = StyleSheet.create({
     elevation: 12,
     zIndex: 100,
   },
-
-  fabOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 99,
-  },
-
-  fabOverlayTouchable: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-
+  fabOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99 },
+  fabOverlayTouchable: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   fabItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -203,13 +174,5 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     elevation: 6,
   },
-
-  fabLabel: {
-    color: '#fff',
-    fontSize: 13,
-    marginLeft: 6,
-    fontWeight: '500',
-  },
+  fabLabel: { color: '#fff', fontSize: 13, marginLeft: 6, fontWeight: '500' },
 });
-
-export default BottomTabs;
