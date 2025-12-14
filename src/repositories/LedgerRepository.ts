@@ -43,7 +43,7 @@ export const LedgerRepository = {
         tx.executeSql(
           `SELECT id, name, type, isSystem
            FROM Ledger
-           WHERE deletedAt IS NULL
+           WHERE deletedAt IS NULL AND isSystem = 0
            ORDER BY name;`,
           [],
           (_, res) => {
@@ -80,5 +80,37 @@ export const LedgerRepository = {
         );
       });
     });
-  }
+  },
+
+  getLedgerByCode: (
+  tx: SQLite.Transaction,
+  code: string,
+  onSuccess: (ledger: { id: number; name: string; type: string; isSystem: boolean } | null) => void,
+  onError?: (err: any) => void
+) => {
+  tx.executeSql(
+    `SELECT id, name, type, isSystem
+     FROM Ledger
+     WHERE code = ? AND deletedAt IS NULL
+     LIMIT 1;`,
+    [code],
+    (_, res) => {
+      if (res.rows.length > 0) {
+        const r = res.rows.item(0);
+        onSuccess({
+          id: r.id,
+          name: r.name,
+          type: r.type,
+          isSystem: !!r.isSystem,
+        });
+      } else {
+        onSuccess(null);
+      }
+    },
+    (_, err) => {
+      if (onError) onError(err);
+      return false;
+    }
+  );
+}
 };

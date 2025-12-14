@@ -4,6 +4,14 @@ export interface TransactionSummaryCreate {
   type: string;
   note?: string;
   date: string;
+  categoryId?:number;
+}
+export interface TransactionSummaryRow {
+  id: number;
+  type: string;
+  note?: string;
+  date: string;
+  netAmount: number;
 }
 
 export const TransactionSummaryRepository = {
@@ -14,13 +22,50 @@ export const TransactionSummaryRepository = {
     onError: (err: any) => void
   ) => {
     tx.executeSql(
-      `INSERT INTO TransactionSummary (type, note, date) VALUES (?, ?, ?);`,
-      [data.type, data.note || '', data.date],
+      `INSERT INTO TransactionSummary (type, note, date,categoryId)
+       VALUES (?, ?, ?,?);`,
+      [data.type, data.note || '', data.date,data.categoryId],
       (_, res) => onSuccess(res.insertId),
       (_, err) => {
         onError(err);
         return false;
       }
     );
-  }
+  },
+
+  listWithNetAmount: (
+    onSuccess: (rows: TransactionSummaryRow[]) => void,
+    onError: (err: any) => void
+  ) => {
+    const db = getDatabase();
+    db.transaction(tx => {
+      tx.executeSql(
+        `
+        SELECT 
+          ts.id,
+          ts.type,
+          ts.note,
+          ts.date,
+          SUM(te.amount) as netAmount
+        FROM TransactionSummary ts
+        JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
+        GROUP BY ts.id
+        ORDER BY ts.date DESC, ts.id DESC;
+        `,
+        [],
+        (_, res) => {
+          debugger;
+          const result: TransactionSummaryRow[] = [];
+          for (let i = 0; i < res.rows.length; i++) {
+            result.push(res.rows.item(i));
+          }
+          onSuccess(result);
+        },
+        (_, err) => {
+          onError(err);
+          return false;
+        }
+      );
+    });
+  },
 };

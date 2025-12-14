@@ -11,7 +11,7 @@ export const getDatabase = (): SQLite.Database => {
       'MeroHisab.db',
       '1.0',
       'Mero Hisab Database',
-      200000,
+      20000000,
     );
   }
   return db;
@@ -33,10 +33,12 @@ export const initDatabase = (): void => {
         name TEXT NOT NULL,
         type TEXT CHECK(type IN ('asset','expense','income','liability','equity')) NOT NULL,
         isSystem INTEGER DEFAULT 0,
+        code TEXT UNIQUE,                   
         deletedAt DATETIME DEFAULT NULL,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
+   
 
     /* =====================================================
      * LEDGER DAILY BALANCE (for reporting & starting balance)
@@ -91,10 +93,12 @@ export const initDatabase = (): void => {
       CREATE TABLE IF NOT EXISTS TransactionSummary (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         type TEXT CHECK(type IN ('expense','income','transfer','adjustment')) NOT NULL,
+        categoryId INTEGER DEFAULT NULL, 
         date DATETIME NOT NULL,
         note TEXT,
         deletedAt DATETIME DEFAULT NULL,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(categoryId) REFERENCES Category(id)
       );
     `);
 
@@ -128,6 +132,13 @@ export const initDatabase = (): void => {
         FOREIGN KEY (fromLedgerId) REFERENCES Ledger(id),
         FOREIGN KEY (toLedgerId) REFERENCES Ledger(id)
       );
+    `);
+
+     tx.executeSql(`
+      INSERT OR IGNORE INTO Ledger (name, type, isSystem, code)
+      VALUES 
+        ('Discount Given', 'expense', 1, 'DISCOUNT_GIVEN'),
+        ('Discount Received', 'income', 1, 'DISCOUNT_RECEIVED');
     `);
   });
 };

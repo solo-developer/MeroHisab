@@ -57,7 +57,11 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
     setIsFabOpen(false);
     if (item.label === 'Transfer') {
       setTimeout(() => setIsTransferModalVisible(true), 50); // ensures overlay unmounts first
-    } else {
+    }
+    if (item.label === 'Income') {
+      
+    }
+     else {
       item.onPress();
     }
   };

@@ -10,6 +10,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  DeviceEventEmitter,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LedgerRepository } from '../repositories/LedgerRepository';
@@ -64,6 +65,7 @@ const TransferModalContent: React.FC<Props> = ({ onClose, onSaved }) => {
       setAmount('');
       setNote('');
       onSaved();
+      DeviceEventEmitter.emit('transactionsUpdated');
     } catch (err) {
       console.error(err);
       Alert.alert('Error', 'Failed to save transfer');
