@@ -3,10 +3,12 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SettingsScreen from '../screens/SettingsScreen';
 import ManageCategoriesScreen from '../screens/ManageCategoriesScreen';
+import ManageWalletsScreen from '../screens/ManageWalletsScreen';
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
   ManageCategories: undefined;
+  ManageWallets: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -23,6 +25,11 @@ const SettingsStack: React.FC = () => {
         name="ManageCategories"
         component={ManageCategoriesScreen}
         options={{ title: 'Manage Categories' }}
+      />
+      <Stack.Screen
+        name="ManageWallets"
+        component={ManageWalletsScreen}
+        options={{ title: 'Manage Wallets' }}
       />
     </Stack.Navigator>
   );

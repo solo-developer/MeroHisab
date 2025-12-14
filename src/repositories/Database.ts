@@ -7,7 +7,12 @@ let db: SQLite.Database | null = null;
  */
 export const getDatabase = (): SQLite.Database => {
   if (!db) {
-    db = SQLite.openDatabase('MeroHisab.db', '1.0', 'Mero Hisab Database', 200000);
+    db = SQLite.openDatabase(
+      'MeroHisab.db',
+      '1.0',
+      'Mero Hisab Database',
+      200000,
+    );
   }
   return db;
 };
@@ -18,7 +23,7 @@ export const getDatabase = (): SQLite.Database => {
 export const initDatabase = (): void => {
   const database = getDatabase();
 
-  database.transaction((tx) => {
+  database.transaction(tx => {
     // Categories table
     tx.executeSql(
       `CREATE TABLE IF NOT EXISTS categories (
@@ -27,7 +32,7 @@ export const initDatabase = (): void => {
         type TEXT NOT NULL,
         icon TEXT,
         color TEXT
-      );`
+      );`,
     );
 
     // Accounts table (example)
@@ -37,7 +42,7 @@ export const initDatabase = (): void => {
         name TEXT NOT NULL,
         type TEXT NOT NULL,
         balance REAL DEFAULT 0
-      );`
+      );`,
     );
 
     // Transactions table (example)
@@ -51,7 +56,15 @@ export const initDatabase = (): void => {
         note TEXT,
         FOREIGN KEY(categoryId) REFERENCES categories(id),
         FOREIGN KEY(accountId) REFERENCES accounts(id)
-      );`
+      );`,
     );
+
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS wallets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        balance REAL DEFAULT 0
+      );
+    `);
   });
 };

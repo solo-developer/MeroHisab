@@ -15,6 +15,11 @@ const ManageScreen = ({ navigation }) => {
         <Text style={styles.itemText}>Manage Categories</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageWallets')}>
+        <Icon name="wallet" size={24} color="#333" />
+        <Text style={styles.itemText}>Manage Wallets</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.item}>
         <Icon name="account-balance" size={24} color="#333" />
         <Text style={styles.itemText}>Manage Accounts</Text>
