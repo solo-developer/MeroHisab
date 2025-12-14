@@ -56,8 +56,7 @@ export const TransferService = {
                   transactionSummaryId: summaryId,
                   ledgerId: e.ledgerId,
                   entryType: e.entryType,
-                  amount: e.amount,
-                  date: transactionDate
+                  amount: e.amount
                 },
                 () => {
                   // Update daily balance after each entry

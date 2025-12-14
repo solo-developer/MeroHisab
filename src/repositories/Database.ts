@@ -25,7 +25,7 @@ export const initDatabase = (): void => {
 
   database.transaction(tx => {
     /* =====================================================
-     * LEDGER (new core accounting table)
+     * LEDGER (core accounting table)
      * ===================================================== */
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS Ledger (
@@ -38,20 +38,22 @@ export const initDatabase = (): void => {
       );
     `);
 
-    // Add inside initDatabase() transaction callback
+    /* =====================================================
+     * LEDGER DAILY BALANCE (for reporting & starting balance)
+     * ===================================================== */
     tx.executeSql(`
-    CREATE TABLE IF NOT EXISTS LedgerDailyBalance (
-      ledgerId INTEGER NOT NULL,
-      date TEXT NOT NULL,
-      openingBalance REAL NOT NULL DEFAULT 0,
-      closingBalance REAL NOT NULL DEFAULT 0,
-      PRIMARY KEY (ledgerId, date),
-      FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
-    );
-  `);
+      CREATE TABLE IF NOT EXISTS LedgerDailyBalance (
+        ledgerId INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        openingBalance REAL NOT NULL DEFAULT 0,
+        closingBalance REAL NOT NULL DEFAULT 0,
+        PRIMARY KEY (ledgerId, date),
+        FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
+      );
+    `);
 
     /* =====================================================
-     * CATEGORIES (extended with ledgerId)
+     * CATEGORIES (user-facing, each linked to a ledger)
      * ===================================================== */
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS categories (
@@ -68,7 +70,7 @@ export const initDatabase = (): void => {
     `);
 
     /* =====================================================
-     * WALLETS (extended with ledgerId)
+     * WALLETS (user-facing, each linked to a ledger)
      * ===================================================== */
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS wallets (
@@ -83,25 +85,7 @@ export const initDatabase = (): void => {
     `);
 
     /* =====================================================
-     * TRANSACTIONS (legacy – kept for UI continuity)
-     * ===================================================== */
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        categoryId INTEGER,
-        walletId INTEGER,
-        amount REAL NOT NULL,
-        date TEXT NOT NULL,
-        note TEXT,
-        deletedAt DATETIME DEFAULT NULL,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (categoryId) REFERENCES categories(id),
-        FOREIGN KEY (walletId) REFERENCES wallets(id)
-      );
-    `);
-
-    /* =====================================================
-     * TRANSACTION SUMMARY (ledger grouping)
+     * TRANSACTION SUMMARY (one per transaction, holds date/type/note)
      * ===================================================== */
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS TransactionSummary (

@@ -5,7 +5,6 @@ export interface TransactionEntryCreate {
   ledgerId: number;
   entryType: 'debit' | 'credit';
   amount: number;
-  date: string;
 }
 
 export const TransactionEntryRepository = {
@@ -17,10 +16,10 @@ export const TransactionEntryRepository = {
   ) => {
     tx.executeSql(
       `
-      INSERT INTO TransactionEntry (transactionSummaryId, ledgerId, entryType, amount, date)
-      VALUES (?, ?, ?, ?, ?);
+      INSERT INTO TransactionEntry (transactionSummaryId, ledgerId, entryType, amount)
+      VALUES (?, ?, ?, ?);
       `,
-      [data.transactionSummaryId, data.ledgerId, data.entryType, data.amount, data.date],
+      [data.transactionSummaryId, data.ledgerId, data.entryType, data.amount],
       () => onSuccess(),
       (_, err) => {
         onError(err);

@@ -1,3 +1,13 @@
+import SQLite from 'react-native-sqlite-2';
+import { getDatabase } from './Database';
+
+export interface Ledger {
+  id?: number;
+  name: string;
+  type: 'asset' | 'expense' | 'income' | 'liability' | 'equity';
+  isSystem?: boolean;
+}
+
 export interface CreateLedgerInput {
   name: string;
   type: 'asset' | 'expense' | 'income' | 'liability' | 'equity';
@@ -5,6 +15,9 @@ export interface CreateLedgerInput {
 }
 
 export const LedgerRepository = {
+  /**
+   * Create a ledger (inside a transaction)
+   */
   create: (
     tx: SQLite.Transaction,
     input: CreateLedgerInput,
@@ -12,11 +25,60 @@ export const LedgerRepository = {
     onError: (e: any) => void
   ) => {
     tx.executeSql(
-      `INSERT INTO Ledger (name, type, isSystem)
-       VALUES (?, ?, ?);`,
+      `INSERT INTO Ledger (name, type, isSystem, deletedAt)
+       VALUES (?, ?, ?, NULL);`,
       [input.name, input.type, input.isSystem ? 1 : 0],
       (_, result) => onSuccess(result.insertId as number),
       (_, e) => { onError(e); return false; }
     );
+  },
+
+  /**
+   * Fetch all ledgers (non-deleted)
+   */
+  getAll: (): Promise<Ledger[]> => {
+    const db = getDatabase();
+    return new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          `SELECT id, name, type, isSystem
+           FROM Ledger
+           WHERE deletedAt IS NULL
+           ORDER BY name;`,
+          [],
+          (_, res) => {
+            const ledgers: Ledger[] = [];
+            for (let i = 0; i < res.rows.length; i++) {
+              const r = res.rows.item(i);
+              ledgers.push({
+                id: r.id,
+                name: r.name,
+                type: r.type,
+                isSystem: !!r.isSystem,
+              });
+            }
+            resolve(ledgers);
+          },
+          (_, e) => { reject(e); return false; }
+        );
+      });
+    });
+  },
+
+  /**
+   * Soft delete a ledger
+   */
+  delete: (ledgerId: number): Promise<void> => {
+    const db = getDatabase();
+    return new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          `UPDATE Ledger SET deletedAt = CURRENT_TIMESTAMP WHERE id = ? AND deletedAt IS NULL;`,
+          [ledgerId],
+          () => resolve(),
+          (_, e) => { reject(e); return false; }
+        );
+      });
+    });
   }
 };

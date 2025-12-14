@@ -1,3 +1,4 @@
+// src/components/BottomTabs.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -5,10 +6,11 @@ import {
   Text,
   StyleSheet,
   Dimensions,
+  Modal,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SwipeTabRoutes } from '../navigation/navigationRef';
-import TransferModal from '../screens/TransferModal';
+import TransferModalContent from '../screens/TransferModalContent';
 
 type Props = {
   activeTab: SwipeTabRoutes;
@@ -18,11 +20,15 @@ type Props = {
 type FabItemProps = {
   label: 'Income' | 'Expense' | 'Transfer';
   icon: string;
-  style: object;
   onPress: () => void;
 };
 
-const FabItem: React.FC<FabItemProps> = ({ label, icon, style, onPress }) => (
+const FabItem: React.FC<FabItemProps & { style?: object }> = ({
+  label,
+  icon,
+  style,
+  onPress,
+}) => (
   <TouchableOpacity style={[styles.fabItem, style]} onPress={onPress}>
     <MaterialCommunityIcons name={icon} size={20} color="#fff" />
     <Text style={styles.fabLabel}>{label}</Text>
@@ -31,7 +37,30 @@ const FabItem: React.FC<FabItemProps> = ({ label, icon, style, onPress }) => (
 
 const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
   const [isFabOpen, setIsFabOpen] = useState(false);
-  const [transferModalVisible, setTransferModalVisible] = useState(false);
+  const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
+
+  const { width } = Dimensions.get('window');
+  const fabBottom = 32;
+  const fabRadius = 80;
+
+  const fabItems: FabItemProps[] = [
+    { label: 'Income', icon: 'plus-circle-outline', onPress: () => console.log('Income') },
+    { label: 'Expense', icon: 'minus-circle-outline', onPress: () => console.log('Expense') },
+    { label: 'Transfer', icon: 'swap-horizontal-bold', onPress: () => {} }, // handled separately
+  ];
+
+  const totalItems = fabItems.length;
+  const startAngle = -90 - 60;
+  const endAngle = -90 + 60;
+
+  const onFabItemPress = (item: FabItemProps) => {
+    setIsFabOpen(false);
+    if (item.label === 'Transfer') {
+      setTimeout(() => setIsTransferModalVisible(true), 50); // ensures overlay unmounts first
+    } else {
+      item.onPress();
+    }
+  };
 
   const renderTab = (label: SwipeTabRoutes, icon: string) => {
     const isActive = activeTab === label;
@@ -47,28 +76,21 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
     );
   };
 
-  const { width } = Dimensions.get('window');
-  const fabBottom = 32;
-  const fabRadius = 80;
-
-  // FAB items
-  const fabItems: FabItemProps[] = [
-    { label: 'Income', icon: 'plus-circle-outline', style: {}, onPress: () => console.log('Income') },
-    { label: 'Expense', icon: 'minus-circle-outline', style: {}, onPress: () => console.log('Expense') },
-    { label: 'Transfer', icon: 'swap-horizontal-bold', style: {}, onPress: () => setTransferModalVisible(true) },
-  ];
-
-  const totalItems = fabItems.length;
-  const startAngle = -90 - 60;
-  const endAngle = -90 + 60;
-
   return (
     <>
       {/* FAB Overlay */}
       {isFabOpen && (
         <View style={styles.fabOverlay}>
+          {/* Background touchable behind FAB items */}
+          <TouchableOpacity
+            style={styles.fabOverlayTouchable}
+            onPress={() => setIsFabOpen(false)}
+          />
+
+          {/* FAB Items */}
           {fabItems.map((item, index) => {
-            const angle = startAngle + (index * (endAngle - startAngle)) / (totalItems - 1);
+            const angle =
+              startAngle + (index * (endAngle - startAngle)) / (totalItems - 1);
             const rad = (angle * Math.PI) / 180;
             const x = fabRadius * Math.cos(rad);
             const y = fabRadius * Math.sin(rad);
@@ -83,22 +105,16 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
                   bottom: fabBottom + 32,
                   left: width / 2 - 32 + x,
                   transform: [{ translateY: y }],
+                  zIndex: 100,
                 }}
-                onPress={() => {
-                  setIsFabOpen(false);
-                  item.onPress();
-                }}
+                onPress={() => onFabItemPress(item)}
               />
             );
           })}
-          <TouchableOpacity
-            style={styles.fabOverlayTouchable}
-            onPress={() => setIsFabOpen(false)}
-          />
         </View>
       )}
 
-      {/* Bottom tabs */}
+      {/* Bottom Tabs */}
       <View style={styles.container}>
         {renderTab('Dashboard', 'home-variant-outline')}
         {renderTab('Transactions', 'swap-horizontal')}
@@ -107,7 +123,7 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
         {renderTab('Settings', 'cog-outline')}
       </View>
 
-      {/* FAB */}
+      {/* FAB Button */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => setIsFabOpen(prev => !prev)}
@@ -121,13 +137,17 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
       </TouchableOpacity>
 
       {/* Transfer Modal */}
-      <TransferModal
-        visible={transferModalVisible}
-        onClose={() => setTransferModalVisible(false)}
-        onSaved={() => {
-          console.log('Transfer saved!');
-        }}
-      />
+      <Modal
+        visible={isTransferModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsTransferModalVisible(false)}
+      >
+        <TransferModalContent
+          onClose={() => setIsTransferModalVisible(false)}
+          onSaved={() => setIsTransferModalVisible(false)}
+        />
+      </Modal>
     </>
   );
 };
@@ -163,8 +183,21 @@ const styles = StyleSheet.create({
     elevation: 12,
     zIndex: 100,
   },
-  fabOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99 },
-  fabOverlayTouchable: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  fabOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 99,
+  },
+  fabOverlayTouchable: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   fabItem: {
     flexDirection: 'row',
     alignItems: 'center',
