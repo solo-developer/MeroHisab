@@ -11,12 +11,21 @@ import {
   Alert,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 import { SettingsStackParamList } from '../navigation/SettingsStack';
 import CategoryRepository from '../repositories/CategoryRepository';
 import { CategoriesService } from '../services/CategoriesService';
 import Category from '../models/Category';
+import {
+  CATEGORY_ICONS,
+  CATEGORY_COLORS,
+} from '../constants/categoryOptions';
 
-type Props = NativeStackScreenProps<SettingsStackParamList, 'ManageCategories'>;
+type Props = NativeStackScreenProps<
+  SettingsStackParamList,
+  'ManageCategories'
+>;
 
 const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -24,19 +33,23 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const [editing, setEditing] = useState<Category | null>(null);
 
   const [name, setName] = useState('');
-  const [icon, setIcon] = useState('');
-  const [color, setColor] = useState('');
-  const [type, setType] = useState<'expense' | 'income'>('expense');
+  const [icon, setIcon] = useState<string | null>(null);
+  const [color, setColor] = useState<string | null>(null);
+  const [type] = useState<'expense' | 'income'>('expense');
+
+  /* ---------------- HEADER ---------------- */
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={openAdd} style={{ marginRight: 15 }}>
-          <Text style={{ fontSize: 28 }}>+</Text>
+        <TouchableOpacity onPress={openAdd} style={{ marginRight: 16 }}>
+          <Text style={{ fontSize: 28, color: '#007AFF' }}>+</Text>
         </TouchableOpacity>
       ),
     });
   }, []);
+
+  /* ---------------- DATA ---------------- */
 
   useEffect(() => {
     load();
@@ -46,25 +59,32 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
     setCategories(await CategoryRepository.getAll());
   };
 
+  /* ---------------- ACTIONS ---------------- */
+
   const openAdd = () => {
     setEditing(null);
     setName('');
-    setIcon('');
-    setColor('');
-    setType('expense');
+    setIcon(null);
+    setColor(null);
     setModalVisible(true);
   };
 
   const openEdit = (category: Category) => {
     setEditing(category);
     setName(category.name);
-    setIcon(category.icon || '');
-    setColor(category.color || '');
+    setIcon(category.icon || null);
+    setColor(category.color || null);
     setModalVisible(true);
   };
 
   const save = async () => {
-    if (!name.trim()) return;
+    if (!name.trim() || !icon || !color) {
+      Alert.alert(
+        'Missing information',
+        'Please enter name, icon and color'
+      );
+      return;
+    }
 
     try {
       if (editing) {
@@ -102,6 +122,8 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
     ]);
   };
 
+  /* ---------------- UI ---------------- */
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -109,18 +131,33 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
         keyExtractor={i => i.id!.toString()}
         renderItem={({ item }) => (
           <View style={styles.row}>
-            <Text style={styles.name}>{item.name}</Text>
+            <View style={styles.rowLeft}>
+              <View
+                style={[
+                  styles.iconPreview,
+                  { backgroundColor: item.color || '#ccc' },
+                ]}
+              >
+                {item.icon && (
+                  <MaterialIcons name={item.icon} size={20} color="#fff" />
+                )}
+              </View>
+              <Text style={styles.name}>{item.name}</Text>
+            </View>
+
             <View style={styles.actions}>
               <TouchableOpacity onPress={() => openEdit(item)}>
                 <Text style={styles.action}>Edit</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => remove(item)}>
-                <Text style={styles.action}>Delete</Text>
+                <Text style={[styles.action, styles.delete]}>Delete</Text>
               </TouchableOpacity>
             </View>
           </View>
         )}
       />
+
+      {/* ---------------- MODAL ---------------- */}
 
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.overlay}>
@@ -130,25 +167,48 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
             </Text>
 
             <TextInput
-              placeholder="Category Name"
+              placeholder="Category name"
               value={name}
               onChangeText={setName}
               style={styles.input}
             />
 
-            <TextInput
-              placeholder="Icon"
-              value={icon}
-              onChangeText={setIcon}
-              style={styles.input}
-            />
+            {/* ICON PICKER */}
+            <Text style={styles.label}>Icon</Text>
+            <View style={styles.iconGrid}>
+              {CATEGORY_ICONS.map(i => (
+                <TouchableOpacity
+                  key={i}
+                  style={[
+                    styles.iconItem,
+                    icon === i && styles.iconSelected,
+                  ]}
+                  onPress={() => setIcon(i)}
+                >
+                  <MaterialIcons
+                    name={i}
+                    size={26}
+                    color={icon === i ? '#fff' : '#333'}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
 
-            <TextInput
-              placeholder="Color"
-              value={color}
-              onChangeText={setColor}
-              style={styles.input}
-            />
+            {/* COLOR PICKER */}
+            <Text style={styles.label}>Color</Text>
+            <View style={styles.colorRow}>
+              {CATEGORY_COLORS.map(c => (
+                <TouchableOpacity
+                  key={c}
+                  style={[
+                    styles.colorCircle,
+                    { backgroundColor: c },
+                    color === c && styles.colorSelected,
+                  ]}
+                  onPress={() => setColor(c)}
+                />
+              ))}
+            </View>
 
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={save} style={styles.save}>
@@ -170,8 +230,15 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
 
 export default ManageCategoriesScreen;
 
+/* ---------------- STYLES ---------------- */
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -180,23 +247,63 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  name: { fontSize: 16, fontWeight: '500', color: '#111' },
-  balance: { marginTop: 4, fontSize: 14, color: '#666' },
-  actions: { flexDirection: 'row', gap: 16 },
-  action: { fontSize: 14, fontWeight: '500', color: '#007AFF' },
-  /* ---------- MODAL ---------- */ overlay: {
+
+  rowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+
+  iconPreview: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  name: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#111',
+  },
+
+  actions: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+
+  action: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#007AFF',
+  },
+
+  delete: {
+    color: '#F44336',
+  },
+
+  overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   modal: {
-    width: '85%',
+    width: '90%',
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 20,
   },
-  title: { fontSize: 20, fontWeight: '600', marginBottom: 16, color: '#111' },
+
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 16,
+    color: '#111',
+  },
+
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -206,24 +313,71 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 14,
   },
+
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 6,
+    color: '#444',
+  },
+
+  iconGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 16,
+  },
+
+  iconItem: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: '#eee',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  iconSelected: {
+    backgroundColor: '#007AFF',
+  },
+
+  colorRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 20,
+  },
+
+  colorCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
+
+  colorSelected: {
+    borderWidth: 3,
+    borderColor: '#000',
+  },
+
   modalActions: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
+    gap: 10,
   },
+
   save: {
     flex: 1,
     backgroundColor: '#4CAF50',
     paddingVertical: 12,
     borderRadius: 8,
-    marginRight: 10,
   },
+
   cancel: {
     flex: 1,
     backgroundColor: '#F44336',
     paddingVertical: 12,
     borderRadius: 8,
   },
+
   btnText: {
     color: '#fff',
     fontSize: 15,
@@ -231,4 +385,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
