@@ -9,7 +9,7 @@ import {
   Modal,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { SwipeTabRoutes } from '../navigation/navigationRef';
+import { navigationRef, SwipeTabRoutes } from '../navigation/navigationRef';
 import TransferModalContent from '../screens/TransferModalContent';
 
 type Props = {
@@ -59,7 +59,7 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
       setTimeout(() => setIsTransferModalVisible(true), 50); // ensures overlay unmounts first
     }
     if (item.label === 'Income') {
-      
+       navigationRef.navigate('AddIncome');
     }
      else {
       item.onPress();
