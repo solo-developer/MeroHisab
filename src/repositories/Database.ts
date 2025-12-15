@@ -94,6 +94,7 @@ export const initDatabase = (): void => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         type TEXT CHECK(type IN ('expense','income','transfer','adjustment')) NOT NULL,
         categoryId INTEGER DEFAULT NULL, 
+        amount REAL NOT NULL,
         date DATETIME NOT NULL,
         note TEXT,
         deletedAt DATETIME DEFAULT NULL,

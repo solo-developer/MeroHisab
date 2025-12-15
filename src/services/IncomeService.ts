@@ -32,7 +32,7 @@ export class IncomeService {
       // 1️⃣ Create Transaction Summary
       TransactionSummaryRepository.create(
         tx,
-        { type: 'income', note: request.note || '', date: request.date } as TransactionSummaryCreate,
+        { type: 'income', note: request.note || '', date: request.date,amount : request.amount } as TransactionSummaryCreate,
         (summaryId: number) => {
           // 2️⃣ Add main income transaction
           TransactionEntryRepository.create(

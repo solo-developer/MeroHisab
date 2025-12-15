@@ -13,21 +13,13 @@ const App = () => {
   const [isRegistered, setIsRegistered] = useState(false);
 
   useEffect(() => {
-    const loadUser = async () => {
-      const user = await getUser();
-      setIsRegistered(!!user);
-      setLoading(false);
-    };
+    
       initDatabase();
-    loadUser();
   }, []);
 
   if (loading) return null;
 
-  if (!isRegistered) {
-    return <RegisterScreen onRegistered={() => setIsRegistered(true)} />;
-  }
-
+  
   return <MainContainer />;
 };
 

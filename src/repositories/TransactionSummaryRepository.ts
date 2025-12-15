@@ -4,6 +4,7 @@ export interface TransactionSummaryCreate {
   type: string;
   note?: string;
   date: string;
+  amount : number;
   categoryId?:number;
 }
 export interface TransactionSummaryRow {
@@ -22,9 +23,9 @@ export const TransactionSummaryRepository = {
     onError: (err: any) => void
   ) => {
     tx.executeSql(
-      `INSERT INTO TransactionSummary (type, note, date,categoryId)
-       VALUES (?, ?, ?,?);`,
-      [data.type, data.note || '', data.date,data.categoryId],
+      `INSERT INTO TransactionSummary (type, note, date,categoryId,amount)
+       VALUES (?, ?, ?,?,?);`,
+      [data.type, data.note || '', data.date,data.categoryId,data.amount],
       (_, res) => onSuccess(res.insertId),
       (_, err) => {
         onError(err);
@@ -46,7 +47,7 @@ export const TransactionSummaryRepository = {
           ts.type,
           ts.note,
           ts.date,
-          SUM(te.amount) as netAmount
+          ts.amount as netAmount
         FROM TransactionSummary ts
         JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
         GROUP BY ts.id

@@ -39,6 +39,7 @@ export const TransferService = {
                 type: 'transfer',
                 date: transactionDate,
                 note: request.note,
+                amount : request.amount
               },
               (summaryId) => {
 
