@@ -15,6 +15,7 @@ import { SettingsStackParamList } from '../navigation/SettingsStack';
 import WalletRepository from '../repositories/WalletRepository';
 import { WalletsService } from '../services/WalletsService';
 import Wallet from '../models/Wallet';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'ManageWallets'>;
 
@@ -92,6 +93,24 @@ const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
       },
     ]);
   };
+  const EmptyState = ({ onAdd }: { onAdd: () => void }) => (
+    <View style={styles.emptyContainer}>
+      <MaterialIcons
+        name="category"
+        size={56}
+        color="#bbb"
+        style={{ marginBottom: 12 }}
+      />
+      <Text style={styles.emptyTitle}>No Wallets yet</Text>
+      <Text style={styles.emptyText}>
+        Create wallets to organize your income and expenses
+      </Text>
+
+      <TouchableOpacity onPress={onAdd} style={styles.emptyButton}>
+        <Text style={styles.emptyButtonText}>Add Wallet</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -114,6 +133,10 @@ const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           </View>
         )}
+        ListEmptyComponent={<EmptyState onAdd={openAdd} />}
+        contentContainerStyle={
+          wallets.length === 0 ? styles.emptyList : undefined
+        }
       />
 
       {/* -------- MODAL -------- */}
@@ -220,5 +243,41 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  emptyList: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+
+  emptyContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 30,
+  },
+
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111',
+    marginBottom: 6,
+  },
+
+  emptyText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+
+  emptyButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+
+  emptyButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
   },
 });

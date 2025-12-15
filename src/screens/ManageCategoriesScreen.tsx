@@ -17,15 +17,9 @@ import { SettingsStackParamList } from '../navigation/SettingsStack';
 import CategoryRepository from '../repositories/CategoryRepository';
 import { CategoriesService } from '../services/CategoriesService';
 import Category from '../models/Category';
-import {
-  CATEGORY_ICONS,
-  CATEGORY_COLORS,
-} from '../constants/categoryOptions';
+import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants/categoryOptions';
 
-type Props = NativeStackScreenProps<
-  SettingsStackParamList,
-  'ManageCategories'
->;
+type Props = NativeStackScreenProps<SettingsStackParamList, 'ManageCategories'>;
 
 const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -79,10 +73,7 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
 
   const save = async () => {
     if (!name.trim() || !icon || !color) {
-      Alert.alert(
-        'Missing information',
-        'Please enter name, icon and color'
-      );
+      Alert.alert('Missing information', 'Please enter name, icon and color');
       return;
     }
 
@@ -123,6 +114,24 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   /* ---------------- UI ---------------- */
+  const EmptyState = ({ onAdd }: { onAdd: () => void }) => (
+    <View style={styles.emptyContainer}>
+      <MaterialIcons
+        name="category"
+        size={56}
+        color="#bbb"
+        style={{ marginBottom: 12 }}
+      />
+      <Text style={styles.emptyTitle}>No categories yet</Text>
+      <Text style={styles.emptyText}>
+        Create categories to organize your income and expenses
+      </Text>
+
+      <TouchableOpacity onPress={onAdd} style={styles.emptyButton}>
+        <Text style={styles.emptyButtonText}>Add Category</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -155,6 +164,10 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           </View>
         )}
+        ListEmptyComponent={<EmptyState onAdd={openAdd} />}
+        contentContainerStyle={
+          categories.length === 0 ? styles.emptyList : undefined
+        }
       />
 
       {/* ---------------- MODAL ---------------- */}
@@ -179,10 +192,7 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
               {CATEGORY_ICONS.map(i => (
                 <TouchableOpacity
                   key={i}
-                  style={[
-                    styles.iconItem,
-                    icon === i && styles.iconSelected,
-                  ]}
+                  style={[styles.iconItem, icon === i && styles.iconSelected]}
                   onPress={() => setIcon(i)}
                 >
                   <MaterialIcons
@@ -383,5 +393,42 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     textAlign: 'center',
+  },
+
+  emptyList: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+
+  emptyContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 30,
+  },
+
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111',
+    marginBottom: 6,
+  },
+
+  emptyText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+
+  emptyButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+
+  emptyButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
   },
 });
