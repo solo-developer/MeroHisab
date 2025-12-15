@@ -98,7 +98,7 @@ export const initDatabase = (): void => {
         note TEXT,
         deletedAt DATETIME DEFAULT NULL,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(categoryId) REFERENCES Category(id)
+        FOREIGN KEY(categoryId) REFERENCES categories(id)
       );
     `);
 

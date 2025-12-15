@@ -5,8 +5,10 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  SafeAreaView,
+  
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { TransactionSummaryRepository } from '../repositories/TransactionSummaryRepository';
 import { useFocusEffect } from '@react-navigation/native';
 import { DeviceEventEmitter } from 'react-native';
