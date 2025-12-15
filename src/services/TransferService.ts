@@ -2,6 +2,7 @@ import { getDatabase } from '../repositories/Database';
 import { TransactionSummaryRepository } from '../repositories/TransactionSummaryRepository';
 import { TransactionEntryRepository } from '../repositories/TransactionEntryRepository';
 import { LedgerDailyBalanceRepository } from '../repositories/LedgerDailyBalanceRepository';
+import { LedgerRepository } from '../repositories/LedgerRepository';
 
 export interface TransferRequest {
   fromLedgerId?: number; // optional for external → wallet
@@ -10,76 +11,89 @@ export interface TransferRequest {
   date?: string;         // YYYY-MM-DD
   note?: string;
 }
-
 export const TransferService = {
   createTransfer: async (request: TransferRequest): Promise<void> => {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
-        const transferType =
-          request.fromLedgerId && request.toLedgerId
-            ? 'internal'
-            : request.fromLedgerId
-            ? 'wallet-to-external'
-            : 'external-to-wallet';
 
-        const transactionDate = request.date || new Date().toISOString().split('T')[0];
+        const transactionDate =
+          request.date || new Date().toISOString().split('T')[0];
 
-        // 1️⃣ Create TransactionSummary
-        TransactionSummaryRepository.create(
+        // 1️⃣ Get / create system External ledger
+        LedgerRepository.ensureExternalLedger(
           tx,
-          { type: 'transfer', note: request.note, date: transactionDate },
-          (summaryId: number) => {
+          (externalLedgerId) => {
 
-            const entries: { ledgerId: number; entryType: 'debit' | 'credit'; amount: number }[] = [];
+            const fromLedgerId =
+              request.fromLedgerId == 0 ? externalLedgerId : request.fromLedgerId;
 
-            if (transferType === 'internal') {
-              entries.push({ ledgerId: request.fromLedgerId!, entryType: 'credit', amount: request.amount });
-              entries.push({ ledgerId: request.toLedgerId!, entryType: 'debit', amount: request.amount });
-            } else if (transferType === 'wallet-to-external') {
-              entries.push({ ledgerId: request.fromLedgerId!, entryType: 'credit', amount: request.amount });
-            } else if (transferType === 'external-to-wallet') {
-              entries.push({ ledgerId: request.toLedgerId!, entryType: 'debit', amount: request.amount });
-            }
+            const toLedgerId =
+              request.toLedgerId== 0 ? externalLedgerId : request.toLedgerId;
 
-            const insertNext = (index: number) => {
-              if (index >= entries.length) {
-                resolve(); // all entries inserted
-                return;
-              }
+            // 2️⃣ Create transaction summary
+            TransactionSummaryRepository.create(
+              tx,
+              {
+                type: 'transfer',
+                date: transactionDate,
+                note: request.note,
+              },
+              (summaryId) => {
 
-              const e = entries[index];
-              TransactionEntryRepository.create(
-                tx,
-                {
-                  transactionSummaryId: summaryId,
-                  ledgerId: e.ledgerId,
-                  entryType: e.entryType,
-                  amount: e.amount
-                },
-                () => {
-                  // Update daily balance after each entry
-                  LedgerDailyBalanceRepository.updateBalance(
+                // 3️⃣ Always double-entry
+                const entries = [
+                  {
+                    ledgerId: fromLedgerId,
+                    entryType: 'credit' as const,
+                    amount: request.amount,
+                  },
+                  {
+                    ledgerId: toLedgerId,
+                    entryType: 'debit' as const,
+                    amount: request.amount,
+                  },
+                ];
+
+                const insertNext = (i: number) => {
+                  if (i >= entries.length) {
+                    resolve();
+                    return;
+                  }
+
+                  const e = entries[i];
+
+                  TransactionEntryRepository.create(
                     tx,
-                    e.ledgerId,
-                    transactionDate,
-                    0, // openingBalance can be recalculated later if needed
-                    0, // closingBalance can be recalculated later
-                    () => insertNext(index + 1),
+                    {
+                      transactionSummaryId: summaryId,
+                      ledgerId: e.ledgerId,
+                      entryType: e.entryType,
+                      amount: e.amount,
+                    },
+                    () => {
+                      LedgerDailyBalanceRepository.updateBalance(
+                        tx,
+                        e.ledgerId,
+                        transactionDate,
+                        0,
+                        0,
+                        () => insertNext(i + 1),
+                        reject
+                      );
+                    },
                     reject
                   );
-                },
-                reject
-              );
-            };
+                };
 
-            insertNext(0);
-
+                insertNext(0);
+              },
+              reject
+            );
           },
           reject
         );
-
       });
     });
   }

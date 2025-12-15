@@ -22,14 +22,17 @@ export const LedgerRepository = {
     tx: SQLite.Transaction,
     input: CreateLedgerInput,
     onSuccess: (ledgerId: number) => void,
-    onError: (e: any) => void
+    onError: (e: any) => void,
   ) => {
     tx.executeSql(
       `INSERT INTO Ledger (name, type, isSystem, deletedAt)
        VALUES (?, ?, ?, NULL);`,
       [input.name, input.type, input.isSystem ? 1 : 0],
       (_, result) => onSuccess(result.insertId as number),
-      (_, e) => { onError(e); return false; }
+      (_, e) => {
+        onError(e);
+        return false;
+      },
     );
   },
 
@@ -59,7 +62,10 @@ export const LedgerRepository = {
             }
             resolve(ledgers);
           },
-          (_, e) => { reject(e); return false; }
+          (_, e) => {
+            reject(e);
+            return false;
+          },
         );
       });
     });
@@ -76,41 +82,75 @@ export const LedgerRepository = {
           `UPDATE Ledger SET deletedAt = CURRENT_TIMESTAMP WHERE id = ? AND deletedAt IS NULL;`,
           [ledgerId],
           () => resolve(),
-          (_, e) => { reject(e); return false; }
+          (_, e) => {
+            reject(e);
+            return false;
+          },
         );
       });
     });
   },
 
   getLedgerByCode: (
-  tx: SQLite.Transaction,
-  code: string,
-  onSuccess: (ledger: { id: number; name: string; type: string; isSystem: boolean } | null) => void,
-  onError?: (err: any) => void
-) => {
-  tx.executeSql(
-    `SELECT id, name, type, isSystem
+    tx: SQLite.Transaction,
+    code: string,
+    onSuccess: (
+      ledger: {
+        id: number;
+        name: string;
+        type: string;
+        isSystem: boolean;
+      } | null,
+    ) => void,
+    onError?: (err: any) => void,
+  ) => {
+    tx.executeSql(
+      `SELECT id, name, type, isSystem
      FROM Ledger
      WHERE code = ? AND deletedAt IS NULL
      LIMIT 1;`,
-    [code],
-    (_, res) => {
-      if (res.rows.length > 0) {
-        const r = res.rows.item(0);
-        onSuccess({
-          id: r.id,
-          name: r.name,
-          type: r.type,
-          isSystem: !!r.isSystem,
-        });
-      } else {
-        onSuccess(null);
-      }
-    },
-    (_, err) => {
-      if (onError) onError(err);
-      return false;
-    }
-  );
-}
+      [code],
+      (_, res) => {
+        if (res.rows.length > 0) {
+          const r = res.rows.item(0);
+          onSuccess({
+            id: r.id,
+            name: r.name,
+            type: r.type,
+            isSystem: !!r.isSystem,
+          });
+        } else {
+          onSuccess(null);
+        }
+      },
+      (_, err) => {
+        if (onError) onError(err);
+        return false;
+      },
+    );
+  },
+
+  ensureExternalLedger: (
+    tx: SQLite.Transaction,
+    onSuccess: (ledgerId: number) => void,
+    onError: (e: any) => void
+  ) => {
+    tx.executeSql(
+      `SELECT id FROM Ledger WHERE isSystem = 1 AND name = 'External' AND deletedAt IS NULL;`,
+      [],
+      (_, res) => {
+        if (res.rows.length > 0) {
+          onSuccess(res.rows.item(0).id);
+        } else {
+          tx.executeSql(
+            `INSERT INTO Ledger (name, type, isSystem) VALUES ('External', 'equity', 1);`,
+            [],
+            (_, result) => onSuccess(result.insertId as number),
+            (_, e) => { onError(e); return false; }
+          );
+        }
+      },
+      (_, e) => { onError(e); return false; }
+    );
+  }
 };

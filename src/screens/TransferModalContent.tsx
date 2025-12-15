@@ -39,7 +39,8 @@ const TransferModalContent: React.FC<Props> = ({ onClose, onSaved }) => {
 
   const loadLedgers = async () => {
     const ledgers = await LedgerRepository.getAll();
-    setLedgerList(ledgers.map(l => ({ id: l.id!, name: l.name })));
+    const aggLedgers = [{id:0, name:'External/Outside'}, ...ledgers];
+    setLedgerList(aggLedgers.map(l => ({ id: l.id!, name: l.name })));
   };
 
   const saveTransfer = async () => {
@@ -82,7 +83,10 @@ const TransferModalContent: React.FC<Props> = ({ onClose, onSaved }) => {
     <View style={{ marginBottom: 16 }}>
       <Text style={styles.label}>{label}</Text>
       <TouchableOpacity
-        style={[styles.dropdownButton, showDropdown && { borderColor: '#0a84ff' }]}
+        style={[
+          styles.dropdownButton,
+          showDropdown && { borderColor: '#0a84ff' },
+        ]}
         onPress={() => setShowDropdown(prev => !prev)}
       >
         <Text style={{ color: selected ? '#000' : '#999', fontSize: 16 }}>
@@ -123,8 +127,20 @@ const TransferModalContent: React.FC<Props> = ({ onClose, onSaved }) => {
       <View style={styles.modal}>
         <Text style={styles.title}>New Transfer</Text>
 
-        {renderLedgerDropdown('From Ledger', fromLedger, setFromLedger, showFromDropdown, setShowFromDropdown)}
-        {renderLedgerDropdown('To Ledger', toLedger, setToLedger, showToDropdown, setShowToDropdown)}
+        {renderLedgerDropdown(
+          'From Ledger',
+          fromLedger,
+          setFromLedger,
+          showFromDropdown,
+          setShowFromDropdown,
+        )}
+        {renderLedgerDropdown(
+          'To Ledger',
+          toLedger,
+          setToLedger,
+          showToDropdown,
+          setShowToDropdown,
+        )}
 
         <View style={{ marginBottom: 16 }}>
           <Text style={styles.label}>Amount</Text>
@@ -182,7 +198,12 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
-  title: { fontSize: 22, fontWeight: '700', marginBottom: 24, textAlign: 'center' },
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
   label: { fontSize: 14, fontWeight: '600', color: '#555', marginBottom: 6 },
   input: {
     borderWidth: 1,
@@ -236,5 +257,10 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 10,
   },
-  btnText: { color: '#fff', fontWeight: '700', textAlign: 'center', fontSize: 16 },
+  btnText: {
+    color: '#fff',
+    fontWeight: '700',
+    textAlign: 'center',
+    fontSize: 16,
+  },
 });
