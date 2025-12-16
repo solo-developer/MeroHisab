@@ -44,8 +44,16 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
   const fabRadius = 80;
 
   const fabItems: FabItemProps[] = [
-    { label: 'Income', icon: 'plus-circle-outline', onPress: () => console.log('Income') },
-    { label: 'Expense', icon: 'minus-circle-outline', onPress: () => console.log('Expense') },
+    {
+      label: 'Income',
+      icon: 'plus-circle-outline',
+      onPress: () => console.log('Income'),
+    },
+    {
+      label: 'Expense',
+      icon: 'minus-circle-outline',
+      onPress: () => console.log('Expense'),
+    },
     { label: 'Transfer', icon: 'swap-horizontal-bold', onPress: () => {} }, // handled separately
   ];
 
@@ -57,11 +65,11 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
     setIsFabOpen(false);
     if (item.label === 'Transfer') {
       setTimeout(() => setIsTransferModalVisible(true), 50); // ensures overlay unmounts first
-    }
-    if (item.label === 'Income') {
-       navigationRef.navigate('AddIncome');
-    }
-     else {
+    } else if (item.label === 'Income') {
+      navigationRef.navigate('AddIncome');
+    } else if (item.label === 'Expense') {
+      navigationRef.navigate('AddExpense');
+    } else {
       item.onPress();
     }
   };
@@ -75,7 +83,9 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
           size={isActive ? 24 : 22}
           color={isActive ? '#0a84ff' : '#666'}
         />
-        <Text style={[styles.label, isActive && styles.activeLabel]}>{label}</Text>
+        <Text style={[styles.label, isActive && styles.activeLabel]}>
+          {label}
+        </Text>
       </TouchableOpacity>
     );
   };

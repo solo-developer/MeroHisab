@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -71,9 +70,17 @@ const TransactionsScreen: React.FC = () => {
       },
     );
 
+    const expenseSubscription = DeviceEventEmitter.addListener(
+      'expenseAdded',
+      () => {
+        loadTransactions();
+      },
+    );
+
     return () => {
       subscription.remove();
       incomeSubscription.remove();
+      expenseSubscription.remove();
     }; // cleanup
   }, []);
 
