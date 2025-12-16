@@ -1,16 +1,25 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  DeviceEventEmitter,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { TransactionSummaryRepository } from '../repositories/TransactionSummaryRepository';
-import { useFocusEffect } from '@react-navigation/native';
-import { DeviceEventEmitter } from 'react-native';
+
+/* =========================
+   Types
+========================= */
 
 interface TransactionEntry {
   id: number;
@@ -20,104 +29,194 @@ interface TransactionEntry {
 
 interface TransactionSummary {
   id: number;
-  type: string; // expense | income | transfer
-  note?: string; // summary note
+  type: 'expense' | 'income' | 'transfer';
+  note?: string;
   date: string;
   netAmount: number;
   entries: TransactionEntry[];
 }
 
+type ListItem =
+  | { type: 'header'; title: string }
+  | { type: 'item'; data: TransactionSummary };
+
+/* =========================
+   Helpers
+========================= */
+
+const normalizeTransactionType = (
+  type: string,
+): 'expense' | 'income' | 'transfer' => {
+  if (type === 'expense' || type === 'income' || type === 'transfer') {
+    return type;
+  }
+  return 'expense';
+};
+
+const isToday = (date: string) => {
+  const d = new Date(date);
+  const t = new Date();
+  return d.toDateString() === t.toDateString();
+};
+
+const isYesterday = (date: string) => {
+  const d = new Date(date);
+  const y = new Date();
+  y.setDate(y.getDate() - 1);
+  return d.toDateString() === y.toDateString();
+};
+
+const formatDateHeader = (date: string) => {
+  if (isToday(date)) return 'Today';
+  if (isYesterday(date)) return 'Yesterday';
+  return new Date(date).toDateString();
+};
+
+/* =========================
+   Screen
+========================= */
+
 const TransactionsScreen: React.FC = () => {
   const [transactions, setTransactions] = useState<TransactionSummary[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  function loadTransactions() {
+  /* -------- Load data -------- */
+
+  const loadTransactions = () => {
     TransactionSummaryRepository.listWithNetAmount(
-      summaries => {
+      rows => {
         setTransactions(
-          summaries.map(s => ({
-            id: s.id,
-            type: s.type,
-            note: s.note,
-            date: s.date,
-            netAmount: s.netAmount,
-            entries: [], // lazy-load later
+          rows.map(r => ({
+            id: r.id,
+            type: normalizeTransactionType(r.type),
+            note: r.note,
+            date: r.date,
+            netAmount: r.netAmount,
+            entries: [],
           })),
         );
       },
       err => console.error('Failed to load transactions', err),
     );
-  }
+  };
+
+  /* -------- Refresh rules -------- */
 
   useFocusEffect(
     useCallback(() => {
-      // Load transactions every time screen comes into focus
       loadTransactions();
     }, []),
   );
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener(
-      'transactionsUpdated',
-      () => {
-        loadTransactions();
-      },
-    );
-    const incomeSubscription = DeviceEventEmitter.addListener(
-      'incomeAdded',
-      () => {
-        loadTransactions();
-      },
-    );
+    const subs = [
+      DeviceEventEmitter.addListener(
+        'transactionsUpdated',
+        loadTransactions,
+      ),
+      DeviceEventEmitter.addListener('incomeAdded', loadTransactions),
+      DeviceEventEmitter.addListener('expenseAdded', loadTransactions),
+    ];
 
-    const expenseSubscription = DeviceEventEmitter.addListener(
-      'expenseAdded',
-      () => {
-        loadTransactions();
-      },
-    );
-
-    return () => {
-      subscription.remove();
-      incomeSubscription.remove();
-      expenseSubscription.remove();
-    }; // cleanup
+    return () => subs.forEach(s => s.remove());
   }, []);
+
+  /* -------- Grouping -------- */
+
+  const groupedData: ListItem[] = useMemo(() => {
+    const map = new Map<string, TransactionSummary[]>();
+
+    transactions.forEach(tx => {
+      const key = formatDateHeader(tx.date);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(tx);
+    });
+
+    const result: ListItem[] = [];
+    map.forEach((items, date) => {
+      result.push({ type: 'header', title: date });
+      items.forEach(i =>
+        result.push({ type: 'item', data: i }),
+      );
+    });
+
+    return result;
+  }, [transactions]);
+
+  const stickyHeaderIndices = useMemo(
+    () =>
+      groupedData
+        .map((item, index) =>
+          item.type === 'header' ? index : null,
+        )
+        .filter(i => i !== null) as number[],
+    [groupedData],
+  );
+
+  /* -------- UI helpers -------- */
 
   const toggleExpand = (id: number) => {
     setExpandedId(prev => (prev === id ? null : id));
   };
 
-  const renderItem = ({ item }: { item: TransactionSummary }) => {
-    const isExpanded = expandedId === item.id;
+  const getAmountStyle = (
+    type: TransactionSummary['type'],
+  ) => {
+    switch (type) {
+      case 'expense':
+        return styles.expense;
+      case 'income':
+        return styles.income;
+      case 'transfer':
+        return styles.transfer;
+      default:
+        return styles.amount;
+    }
+  };
+
+  /* -------- Render -------- */
+
+  const renderItem = ({ item }: { item: ListItem }) => {
+    if (item.type === 'header') {
+      return (
+        <View style={styles.dateHeader}>
+          <Text style={styles.dateHeaderText}>
+            {item.title}
+          </Text>
+        </View>
+      );
+    }
+
+    const tx = item.data;
+    const isExpanded = expandedId === tx.id;
 
     return (
       <View style={styles.card}>
-        <TouchableOpacity onPress={() => toggleExpand(item.id)}>
+        <TouchableOpacity onPress={() => toggleExpand(tx.id)}>
           <View style={styles.summaryRow}>
-            <View>
-              <Text style={styles.title}>{item.note || item.type}</Text>
-              <Text style={styles.date}>{item.date}</Text>
-            </View>
+            <Text style={styles.title}>
+              {tx.note || tx.type}
+            </Text>
             <Text
-              style={[
-                styles.amount,
-                item.netAmount < 0 ? styles.expense : styles.income,
-              ]}
+              style={[styles.amount, getAmountStyle(tx.type)]}
             >
-              ₹ {item.netAmount}
+              ₹ {tx.netAmount}
             </Text>
           </View>
         </TouchableOpacity>
 
         {isExpanded && (
           <View style={styles.entriesContainer}>
-            {item.entries.map(entry => (
-              <View key={entry.id} style={styles.entryRow}>
-                <Text style={styles.entryAmount}>₹ {entry.amount}</Text>
-                {entry.notes ? (
-                  <Text style={styles.entryNotes}>{entry.notes}</Text>
-                ) : null}
+            {tx.entries.map(e => (
+              <View key={e.id} style={styles.entryRow}>
+                <Text style={styles.entryAmount}>
+                  ₹ {e.amount}
+                </Text>
+                {e.notes && (
+                  <Text style={styles.entryNotes}>
+                    {e.notes}
+                  </Text>
+                )}
               </View>
             ))}
           </View>
@@ -128,31 +227,47 @@ const TransactionsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {/* ✅ HEADER — rendered once */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Transactions</Text>
-        </View>
-
-        {/* ✅ LIST — rows only */}
-        <FlatList
-          data={transactions}
-          keyExtractor={item => item.id.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyTitle}>No transactions yet</Text>
-              <Text style={styles.emptySubtitle}>
-                Your expenses, income, and transfers will appear here.
-              </Text>
-            </View>
-          }
-        />
-      </View>
+      <FlatList
+        style={{ flex: 1 }}             
+        data={groupedData}
+        renderItem={renderItem}
+        keyExtractor={(item, index) =>
+          item.type === 'header'
+            ? `header-${item.title}`
+            : `tx-${item.data.id}`
+        }
+        stickyHeaderIndices={stickyHeaderIndices}
+        contentContainerStyle={styles.listContent}
+        ListHeaderComponent={
+          <View style={styles.listHeader}>
+            <Text style={styles.headerTitle}>
+              Transactions
+            </Text>
+            <Text style={styles.headerSubtitle}>
+              Expenses, income & transfers
+            </Text>
+          </View>
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyTitle}>
+              No transactions yet
+            </Text>
+            <Text style={styles.emptySubtitle}>
+              Your expenses, income, and transfers will appear here.
+            </Text>
+          </View>
+        }
+      />
     </SafeAreaView>
   );
 };
+
+export default TransactionsScreen;
+
+/* =========================
+   Styles
+========================= */
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -160,27 +275,40 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
+  listHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
 
-  /* Header */
-  header: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ddd',
-  },
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
   },
 
+  headerSubtitle: {
+    fontSize: 13,
+    color: '#777',
+    marginTop: 2,
+  },
+
   listContent: {
-    padding: 16,
+    paddingHorizontal: 16,
     paddingBottom: 24,
+  },
+
+  dateHeader: {
+    backgroundColor: '#fff',
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#ddd',
+  },
+
+  dateHeaderText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#555',
   },
 
   card: {
@@ -203,27 +331,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  date: {
-    fontSize: 12,
-    color: '#777',
-    marginTop: 2,
-  },
-
   amount: {
     fontSize: 16,
     fontWeight: '700',
   },
 
   expense: {
-    color: '#d32f2f',
+    color: '#D32F2F',
   },
 
   income: {
-    color: '#2e7d32',
+    color: '#2E7D32',
+  },
+
+  transfer: {
+    color: '#1565C0',
   },
 
   entriesContainer: {
-    marginTop: 12,
+    marginTop: 10,
     paddingTop: 8,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#e0e0e0',
@@ -243,9 +369,9 @@ const styles = StyleSheet.create({
   entryNotes: {
     fontSize: 14,
     color: '#666',
-    marginLeft: 8,
     flex: 1,
     textAlign: 'right',
+    marginLeft: 8,
   },
 
   emptyState: {
@@ -253,11 +379,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 32,
   },
+
   emptyTitle: {
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
   },
+
   emptySubtitle: {
     fontSize: 14,
     color: '#777',
@@ -265,5 +393,3 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 });
-
-export default TransactionsScreen;
