@@ -17,9 +17,6 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { TransactionSummaryRepository } from '../repositories/TransactionSummaryRepository';
 
-/* =========================
-   Types
-========================= */
 
 interface TransactionEntry {
   id: number;
@@ -40,9 +37,6 @@ type ListItem =
   | { type: 'header'; title: string }
   | { type: 'item'; data: TransactionSummary };
 
-/* =========================
-   Helpers
-========================= */
 
 const normalizeTransactionType = (
   type: string,
@@ -72,15 +66,11 @@ const formatDateHeader = (date: string) => {
   return new Date(date).toDateString();
 };
 
-/* =========================
-   Screen
-========================= */
 
 const TransactionsScreen: React.FC = () => {
   const [transactions, setTransactions] = useState<TransactionSummary[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  /* -------- Load data -------- */
 
   const loadTransactions = () => {
     TransactionSummaryRepository.listWithNetAmount(
@@ -99,8 +89,6 @@ const TransactionsScreen: React.FC = () => {
       err => console.error('Failed to load transactions', err),
     );
   };
-
-  /* -------- Refresh rules -------- */
 
   useFocusEffect(
     useCallback(() => {
@@ -121,7 +109,6 @@ const TransactionsScreen: React.FC = () => {
     return () => subs.forEach(s => s.remove());
   }, []);
 
-  /* -------- Grouping -------- */
 
   const groupedData: ListItem[] = useMemo(() => {
     const map = new Map<string, TransactionSummary[]>();
@@ -226,48 +213,43 @@ const TransactionsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <FlatList
-        style={{ flex: 1 }}             
-        data={groupedData}
-        renderItem={renderItem}
-        keyExtractor={(item, index) =>
-          item.type === 'header'
-            ? `header-${item.title}`
-            : `tx-${item.data.id}`
-        }
-        stickyHeaderIndices={stickyHeaderIndices}
-        contentContainerStyle={styles.listContent}
-        ListHeaderComponent={
-          <View style={styles.listHeader}>
-            <Text style={styles.headerTitle}>
-              Transactions
-            </Text>
-            <Text style={styles.headerSubtitle}>
-              Expenses, income & transfers
-            </Text>
-          </View>
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyTitle}>
-              No transactions yet
-            </Text>
-            <Text style={styles.emptySubtitle}>
-              Your expenses, income, and transfers will appear here.
-            </Text>
-          </View>
-        }
-      />
-    </SafeAreaView>
-  );
+  <SafeAreaView style={styles.safeArea}>
+    {/* Fixed header */}
+    <View style={styles.fixedHeader}>
+      <Text style={styles.headerTitle}>Transactions</Text>
+      <Text style={styles.headerSubtitle}>
+        Expenses, income & transfers
+      </Text>
+    </View>
+
+    {/* FlatList for transactions */}
+    <FlatList
+      style={{ flex: 1 }}
+      data={groupedData}
+      renderItem={renderItem}
+      keyExtractor={(item, index) =>
+        item.type === 'header'
+          ? `header-${item.title}`
+          : `tx-${item.data.id}`
+      }
+      stickyHeaderIndices={stickyHeaderIndices}
+      contentContainerStyle={styles.listContent}
+      ListEmptyComponent={
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyTitle}>No transactions yet</Text>
+          <Text style={styles.emptySubtitle}>
+            Your expenses, income, and transfers will appear here.
+          </Text>
+        </View>
+      }
+    />
+  </SafeAreaView>
+);
+
 };
 
 export default TransactionsScreen;
 
-/* =========================
-   Styles
-========================= */
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -392,4 +374,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
+  fixedHeader: {
+  paddingHorizontal: 16,
+  paddingVertical: 12,
+  backgroundColor: '#fff',       // matches your page background
+  borderBottomWidth: StyleSheet.hairlineWidth,
+  borderBottomColor: '#ddd',     // subtle separator
+  zIndex: 10,                    // ensure header stays above content
+  elevation: 2,                  // for Android shadow
+},
+
 });
