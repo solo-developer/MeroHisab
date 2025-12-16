@@ -15,6 +15,10 @@ export interface TransactionSummaryRow {
   netAmount: number;
 }
 
+export interface IncomeExpenseReport {
+  income: number;
+  expense: number;
+}
 export const TransactionSummaryRepository = {
   create: (
     tx: any,
@@ -67,6 +71,33 @@ export const TransactionSummaryRepository = {
           return false;
         }
       );
+    });
+  },
+
+  getIncomeExpense: async (from: string, to: string): Promise<IncomeExpenseReport> => {
+    const db = getDatabase();
+
+    return new Promise<IncomeExpenseReport>((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          `
+          SELECT 
+            SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS income,
+            SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS expense
+          FROM TransactionSummary
+          WHERE date BETWEEN ? AND ?;
+          `,
+          [from, to],
+          (_, res) => {
+            const row = res.rows.item(0);
+            resolve({ income: row.income ?? 0, expense: row.expense ?? 0 });
+          },
+          (_, err) => {
+            reject(err);
+            return false;
+          }
+        );
+      });
     });
   },
 };
