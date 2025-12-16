@@ -26,19 +26,34 @@ const DashboardScreen: React.FC = () => {
     }
   };
 
+  const balance = income - expense;
+
   return (
     <View style={styles.container}>
       {/* Dropdown for range selection */}
       <View style={styles.dropdownContainer}>
         <Picker
           selectedValue={range}
-          onValueChange={(itemValue) => setRange(itemValue as ReportRange)}
+          onValueChange={itemValue => setRange(itemValue as ReportRange)}
           style={styles.picker}
         >
           <Picker.Item label="This Week" value="this_week" />
           <Picker.Item label="This Month" value="this_month" />
           <Picker.Item label="Previous Month" value="previous_month" />
         </Picker>
+      </View>
+
+      {/* Accounts Balance */}
+      <View style={styles.balanceContainer}>
+        <Text style={styles.balanceLabel}>Accounts Balance</Text>
+        <Text
+          style={[
+            styles.balanceValue,
+            { color: balance >= 0 ? 'green' : 'red' },
+          ]}
+        >
+          ${balance}
+        </Text>
       </View>
 
       {/* Income / Expense Card */}
@@ -60,17 +75,17 @@ const DashboardScreen: React.FC = () => {
         </View>
       </Card>
 
-      {/* Placeholder for heavy widgets */}
-      <View style={styles.widgetContainer}>
-        <Text style={styles.widgetTitle}>Other Widgets</Text>
-        <Text>Load heavy widgets here only when user lands on this tab.</Text>
-      </View>
+     
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, paddingTop: 80, backgroundColor: '#f5f5f5' },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#f5f5f5',
+  },
   dropdownContainer: {
     marginBottom: 16,
     borderWidth: 1,
@@ -80,6 +95,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   picker: { height: 50, width: '100%' },
+
+  /* Accounts Balance */
+  balanceContainer: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  balanceLabel: {
+    fontSize: 14,
+    color: '#777',
+    marginBottom: 4,
+  },
+  balanceValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#000',
+  },
+
   card: { padding: 16, borderRadius: 12, marginBottom: 24 },
   cardContent: { flexDirection: 'row', justifyContent: 'space-between' },
   incomeExpense: { alignItems: 'center' },
@@ -88,6 +125,7 @@ const styles = StyleSheet.create({
   incomeText: { fontSize: 20, fontWeight: 'bold', color: 'green' },
   expenseText: { fontSize: 20, fontWeight: 'bold', color: 'red' },
   label: { fontSize: 14, color: '#555' },
+
   widgetContainer: { marginTop: 16 },
   widgetTitle: { fontSize: 18, marginBottom: 8 },
 });

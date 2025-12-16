@@ -23,8 +23,7 @@ export class ReportService {
 
     let income = 0;
     let expense = 0;
-
-    entries.forEach(entry => {
+    entries.filter(a=>a.type == 'income' || a.type == 'expense').forEach(entry => {
       if (entry.entryType === 'debit') {
         income += entry.amount;
       } else if (entry.entryType === 'credit') {

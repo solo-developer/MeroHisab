@@ -12,7 +12,8 @@ export interface TransactionEntryRow {
   ledgerId: number;
   entryType: 'debit' | 'credit';
   amount: number;
-  date: string; // transaction date from summary
+  date: string; 
+  type : 'expense' | 'income' | 'transfer' |'adjustment';
 }
 
 export const TransactionEntryRepository = {
@@ -45,7 +46,7 @@ export const TransactionEntryRepository = {
     db.transaction(tx => {
       tx.executeSql(
         `
-        SELECT te.id, te.transactionSummaryId, te.ledgerId, te.entryType, te.amount, ts.date
+        SELECT te.id, te.transactionSummaryId, te.ledgerId, te.entryType, te.amount, ts.date, ts.type
         FROM TransactionEntry te
         JOIN TransactionSummary ts ON ts.id = te.transactionSummaryId
         WHERE ts.date BETWEEN ? AND ?
