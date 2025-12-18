@@ -4,49 +4,102 @@ import {
   Text,
   StyleSheet,
   FlatList,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { IncomeReportRepository, IncomeReportRow } from '../repositories/IncomeReportRepository';
+import { generatePDF, PDFColumn } from '../services/PDFService';
 
 const IncomeReportScreen: React.FC = () => {
   const navigation = useNavigation();
   const [incomeList, setIncomeList] = useState<IncomeReportRow[]>([]);
 
+  // Load income report from DB
   useEffect(() => {
     IncomeReportRepository.getIncomeReport((rows) => {
       setIncomeList(rows);
     });
   }, []);
 
-  const renderItem = ({ item }: { item: IncomeReportRow }) => {
-    return (
-      <View style={styles.row}>
-        <View style={styles.left}>
-          <Text style={styles.date}>{new Date(item.date).toLocaleDateString()}</Text>
-          <Text style={styles.category}>{item.categoryName || 'N/A'} / {item.walletName || 'N/A'}</Text>
-          {item.note ? <Text style={styles.note}>{item.note}</Text> : null}
-        </View>
-        <Text style={[styles.amount, { color: item.amount < 0 ? '#F44336' : '#4CAF50' }]}>
-          {item.amount.toFixed(2)}
+  // Render each income transaction row
+  const renderItem = ({ item }: { item: IncomeReportRow }) => (
+    <View style={styles.row}>
+      <View style={styles.left}>
+        <Text style={styles.date}>{new Date(item.date).toLocaleDateString()}</Text>
+        <Text style={styles.category}>
+          {item.categoryName || 'N/A'} / {item.walletName || 'N/A'}
         </Text>
+        {item.note ? <Text style={styles.note}>{item.note}</Text> : null}
       </View>
-    );
-  };
+      <Text
+        style={[
+          styles.amount,
+          { color: item.amount < 0 ? '#F44336' : '#4CAF50' },
+        ]}
+      >
+        {item.amount.toFixed(2)}
+      </Text>
+    </View>
+  );
 
+  // Empty state when no income exists
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyText}>No income transactions found</Text>
     </View>
   );
 
+  // Export income report to PDF
+  const exportIncomeReportToPDF = async () => {
+    if (incomeList.length === 0) {
+      Alert.alert('No data', 'There are no income transactions to export.');
+      return;
+    }
+
+    const columns: PDFColumn[] = [
+      {
+        header: 'Date',
+        key: 'date',
+        render: (val) => new Date(val).toLocaleDateString(),
+      },
+      { header: 'Category', key: 'categoryName' },
+      { header: 'Wallet', key: 'walletName' },
+      { header: 'Note', key: 'note' },
+      {
+        header: 'Amount',
+        key: 'amount',
+        render: (val) => Number(val).toFixed(2),
+      },
+    ];
+
+    try {
+      await generatePDF({
+        title: 'Income Report',
+        data: incomeList,
+        columns,
+        fileName: 'Income_Report',
+      });
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      Alert.alert('Error', 'Failed to generate PDF.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Ionicons name="arrow-back" size={22} color="#333" onPress={() => navigation.goBack()} />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={22} color="#333" />
+        </TouchableOpacity>
+
         <Text style={styles.headerTitle}>Income Report</Text>
-        <View style={{ width: 22 }} />
+
+        <TouchableOpacity onPress={exportIncomeReportToPDF}>
+          <Ionicons name="download-outline" size={22} color="#333" />
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -55,7 +108,11 @@ const IncomeReportScreen: React.FC = () => {
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         ListEmptyComponent={renderEmptyState}
-        contentContainerStyle={incomeList.length === 0 ? { flex: 1, justifyContent: 'center', alignItems: 'center' } : { padding: 16 }}
+        contentContainerStyle={
+          incomeList.length === 0
+            ? { flex: 1, justifyContent: 'center', alignItems: 'center' }
+            : { padding: 16 }
+        }
       />
     </View>
   );
