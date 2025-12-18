@@ -186,7 +186,7 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
               style={styles.input}
             />
 
-            {/* ICON PICKER */}
+           
             <Text style={styles.label}>Icon</Text>
             <View style={styles.iconGrid}>
               {CATEGORY_ICONS.map(i => (

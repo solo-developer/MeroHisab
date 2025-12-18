@@ -1,6 +1,13 @@
 import Wallet from '../models/Wallet';
 import { getDatabase } from './Database';
 
+export interface WalletBalanceRow {
+  walletId: number;
+  walletName: string;
+  ledgerId: number;
+  balance: number;
+}
+
 export default class WalletRepository {
 
   static getAll(): Promise<Wallet[]> {
@@ -96,6 +103,64 @@ export default class WalletRepository {
           (_, err) => reject(err),
         );
       });
+    });
+  }
+
+  /**
+   * Returns wallet list with computed balance from ledger entries
+   */
+  static getWalletBalances(
+    callback: (rows: WalletBalanceRow[]) => void,
+    errorCallback?: (error: any) => void
+  ) {
+    const db = getDatabase();
+
+    /**
+     * Balance logic:
+     * - Debit  => +amount (asset increase)
+     * - Credit => -amount (asset decrease)
+     *
+     * Wallets are assets → normal balance = debit
+     */
+    const query = `
+      SELECT
+        w.id            AS walletId,
+        w.name          AS walletName,
+        w.ledgerId      AS ledgerId,
+        COALESCE(
+          SUM(
+            CASE
+              WHEN te.entryType = 'debit'  THEN te.amount
+              WHEN te.entryType = 'credit' THEN -te.amount
+              ELSE 0
+            END
+          ),
+          0
+        ) AS balance
+      FROM wallets w
+      LEFT JOIN TransactionEntry te
+        ON te.ledgerId = w.ledgerId
+      WHERE w.deletedAt IS NULL
+      GROUP BY w.id, w.name, w.ledgerId
+      ORDER BY w.name ASC
+    `;
+
+    db.transaction(tx => {
+      tx.executeSql(
+        query,
+        [],
+        (_, result) => {
+          const rows: WalletBalanceRow[] = [];
+          for (let i = 0; i < result.rows.length; i++) {
+            rows.push(result.rows.item(i));
+          }
+          callback(rows);
+        },
+        (_, error) => {
+          errorCallback?.(error);
+          return false;
+        }
+      );
     });
   }
 }

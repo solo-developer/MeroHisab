@@ -37,6 +37,12 @@ const reportOptions = [
     icon: 'swap-horizontal',
     color: '#9C27B0',
   },
+  {
+    key: 'wallet-balance',
+    title: 'Wallet Balance',
+    icon: 'wallet-outline',
+    color: '#009688',
+  },
 ];
 
 const numColumns = 3;
@@ -47,7 +53,14 @@ const ReportsScreen: React.FC = () => {
   const navigation = useNavigation();
 
   const handlePress = (key: string) => {
-    console.log('Pressed:', key);
+    switch (key) {
+      case 'wallet-balance':
+        navigation.navigate('WalletBalanceReport');
+        break;
+
+      default:
+        console.log('Pressed:', key);
+    }
   };
 
   const renderItem = ({ item }: { item: (typeof reportOptions)[0] }) => (
@@ -78,7 +91,7 @@ const ReportsScreen: React.FC = () => {
         keyExtractor={item => item.key}
         numColumns={numColumns}
         columnWrapperStyle={styles.row}
-        contentContainerStyle={{ paddingBottom: 24, marginTop:20 }}
+        contentContainerStyle={{ paddingBottom: 24, marginTop: 20 }}
       />
     </View>
   );
