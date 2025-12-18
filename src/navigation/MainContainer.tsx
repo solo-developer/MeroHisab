@@ -9,6 +9,7 @@ import RootStack from './RootStack';
 import { AddIncomeScreen } from '../screens/AddIncomeScreen';
 import { AddExpenseScreen } from '../screens/AddExpenseScreen';
 import WalletBalanceReportScreen from '../screens/WalletBalanceReportScreen';
+import IncomeReportScreen from '../screens/IncomeReportScreen';
 
 const MainContainer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SwipeTabRoutes>('Dashboard');
@@ -27,7 +28,14 @@ const MainContainer: React.FC = () => {
         <RootStack.Screen name="MainTabs" component={SwipeTabs} />
         <RootStack.Screen name="AddIncome" component={AddIncomeScreen} />
         <RootStack.Screen name="AddExpense" component={AddExpenseScreen} />
-        <RootStack.Screen name="WalletBalanceReport" component={WalletBalanceReportScreen} />
+        <RootStack.Screen
+          name="WalletBalanceReport"
+          component={WalletBalanceReportScreen}
+        />
+        <RootStack.Screen
+          name="IncomeReport"
+          component={IncomeReportScreen}
+        />
       </RootStack.Navigator>
 
       <BottomTabs

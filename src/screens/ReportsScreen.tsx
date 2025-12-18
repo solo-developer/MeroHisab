@@ -57,6 +57,9 @@ const ReportsScreen: React.FC = () => {
       case 'wallet-balance':
         navigation.navigate('WalletBalanceReport');
         break;
+      case 'income':
+        navigation.navigate('IncomeReport');
+        break;
 
       default:
         console.log('Pressed:', key);
