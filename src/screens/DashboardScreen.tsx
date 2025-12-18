@@ -1,11 +1,34 @@
 // src/screens/DashboardScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import { Card } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
-import { ReportService, ReportRange } from '../services/ReportService';
+import { useNavigation } from '@react-navigation/native';
+import { ReportService } from '../services/ReportService';
+import { ReportRange } from '../helpers/DateHelper';
+
+const quickLinks = [
+  { label: 'Wallet Balance', icon: '💰', screen: 'WalletBalanceReport' },
+  { label: 'Transactions', icon: '🧾', screen: 'Transactions' },
+  { label: 'Reports', icon: '📊', screen: 'Reports' },
+  // Add more links here
+];
+
+const numColumns = 3; // max 3 per row
+const spacing = 12;
+const screenWidth = Dimensions.get('window').width;
+const buttonWidth = (screenWidth - 16 * 2 - spacing * (numColumns - 1)) / numColumns;
 
 const DashboardScreen: React.FC = () => {
+  const navigation = useNavigation();
+
   const [range, setRange] = useState<ReportRange>('this_week'); // default range
   const [income, setIncome] = useState(0);
   const [expense, setExpense] = useState(0);
@@ -16,6 +39,7 @@ const DashboardScreen: React.FC = () => {
 
   const loadData = async (selectedRange: ReportRange) => {
     try {
+      // Replace with actual from/to dates if needed
       const report = await ReportService.getIncomeExpense(selectedRange);
       setIncome(report.income);
       setExpense(report.expense);
@@ -29,7 +53,7 @@ const DashboardScreen: React.FC = () => {
   const balance = income - expense;
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
       {/* Dropdown for range selection */}
       <View style={styles.dropdownContainer}>
         <Picker
@@ -75,16 +99,32 @@ const DashboardScreen: React.FC = () => {
         </View>
       </Card>
 
-     
-    </View>
+      {/* Quick Links */}
+      <View style={styles.quickLinksContainer}>
+        <Text style={styles.quickLinksTitle}>Quick Links</Text>
+        <View style={styles.quickLinksGrid}>
+          {quickLinks.map((link, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[styles.quickLinkItem, { width: buttonWidth }]}
+              onPress={() => navigation.navigate(link.screen as never)}
+            >
+              <Text style={styles.quickLinkIcon}>{link.icon}</Text>
+              <Text style={styles.quickLinkText}>{link.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#f5f5f5',
+    paddingHorizontal: 16,
+    paddingTop: 40,
   },
   dropdownContainer: {
     marginBottom: 16,
@@ -114,9 +154,9 @@ const styles = StyleSheet.create({
   balanceValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#000',
   },
 
+  /* Income / Expense Card */
   card: { padding: 16, borderRadius: 12, marginBottom: 24 },
   cardContent: { flexDirection: 'row', justifyContent: 'space-between' },
   incomeExpense: { alignItems: 'center' },
@@ -126,8 +166,25 @@ const styles = StyleSheet.create({
   expenseText: { fontSize: 20, fontWeight: 'bold', color: 'red' },
   label: { fontSize: 14, color: '#555' },
 
-  widgetContainer: { marginTop: 16 },
-  widgetTitle: { fontSize: 18, marginBottom: 8 },
+  /* Quick Links */
+  quickLinksContainer: { marginTop: 16 },
+  quickLinksTitle: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
+  quickLinksGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  quickLinkItem: {
+    backgroundColor: '#fff',
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  quickLinkIcon: { fontSize: 28 },
+  quickLinkText: { fontSize: 14, marginTop: 6, textAlign: 'center', color: '#007bff' },
 });
 
 export default DashboardScreen;
