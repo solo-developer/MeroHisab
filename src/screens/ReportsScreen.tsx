@@ -62,6 +62,8 @@ const ReportsScreen: React.FC = () => {
         break;
       case 'expense':
         navigation.navigate('ExpenseReport');
+      case 'transfer':
+        navigation.navigate('TransferReport');
         break;
 
       default:
