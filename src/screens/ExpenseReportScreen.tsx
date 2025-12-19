@@ -1,4 +1,4 @@
-// src/screens/IncomeReportScreen.tsx
+// src/screens/ExpenseReportScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -12,31 +12,30 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import {
-  IncomeReportRepository,
-  IncomeReportRow,
-} from '../repositories/IncomeReportRepository';
+  ExpenseReportRepository,
+  ExpenseReportRow,
+} from '../repositories/ExpenseReportRepository';
 
 const toSQLDate = (date?: Date) =>
   date ? date.toISOString().split('T')[0] : undefined;
 
-const IncomeReportScreen: React.FC = () => {
+const ExpenseReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
-
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
-  const [incomeList, setIncomeList] = useState<IncomeReportRow[]>([]);
+  const [expenseList, setExpenseList] = useState<ExpenseReportRow[]>([]);
   const [total, setTotal] = useState(0);
 
   const loadReport = () => {
-    IncomeReportRepository.getIncomeReport(
+    ExpenseReportRepository.getExpenseReport(
       toSQLDate(fromDate),
       toSQLDate(toDate),
       rows => {
-        setIncomeList(rows);
+        setExpenseList(rows);
         const sum = rows.reduce((acc, r) => acc + r.amount, 0);
         setTotal(sum);
       },
@@ -47,7 +46,7 @@ const IncomeReportScreen: React.FC = () => {
     loadReport();
   }, []);
 
-  const renderItem = ({ item }: { item: IncomeReportRow }) => (
+  const renderItem = ({ item }: { item: ExpenseReportRow }) => (
     <View style={styles.row}>
       <View style={styles.left}>
         <Text style={styles.date}>
@@ -59,7 +58,7 @@ const IncomeReportScreen: React.FC = () => {
         {item.note ? <Text style={styles.note}>{item.note}</Text> : null}
       </View>
 
-      <Text style={styles.amount}>
+      <Text style={[styles.amount, { color: '#F44336' }]}>
         {item.amount.toFixed(2)}
       </Text>
     </View>
@@ -73,7 +72,7 @@ const IncomeReportScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Income Report</Text>
+        <Text style={styles.headerTitle}>Expense Report</Text>
 
         <TouchableOpacity>
           <Ionicons name="download-outline" size={22} color="#333" />
@@ -109,19 +108,19 @@ const IncomeReportScreen: React.FC = () => {
 
       {/* Total */}
       <View style={styles.totalBar}>
-        <Text style={styles.totalLabel}>Total Income</Text>
+        <Text style={styles.totalLabel}>Total Expense</Text>
         <Text style={styles.totalAmount}>{total.toFixed(2)}</Text>
       </View>
 
       {/* List */}
       <FlatList
-        data={incomeList}
+        data={expenseList}
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
         contentContainerStyle={{ padding: 12 }}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No income records found</Text>
+          <Text style={styles.emptyText}>No expense records found</Text>
         }
       />
 
@@ -188,7 +187,7 @@ const styles = StyleSheet.create({
   dateText: { fontSize: 13, color: '#333' },
 
   applyBtn: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#F44336',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 6,
@@ -200,13 +199,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#FFEBEE',
   },
   totalLabel: { fontSize: 14, fontWeight: '600' },
   totalAmount: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#2E7D32',
+    color: '#C62828',
   },
 
   row: {
@@ -224,7 +223,7 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#4CAF50',
+    color: '#F44336',
   },
 
   emptyText: {
@@ -234,4 +233,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default IncomeReportScreen;
+export default ExpenseReportScreen;

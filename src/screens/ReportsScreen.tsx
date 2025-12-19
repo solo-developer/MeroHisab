@@ -60,6 +60,9 @@ const ReportsScreen: React.FC = () => {
       case 'income':
         navigation.navigate('IncomeReport');
         break;
+      case 'expense':
+        navigation.navigate('ExpenseReport');
+        break;
 
       default:
         console.log('Pressed:', key);

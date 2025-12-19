@@ -1,10 +1,8 @@
-// src/navigation/SwipeTabs.tsx
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import DashboardScreen from '../screens/DashboardScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
-import SettingsScreen from '../screens/SettingsScreen';
 import SettingsStack from './SettingsStack';
 
 export type TopTabParamList = {

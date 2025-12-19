@@ -1,58 +1,76 @@
+// src/repositories/IncomeReportRepository.ts
 import { getDatabase } from './Database';
 
 export interface IncomeReportRow {
   id: number;
   date: string;
-  amount: number;
-  note: string | null;
   categoryName: string | null;
-   walletName: string | null;
+  walletName: string | null;
+  note: string | null;
+  amount: number;
 }
 
-export class IncomeReportRepository {
+const IncomeReportRepository = {
   /**
-   * Fetch all income transactions
+   * Get list of income transactions, optionally filtered by date range
+   * @param fromDate format: 'YYYY-MM-DD'
+   * @param toDate format: 'YYYY-MM-DD'
+   * @param callback returns IncomeReportRow[]
    */
-  static getIncomeReport(
-    callback: (rows: IncomeReportRow[]) => void,
-    errorCallback?: (error: any) => void
-  ) {
+  getIncomeReport: (
+    fromDate?: string,
+    toDate?: string,
+    callback?: (rows: IncomeReportRow[]) => void
+  ) => {
     const db = getDatabase();
 
-   const query = `
-      SELECT 
+    let query = `
+      SELECT
         ts.id,
         ts.date,
-        ts.amount,
         ts.note,
-        c.name AS categoryName,
-        w.name AS walletName
+        ts.amount,
+        c.name as categoryName,
+        w.name as walletName
       FROM TransactionSummary ts
       LEFT JOIN categories c ON ts.categoryId = c.id
-      LEFT JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
-      LEFT JOIN wallets w ON te.ledgerId = w.ledgerId
-      WHERE ts.type = 'income'
-      AND ts.deletedAt IS NULL
-      GROUP BY ts.id
-      ORDER BY ts.date DESC
+      LEFT JOIN wallets w ON c.ledgerId = w.ledgerId
+      WHERE ts.type = 'income' AND ts.deletedAt IS NULL
     `;
+
+    const params: (string | undefined)[] = [];
+
+    if (fromDate) {
+      query += ` AND date(ts.date) >= date(?)`;
+      params.push(fromDate);
+    }
+
+    if (toDate) {
+      query += ` AND date(ts.date) <= date(?)`;
+      params.push(toDate);
+    }
+
+    query += ` ORDER BY ts.date DESC, ts.id DESC`;
 
     db.transaction(tx => {
       tx.executeSql(
         query,
-        [],
-        (_, result) => {
+        params,
+        (_, results) => {
           const rows: IncomeReportRow[] = [];
-          for (let i = 0; i < result.rows.length; i++) {
-            rows.push(result.rows.item(i));
+          for (let i = 0; i < results.rows.length; i++) {
+            rows.push(results.rows.item(i));
           }
-          callback(rows);
+          callback && callback(rows);
         },
         (_, error) => {
-          if (errorCallback) errorCallback?.(error);
+          console.error('IncomeReportRepository.getIncomeReport error:', error);
           return false;
         }
       );
     });
-  }
-}
+  },
+};
+
+export { IncomeReportRepository };
+export default IncomeReportRepository;
