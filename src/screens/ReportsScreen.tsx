@@ -66,6 +66,9 @@ const ReportsScreen: React.FC = () => {
       case 'transfer':
         navigation.navigate('TransferReport');
         break;
+      case 'ledger':
+        navigation.navigate('ReportByLedger');
+        break;
 
       default:
         console.log('Pressed:', key);
