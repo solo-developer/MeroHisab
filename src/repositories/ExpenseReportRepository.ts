@@ -29,8 +29,8 @@ export class ExpenseReportRepository {
           w.name AS walletName
         FROM TransactionSummary ts
         LEFT JOIN categories c ON c.id = ts.categoryId
-        LEFT JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
-        LEFT JOIN wallets w ON w.ledgerId = te.ledgerId
+        LEFT JOIN TransactionEntry te ON te.transactionSummaryId = ts.id AND te.entryType='debit'
+        LEFT JOIN wallets w ON te.ledgerId = w.ledgerId
         WHERE ts.type = 'expense'
           AND ts.deletedAt IS NULL
           AND DATE(ts.date) BETWEEN DATE(?) AND DATE(?)

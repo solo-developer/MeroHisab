@@ -12,6 +12,7 @@ import WalletBalanceReportScreen from '../screens/WalletBalanceReportScreen';
 import IncomeReportScreen from '../screens/IncomeReportScreen';
 import ExpenseReportScreen from '../screens/ExpenseReportScreen';
 import TransferReportScreen from '../screens/TransferReportScreen';
+import ManageWalletsScreen from '../screens/ManageWalletsScreen';
 
 const MainContainer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SwipeTabRoutes>('Dashboard');

@@ -9,6 +9,9 @@ import {
   TextInput,
   StyleSheet,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -30,6 +33,9 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const [icon, setIcon] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);
   const [type] = useState<'expense' | 'income'>('expense');
+
+  const [showIcons, setShowIcons] = useState(false);
+  const [showColors, setShowColors] = useState(false);
 
   /* ---------------- HEADER ---------------- */
 
@@ -60,6 +66,8 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
     setName('');
     setIcon(null);
     setColor(null);
+    setShowIcons(false);
+    setShowColors(false);
     setModalVisible(true);
   };
 
@@ -68,6 +76,8 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
     setName(category.name);
     setIcon(category.icon || null);
     setColor(category.color || null);
+    setShowIcons(false);
+    setShowColors(false);
     setModalVisible(true);
   };
 
@@ -113,7 +123,8 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
     ]);
   };
 
-  /* ---------------- UI ---------------- */
+  /* ---------------- EMPTY STATE ---------------- */
+
   const EmptyState = ({ onAdd }: { onAdd: () => void }) => (
     <View style={styles.emptyContainer}>
       <MaterialIcons
@@ -132,6 +143,8 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
       </TouchableOpacity>
     </View>
   );
+
+  /* ---------------- UI ---------------- */
 
   return (
     <View style={styles.container}>
@@ -173,66 +186,121 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
       {/* ---------------- MODAL ---------------- */}
 
       <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.overlay}
+        >
           <View style={styles.modal}>
-            <Text style={styles.title}>
-              {editing ? 'Edit Category' : 'Add Category'}
-            </Text>
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <Text style={styles.title}>
+                {editing ? 'Edit Category' : 'Add Category'}
+              </Text>
 
-            <TextInput
-              placeholder="Category name"
-              value={name}
-              onChangeText={setName}
-              style={styles.input}
-            />
+              <TextInput
+                placeholder="Category name"
+                value={name}
+                onChangeText={setName}
+                style={styles.input}
+              />
 
-           
-            <Text style={styles.label}>Icon</Text>
-            <View style={styles.iconGrid}>
-              {CATEGORY_ICONS.map(i => (
-                <TouchableOpacity
-                  key={i}
-                  style={[styles.iconItem, icon === i && styles.iconSelected]}
-                  onPress={() => setIcon(i)}
-                >
-                  <MaterialIcons
-                    name={i}
-                    size={26}
-                    color={icon === i ? '#fff' : '#333'}
-                  />
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* COLOR PICKER */}
-            <Text style={styles.label}>Color</Text>
-            <View style={styles.colorRow}>
-              {CATEGORY_COLORS.map(c => (
-                <TouchableOpacity
-                  key={c}
-                  style={[
-                    styles.colorCircle,
-                    { backgroundColor: c },
-                    color === c && styles.colorSelected,
-                  ]}
-                  onPress={() => setColor(c)}
-                />
-              ))}
-            </View>
-
-            <View style={styles.modalActions}>
-              <TouchableOpacity onPress={save} style={styles.save}>
-                <Text style={styles.btnText}>Save</Text>
-              </TouchableOpacity>
+              {/* ICON PICKER */}
+              <Text style={styles.label}>Icon</Text>
               <TouchableOpacity
-                onPress={() => setModalVisible(false)}
-                style={styles.cancel}
+                style={styles.selectorRow}
+                onPress={() => setShowIcons(v => !v)}
               >
-                <Text style={styles.btnText}>Cancel</Text>
+                <View style={styles.selectorLeft}>
+                  {icon ? (
+                    <View style={styles.iconPreviewSmall}>
+                      <MaterialIcons name={icon} size={18} color="#fff" />
+                    </View>
+                  ) : (
+                    <Text style={styles.placeholder}>Select icon</Text>
+                  )}
+                </View>
+                <MaterialIcons
+                  name={showIcons ? 'expand-less' : 'expand-more'}
+                  size={24}
+                  color="#666"
+                />
               </TouchableOpacity>
-            </View>
+
+              {showIcons && (
+                <View style={styles.iconGridCompact}>
+                  {CATEGORY_ICONS.map(i => (
+                    <TouchableOpacity
+                      key={i}
+                      style={[
+                        styles.iconItemSmall,
+                        icon === i && styles.iconSelected,
+                      ]}
+                      onPress={() => {
+                        setIcon(i);
+                        setShowIcons(false);
+                      }}
+                    >
+                      <MaterialIcons
+                        name={i}
+                        size={20}
+                        color={icon === i ? '#fff' : '#333'}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              {/* COLOR PICKER */}
+              <Text style={styles.label}>Color</Text>
+              <TouchableOpacity
+                style={styles.selectorRow}
+                onPress={() => setShowColors(v => !v)}
+              >
+                <View
+                  style={[
+                    styles.colorPreview,
+                    { backgroundColor: color || '#ddd' },
+                  ]}
+                />
+                <MaterialIcons
+                  name={showColors ? 'expand-less' : 'expand-more'}
+                  size={24}
+                  color="#666"
+                />
+              </TouchableOpacity>
+
+              {showColors && (
+                <View style={styles.colorRowCompact}>
+                  {CATEGORY_COLORS.map(c => (
+                    <TouchableOpacity
+                      key={c}
+                      style={[
+                        styles.colorCircleSmall,
+                        { backgroundColor: c },
+                        color === c && styles.colorSelected,
+                      ]}
+                      onPress={() => {
+                        setColor(c);
+                        setShowColors(false);
+                      }}
+                    />
+                  ))}
+                </View>
+              )}
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity onPress={save} style={styles.save}>
+                  <Text style={styles.btnText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  style={styles.cancel}
+                >
+                  <Text style={styles.btnText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -243,11 +311,7 @@ export default ManageCategoriesScreen;
 /* ---------------- STYLES ---------------- */
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-  },
+  container: { flex: 1, backgroundColor: '#fff', padding: 20 },
 
   row: {
     flexDirection: 'row',
@@ -258,11 +322,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
 
-  rowLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
+  rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
 
   iconPreview: {
     width: 34,
@@ -272,26 +332,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  name: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#111',
-  },
+  name: { fontSize: 16, fontWeight: '500', color: '#111' },
 
-  actions: {
-    flexDirection: 'row',
-    gap: 16,
-  },
+  actions: { flexDirection: 'row', gap: 16 },
 
-  action: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#007AFF',
-  },
-
-  delete: {
-    color: '#F44336',
-  },
+  action: { fontSize: 14, fontWeight: '500', color: '#007AFF' },
+  delete: { color: '#F44336' },
 
   overlay: {
     flex: 1,
@@ -302,77 +348,81 @@ const styles = StyleSheet.create({
 
   modal: {
     width: '90%',
+    maxHeight: '85%',
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
   },
 
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 16,
-    color: '#111',
-  },
+  title: { fontSize: 20, fontWeight: '600', marginBottom: 16 },
 
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    padding: 12,
     fontSize: 15,
     marginBottom: 14,
   },
 
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 6,
-    color: '#444',
+  label: { fontSize: 14, fontWeight: '500', marginBottom: 6 },
+
+  selectorRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    marginBottom: 12,
   },
 
-  iconGrid: {
+  selectorLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+
+  placeholder: { color: '#999' },
+
+  iconPreviewSmall: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#007AFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  iconGridCompact: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 10,
     marginBottom: 16,
   },
 
-  iconItem: {
-    width: 44,
-    height: 44,
+  iconItemSmall: {
+    width: 38,
+    height: 38,
     borderRadius: 8,
     backgroundColor: '#eee',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  iconSelected: {
-    backgroundColor: '#007AFF',
-  },
+  iconSelected: { backgroundColor: '#007AFF' },
 
-  colorRow: {
+  colorPreview: { width: 28, height: 28, borderRadius: 14 },
+
+  colorRowCompact: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 20,
-  },
-
-  colorCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-  },
-
-  colorSelected: {
-    borderWidth: 3,
-    borderColor: '#000',
-  },
-
-  modalActions: {
-    flexDirection: 'row',
     gap: 10,
+    marginBottom: 16,
   },
+
+  colorCircleSmall: { width: 26, height: 26, borderRadius: 13 },
+
+  colorSelected: { borderWidth: 3, borderColor: '#000' },
+
+  modalActions: { flexDirection: 'row', gap: 10 },
 
   save: {
     flex: 1,

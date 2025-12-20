@@ -34,7 +34,8 @@ const IncomeReportRepository = {
         w.name as walletName
       FROM TransactionSummary ts
       LEFT JOIN categories c ON ts.categoryId = c.id
-      LEFT JOIN wallets w ON c.ledgerId = w.ledgerId
+      LEFT JOIN TransactionEntry te ON te.transactionSummaryId = ts.id AND te.entryType='credit'
+      LEFT JOIN wallets w ON te.ledgerId = w.ledgerId
       WHERE ts.type = 'income' AND ts.deletedAt IS NULL
     `;
 

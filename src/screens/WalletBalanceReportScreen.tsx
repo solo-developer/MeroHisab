@@ -57,12 +57,7 @@ const WalletBalanceReportScreen: React.FC = () => {
         You haven't added any wallets yet.
       </Text>
 
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => navigation.navigate('ManageWallets')}
-      >
-        <Text style={styles.addButtonText}>Manage Wallets</Text>
-      </TouchableOpacity>
+      
     </View>
   );
 

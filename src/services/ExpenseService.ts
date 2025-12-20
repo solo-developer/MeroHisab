@@ -48,7 +48,8 @@ export class ExpenseService {
           type: "expense",
           note: request.note || "",
           date: request.date,
-          amount: request.amount, // store net amount
+          amount: request.amount,
+          categoryId : request.categoryId // store net amount
         } as TransactionSummaryCreate,
         (summaryId: number) => {
 
