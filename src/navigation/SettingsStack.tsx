@@ -4,11 +4,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SettingsScreen from '../screens/SettingsScreen';
 import ManageCategoriesScreen from '../screens/ManageCategoriesScreen';
 import ManageWalletsScreen from '../screens/ManageWalletsScreen';
+import ManageMetaCategoriesScreen from '../screens/ManageMetaCategoriesScreen';
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
   ManageCategories: undefined;
   ManageWallets: undefined;
+  ManageMetaCategories: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -30,6 +32,11 @@ const SettingsStack: React.FC = () => {
         name="ManageWallets"
         component={ManageWalletsScreen}
         options={{ title: 'Manage Wallets' }}
+      />
+      <Stack.Screen
+        name="ManageMetaCategories"
+        component={ManageMetaCategoriesScreen}
+        options={{ title: 'Manage Meta Categories' }}
       />
     </Stack.Navigator>
   );

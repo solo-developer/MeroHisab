@@ -9,23 +9,26 @@ const Tab = createMaterialTopTabNavigator();
 // --- Manage Tab ---
 const ManageScreen = ({ navigation }) => {
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageCategories')}>
-        <Icon name="category" size={24} color="#333" />
-        <Text style={styles.itemText}>Manage Categories</Text>
-      </TouchableOpacity>
+  <View style={styles.container}>
+    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageCategories')}>
+      <Icon name="category" size={24} color="#333" />
+      <Text style={styles.itemText}>Manage Categories</Text>
+    </TouchableOpacity>
 
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageWallets')}>
-        <Icon name="wallet" size={24} color="#333" />
-        <Text style={styles.itemText}>Manage Wallets</Text>
-      </TouchableOpacity>
+    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageWallets')}>
+      <Icon name="wallet" size={24} color="#333" />
+      <Text style={styles.itemText}>Manage Wallets</Text>
+    </TouchableOpacity>
 
-      <TouchableOpacity style={styles.item}>
-        <Icon name="account-balance" size={24} color="#333" />
-        <Text style={styles.itemText}>Manage Accounts</Text>
-      </TouchableOpacity>
-    </View>
-  );
+
+    {/* --- New Meta Categories Option --- */}
+    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageMetaCategories')}>
+      <Icon name="folder" size={24} color="#333" />
+      <Text style={styles.itemText}>Manage Meta Categories</Text>
+    </TouchableOpacity>
+  </View>
+);
+
 };
 
 // --- General Tab ---

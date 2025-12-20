@@ -121,6 +121,24 @@ export const initDatabase = (): Promise<void> => {
             ('Discount Given', 'expense', 1, 'DISCOUNT_GIVEN'),
             ('Discount Received', 'income', 1, 'DISCOUNT_RECEIVED');
         `);
+
+         tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS MetaCategory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+          );
+        `);
+
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS MetaCategoryItems (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            metaCategoryId INTEGER NOT NULL,
+            ledgerId INTEGER NOT NULL,
+            FOREIGN KEY (metaCategoryId) REFERENCES MetaCategory(id) ON DELETE CASCADE,
+            FOREIGN KEY (ledgerId) REFERENCES Ledger(id) ON DELETE CASCADE
+          );
+        `);
       },
       error => {
         console.error('DB init error:', error);
