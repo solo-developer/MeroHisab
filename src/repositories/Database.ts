@@ -20,126 +20,117 @@ export const getDatabase = (): SQLite.Database => {
 /**
  * Initialize database schema
  */
-export const initDatabase = (): void => {
+export const initDatabase = (): Promise<void> => {
   const database = getDatabase();
 
-  database.transaction(tx => {
-    /* =====================================================
-     * LEDGER (core accounting table)
-     * ===================================================== */
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS Ledger (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        type TEXT CHECK(type IN ('asset','expense','income','liability','equity')) NOT NULL,
-        isSystem INTEGER DEFAULT 0,
-        code TEXT UNIQUE,                   
-        deletedAt DATETIME DEFAULT NULL,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-   
+  return new Promise((resolve, reject) => {
+    database.transaction(
+      tx => {
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS Ledger (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            type TEXT CHECK(type IN ('asset','expense','income','liability','equity')) NOT NULL,
+            isSystem INTEGER DEFAULT 0,
+            code TEXT UNIQUE,
+            deletedAt DATETIME DEFAULT NULL,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+          );
+        `);
 
-    /* =====================================================
-     * LEDGER DAILY BALANCE (for reporting & starting balance)
-     * ===================================================== */
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS LedgerDailyBalance (
-        ledgerId INTEGER NOT NULL,
-        date TEXT NOT NULL,
-        openingBalance REAL NOT NULL DEFAULT 0,
-        closingBalance REAL NOT NULL DEFAULT 0,
-        PRIMARY KEY (ledgerId, date),
-        FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
-      );
-    `);
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS LedgerDailyBalance (
+            ledgerId INTEGER NOT NULL,
+            date TEXT NOT NULL,
+            openingBalance REAL NOT NULL DEFAULT 0,
+            closingBalance REAL NOT NULL DEFAULT 0,
+            PRIMARY KEY (ledgerId, date),
+            FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
+          );
+        `);
 
-    /* =====================================================
-     * CATEGORIES (user-facing, each linked to a ledger)
-     * ===================================================== */
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS categories (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        type TEXT NOT NULL,
-        icon TEXT,
-        color TEXT,
-        ledgerId INTEGER,
-        deletedAt DATETIME DEFAULT NULL,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
-      );
-    `);
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            type TEXT NOT NULL,
+            icon TEXT,
+            color TEXT,
+            ledgerId INTEGER,
+            deletedAt DATETIME DEFAULT NULL,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
+          );
+        `);
 
-    /* =====================================================
-     * WALLETS (user-facing, each linked to a ledger)
-     * ===================================================== */
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS wallets (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        balance REAL DEFAULT 0,
-        ledgerId INTEGER,
-        deletedAt DATETIME DEFAULT NULL,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
-      );
-    `);
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS wallets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            balance REAL DEFAULT 0,
+            ledgerId INTEGER,
+            deletedAt DATETIME DEFAULT NULL,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
+          );
+        `);
 
-    /* =====================================================
-     * TRANSACTION SUMMARY (one per transaction, holds date/type/note)
-     * ===================================================== */
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS TransactionSummary (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        type TEXT CHECK(type IN ('expense','income','transfer','adjustment')) NOT NULL,
-        categoryId INTEGER DEFAULT NULL, 
-        amount REAL NOT NULL,
-        date DATETIME NOT NULL,
-        note TEXT,
-        deletedAt DATETIME DEFAULT NULL,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(categoryId) REFERENCES categories(id)
-      );
-    `);
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS TransactionSummary (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT CHECK(type IN ('expense','income','transfer','adjustment')) NOT NULL,
+            categoryId INTEGER DEFAULT NULL,
+            amount REAL NOT NULL,
+            date DATETIME NOT NULL,
+            note TEXT,
+            deletedAt DATETIME DEFAULT NULL,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(categoryId) REFERENCES categories(id)
+          );
+        `);
 
-    /* =====================================================
-     * TRANSACTION ENTRY (double-entry ledger)
-     * ===================================================== */
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS TransactionEntry (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        transactionSummaryId INTEGER NOT NULL,
-        ledgerId INTEGER NOT NULL,
-        entryType TEXT CHECK(entryType IN ('debit','credit')) NOT NULL,
-        amount REAL NOT NULL,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (transactionSummaryId) REFERENCES TransactionSummary(id),
-        FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
-      );
-    `);
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS TransactionEntry (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            transactionSummaryId INTEGER NOT NULL,
+            ledgerId INTEGER NOT NULL,
+            entryType TEXT CHECK(entryType IN ('debit','credit')) NOT NULL,
+            amount REAL NOT NULL,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (transactionSummaryId) REFERENCES TransactionSummary(id),
+            FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
+          );
+        `);
 
-    /* =====================================================
-     * TRANSFER (helper table)
-     * ===================================================== */
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS Transfer (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        transactionSummaryId INTEGER NOT NULL,
-        fromLedgerId INTEGER,
-        toLedgerId INTEGER,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (transactionSummaryId) REFERENCES TransactionSummary(id),
-        FOREIGN KEY (fromLedgerId) REFERENCES Ledger(id),
-        FOREIGN KEY (toLedgerId) REFERENCES Ledger(id)
-      );
-    `);
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS Transfer (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            transactionSummaryId INTEGER NOT NULL,
+            fromLedgerId INTEGER,
+            toLedgerId INTEGER,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (transactionSummaryId) REFERENCES TransactionSummary(id),
+            FOREIGN KEY (fromLedgerId) REFERENCES Ledger(id),
+            FOREIGN KEY (toLedgerId) REFERENCES Ledger(id)
+          );
+        `);
 
-     tx.executeSql(`
-      INSERT OR IGNORE INTO Ledger (name, type, isSystem, code)
-      VALUES 
-        ('Discount Given', 'expense', 1, 'DISCOUNT_GIVEN'),
-        ('Discount Received', 'income', 1, 'DISCOUNT_RECEIVED');
-    `);
+        tx.executeSql(`
+          INSERT OR IGNORE INTO Ledger (name, type, isSystem, code)
+          VALUES 
+            ('Discount Given', 'expense', 1, 'DISCOUNT_GIVEN'),
+            ('Discount Received', 'income', 1, 'DISCOUNT_RECEIVED');
+        `);
+      },
+      error => {
+        console.error('DB init error:', error);
+        reject(error);
+      },
+      () => {
+        console.log('DB initialized');
+        resolve();
+      },
+    );
   });
 };
+
