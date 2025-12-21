@@ -5,6 +5,12 @@ export interface MetaCategory {
   id: number;
   name: string;
 }
+export interface MetaCategoryLedgerRow {
+  date: string;
+  ledgerName: string;
+  totalIncome: number;
+  totalExpense: number;
+}
 
 export default class MetaCategoryRepository {
 
@@ -115,6 +121,77 @@ export default class MetaCategoryRepository {
               ledgers.push(res.rows.item(i));
             }
             resolve(ledgers);
+          },
+          (_, err) => reject(err)
+        );
+      });
+    });
+  }
+
+  static async getReportByMetaCategory(
+    metaCategoryId: number,
+    fromDate?: string,
+    toDate?: string
+  ): Promise<MetaCategoryLedgerRow[]> {
+    const db = getDatabase();
+debugger;
+    return new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        // Fetch all ledger IDs under this meta category
+        tx.executeSql(
+          `SELECT ledgerId FROM MetaCategoryItems WHERE metaCategoryId = ?`,
+          [metaCategoryId],
+          (_, res) => {
+            const ledgerIds: number[] = [];
+            for (let i = 0; i < res.rows.length; i++) {
+              ledgerIds.push(res.rows.item(i).ledgerId);
+            }
+
+            if (ledgerIds.length === 0) {
+              resolve([]);
+              return;
+            }
+
+            // Flatten all transactions for these ledgers, grouped by date + ledger
+            const placeholders = ledgerIds.map(() => '?').join(',');
+            let query = `
+              SELECT ts.date as date,
+                     l.name as ledgerName,
+                     SUM(CASE WHEN ts.type='income' THEN ts.amount ELSE 0 END) AS totalIncome,
+                     SUM(CASE WHEN ts.type='expense' THEN ts.amount ELSE 0 END) AS totalExpense
+              FROM TransactionSummary ts
+              JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
+              JOIN Ledger l ON l.id = te.ledgerId
+              WHERE te.ledgerId IN (${placeholders})
+            `;
+            const params: any[] = [...ledgerIds];
+
+            if (fromDate) {
+              query += ` AND date(ts.date) >= ?`;
+              params.push(fromDate);
+            }
+            if (toDate) {
+              query += ` AND date(ts.date) <= ?`;
+              params.push(toDate);
+            }
+
+            query += `
+              GROUP BY ts.date, te.ledgerId
+              ORDER BY ts.date ASC
+            `;
+
+            tx.executeSql(
+              query,
+              params,
+              (_, r) => {
+                const rows: MetaCategoryLedgerRow[] = [];
+                for (let i = 0; i < r.rows.length; i++) {
+                  rows.push(r.rows.item(i));
+                }
+                resolve(rows);
+              },
+              (_, err) => reject(err)
+            );
           },
           (_, err) => reject(err)
         );

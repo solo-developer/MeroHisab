@@ -43,6 +43,12 @@ const reportOptions = [
     icon: 'wallet-outline',
     color: '#009688',
   },
+  {
+    key: 'meta-category',
+    title: 'By Meta Category',
+    icon: 'folder-outline',
+    color: '#795548',
+  },
 ];
 
 const numColumns = 3;
@@ -69,7 +75,9 @@ const ReportsScreen: React.FC = () => {
       case 'ledger':
         navigation.navigate('ReportByLedger');
         break;
-
+      case 'meta-category':
+        navigation.navigate('ReportsByMetaCategory');
+        break;
       default:
         console.log('Pressed:', key);
     }
