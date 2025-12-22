@@ -22,8 +22,13 @@ const toSQLDate = (date?: Date) =>
 const ExpenseReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
-  const [fromDate, setFromDate] = useState<Date | undefined>();
-  const [toDate, setToDate] = useState<Date | undefined>();
+    // Default date range: last 7 days
+  const today = new Date();
+  const lastWeek = new Date();
+  lastWeek.setDate(today.getDate() - 7);
+
+  const [fromDate, setFromDate] = useState<Date>(lastWeek);
+  const [toDate, setToDate] = useState<Date>(today);
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
