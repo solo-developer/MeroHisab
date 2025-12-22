@@ -40,6 +40,48 @@ export default class CategoryRepository {
     });
   }
 
+    /**
+   * 🔹 Get single category by id (USED FOR ACCOUNTING)
+   * Must be transaction-aware
+   */
+  static getById(
+    tx: any,
+    id: number,
+    onSuccess: (category: Category | null) => void,
+    onError?: (err: any) => void
+  ) {
+    tx.executeSql(
+      `
+      SELECT id, name, type, icon, color, ledgerId
+      FROM categories
+      WHERE id = ? AND deletedAt IS NULL
+      LIMIT 1;
+      `,
+      [id],
+      (_: any, res: any) => {
+        if (res.rows.length === 0) {
+          onSuccess(null);
+          return;
+        }
+
+        const r = res.rows.item(0);
+        onSuccess(
+          new Category(
+            r.name,
+            r.type,
+            r.icon,
+            r.color,
+            r.id,
+            r.ledgerId
+          )
+        );
+      },
+      (_: any, err: any) => {
+        if (onError) onError(err);
+      }
+    );
+  }
+
   static add(category: Category): Promise<void> {
     const db = getDatabase();
 
