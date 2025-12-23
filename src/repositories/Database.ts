@@ -135,8 +135,19 @@ export const initDatabase = (): Promise<void> => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             metaCategoryId INTEGER NOT NULL,
             ledgerId INTEGER NOT NULL,
-            FOREIGN KEY (metaCategoryId) REFERENCES MetaCategory(id) ON DELETE CASCADE,
             FOREIGN KEY (ledgerId) REFERENCES Ledger(id) ON DELETE CASCADE
+          );
+        `);
+
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS Reminders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            message TEXT NOT NULL,
+            date TEXT NOT NULL,
+            isRecurring INTEGER DEFAULT 0,
+            frequency TEXT,
+            notificationId TEXT,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
           );
         `);
       },

@@ -5,12 +5,16 @@ import SettingsScreen from '../screens/SettingsScreen';
 import ManageCategoriesScreen from '../screens/ManageCategoriesScreen';
 import ManageWalletsScreen from '../screens/ManageWalletsScreen';
 import ManageMetaCategoriesScreen from '../screens/ManageMetaCategoriesScreen';
+import ReminderScreen from '../screens/ReminderScreen';
+import ReminderListScreen from '../screens/ReminderListScreen';
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
   ManageCategories: undefined;
   ManageWallets: undefined;
   ManageMetaCategories: undefined;
+  Reminder: undefined;
+  ReminderList: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -37,6 +41,16 @@ const SettingsStack: React.FC = () => {
         name="ManageMetaCategories"
         component={ManageMetaCategoriesScreen}
         options={{ title: 'Manage Meta Categories' }}
+      />
+      <Stack.Screen
+        name="Reminder"
+        component={ReminderScreen}
+        options={{ title: 'Set Reminder' }}
+      />
+      <Stack.Screen
+        name="ReminderList"
+        component={ReminderListScreen}
+        options={{ title: 'Reminders' }}
       />
     </Stack.Navigator>
   );

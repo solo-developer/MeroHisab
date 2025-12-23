@@ -44,6 +44,11 @@ const GeneralScreen = ({ navigation }) => {
         <Icon name="backup" size={24} color="#333" />
         <Text style={styles.itemText}>Backup & Sync</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ReminderList')}>
+        <Icon name="alarm" size={24} color="#333" />
+        <Text style={styles.itemText}>Reminders</Text>
+      </TouchableOpacity>
     </View>
   );
 };
