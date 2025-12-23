@@ -5,49 +5,94 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
+  ScrollView,
   Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 
-const reportOptions = [
+type ReportItem = {
+  key: string;
+  title: string;
+  icon: string;
+  color: string;
+};
+
+type ReportSection = {
+  title: string;
+  data: ReportItem[];
+};
+
+const reportSections: ReportSection[] = [
   {
-    key: 'transactions',
+    title: 'Financial Overview',
+    data: [
+      {
+        key: 'wallet-balance',
+        title: 'Wallet Balance',
+        icon: 'wallet-outline',
+        color: '#009688',
+      },
+      { key: 'income', title: 'Income', icon: 'cash-multiple', color: '#4CAF50' },
+      {
+        key: 'expense',
+        title: 'Expense',
+        icon: 'credit-card-minus',
+        color: '#F44336',
+      },
+    ],
+  },
+  {
     title: 'Transactions',
-    icon: 'file-document-outline',
-    color: '#4F8EF7',
+    data: [
+      {
+        key: 'transactions',
+        title: 'All Transactions',
+        icon: 'file-document-outline',
+        color: '#4F8EF7',
+      },
+      {
+        key: 'transfer',
+        title: 'Transfers',
+        icon: 'swap-horizontal',
+        color: '#9C27B0',
+      },
+      {
+        key: 'ledger',
+        title: 'By Ledger',
+        icon: 'book-open-outline',
+        color: '#FFB74D',
+      },
+      {
+        key: 'meta-category',
+        title: 'By Category',
+        icon: 'folder-outline',
+        color: '#795548',
+      },
+    ],
   },
   {
-    key: 'ledger',
-    title: 'By Ledger',
-    icon: 'book-open-outline',
-    color: '#FFB74D',
-  },
-  { key: 'income', title: 'Income', icon: 'cash-multiple', color: '#4CAF50' },
-  {
-    key: 'expense',
-    title: 'Expense',
-    icon: 'credit-card-minus',
-    color: '#F44336',
-  },
-  {
-    key: 'transfer',
-    title: 'Transfer',
-    icon: 'swap-horizontal',
-    color: '#9C27B0',
-  },
-  {
-    key: 'wallet-balance',
-    title: 'Wallet Balance',
-    icon: 'wallet-outline',
-    color: '#009688',
-  },
-  {
-    key: 'meta-category',
-    title: 'By Meta Category',
-    icon: 'folder-outline',
-    color: '#795548',
+    title: 'Party Management',
+    data: [
+      {
+        key: 'party',
+        title: 'Party Balances',
+        icon: 'account-group',
+        color: '#3F51B5',
+      },
+      {
+        key: 'payment',
+        title: 'Payments',
+        icon: 'cash-minus',
+        color: '#E91E63',
+      },
+      {
+        key: 'receipt',
+        title: 'Receipts',
+        icon: 'cash-plus',
+        color: '#00BCD4',
+      },
+    ],
   },
 ];
 
@@ -78,13 +123,23 @@ const ReportsScreen: React.FC = () => {
       case 'meta-category':
         navigation.navigate('ReportsByMetaCategory');
         break;
+      case 'party':
+        navigation.navigate('PartyReport');
+        break;
+      case 'payment':
+        navigation.navigate('PaymentReport');
+        break;
+      case 'receipt':
+        navigation.navigate('ReceiptReport');
+        break;
       default:
         console.log('Pressed:', key);
     }
   };
 
-  const renderItem = ({ item }: { item: (typeof reportOptions)[0] }) => (
+  const renderItem = (item: ReportItem) => (
     <TouchableOpacity
+      key={item.key}
       style={styles.card}
       onPress={() => handlePress(item.key)}
       activeOpacity={0.7}
@@ -100,32 +155,32 @@ const ReportsScreen: React.FC = () => {
     </TouchableOpacity>
   );
 
+  const renderSection = (section: ReportSection) => (
+    <View key={section.title} style={styles.section}>
+      <Text style={styles.sectionTitle}>{section.title}</Text>
+      <View style={styles.sectionContent}>
+        {section.data.map(item => renderItem(item))}
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Reports</Text>
       </View>
-      <FlatList
-        data={reportOptions}
-        renderItem={renderItem}
-        keyExtractor={item => item.key}
-        numColumns={numColumns}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={{ paddingBottom: 24, marginTop: 20 }}
-      />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {reportSections.map(section => renderSection(section))}
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  row: { justifyContent: 'space-between', marginBottom: 16 },
   header: {
     paddingVertical: 16,
     paddingHorizontal: 16,
@@ -134,14 +189,36 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ddd',
   },
   headerTitle: { fontSize: 22, fontWeight: '700' },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 24,
+  },
+  section: {
+    marginBottom: 28,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+    marginLeft: 4,
+  },
+  sectionContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    gap: 16,
+  },
   card: {
     width: CARD_SIZE,
     alignItems: 'center',
+    marginBottom: 8,
   },
   iconContainer: {
     width: 60,
     height: 60,
-    borderRadius: 30, // circle
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
@@ -151,7 +228,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  cardTitle: { fontSize: 14, textAlign: 'center', fontWeight: '500' },
+  cardTitle: { fontSize: 13, textAlign: 'center', fontWeight: '500' },
 });
 
 export default ReportsScreen;

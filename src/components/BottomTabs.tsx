@@ -18,7 +18,7 @@ type Props = {
 };
 
 type FabItemProps = {
-  label: 'Income' | 'Expense' | 'Transfer';
+  label: 'Income' | 'Expense' | 'Transfer' | 'Receipt' | 'Payment';
   icon: string;
   onPress: () => void;
 };
@@ -41,7 +41,6 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
 
   const { width } = Dimensions.get('window');
   const fabBottom = 32;
-  const fabRadius = 80;
 
   const fabItems: FabItemProps[] = [
     {
@@ -54,21 +53,27 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
       icon: 'minus-circle-outline',
       onPress: () => console.log('Expense'),
     },
-    { label: 'Transfer', icon: 'swap-horizontal-bold', onPress: () => {} }, // handled separately
+    { label: 'Transfer', icon: 'swap-horizontal-bold', onPress: () => { } },
   ];
 
-  const totalItems = fabItems.length;
-  const startAngle = -90 - 60;
-  const endAngle = -90 + 60;
+  const fabItemsExtended: FabItemProps[] = [
+    ...fabItems,
+    { label: 'Receipt', icon: 'cash-plus', onPress: () => { } },
+    { label: 'Payment', icon: 'cash-minus', onPress: () => { } },
+  ];
 
   const onFabItemPress = (item: FabItemProps) => {
     setIsFabOpen(false);
     if (item.label === 'Transfer') {
-      setTimeout(() => setIsTransferModalVisible(true), 50); // ensures overlay unmounts first
+      setTimeout(() => setIsTransferModalVisible(true), 50);
     } else if (item.label === 'Income') {
       navigationRef.navigate('AddIncome');
     } else if (item.label === 'Expense') {
       navigationRef.navigate('AddExpense');
+    } else if (item.label === 'Receipt') {
+      navigationRef.navigate('AddPartyTransaction', { type: 'receipt' });
+    } else if (item.label === 'Payment') {
+      navigationRef.navigate('AddPartyTransaction', { type: 'payment' });
     } else {
       item.onPress();
     }
@@ -102,27 +107,40 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
           />
 
           {/* FAB Items */}
-          {fabItems.map((item, index) => {
-            const angle =
-              startAngle + (index * (endAngle - startAngle)) / (totalItems - 1);
-            const rad = (angle * Math.PI) / 180;
-            const x = fabRadius * Math.cos(rad);
-            const y = fabRadius * Math.sin(rad);
+          {fabItemsExtended.map((item, index) => {
+            const totalExtended = fabItemsExtended.length;
+            const buttonWidth = 56; // Width of each circular button
+            const spacing = 16; // Space between buttons
+            const totalWidth = (buttonWidth * totalExtended) + (spacing * (totalExtended - 1));
+            const startX = (width - totalWidth) / 2; // Center the entire row
+            const xPosition = startX + (index * (buttonWidth + spacing));
+
+            // Create a subtle arc - middle buttons are higher
+            // Calculate normalized position (0 to 1, where 0.5 is center)
+            const normalizedPosition = index / (totalExtended - 1);
+            // Use parabola formula: height is maximum at center (0.5)
+            const arcHeight = 30 * (1 - Math.pow((normalizedPosition - 0.5) * 2, 2));
 
             return (
-              <FabItem
+              <View
                 key={item.label}
-                label={item.label}
-                icon={item.icon}
                 style={{
                   position: 'absolute',
-                  bottom: fabBottom + 32,
-                  left: width / 2 - 32 + x,
-                  transform: [{ translateY: y }],
+                  bottom: fabBottom + 32 + arcHeight,
+                  left: xPosition,
                   zIndex: 100,
+                  alignItems: 'center',
                 }}
-                onPress={() => onFabItemPress(item)}
-              />
+              >
+                <TouchableOpacity
+                  style={styles.fabItemCircle}
+                  onPress={() => onFabItemPress(item)}
+                  activeOpacity={0.8}
+                >
+                  <MaterialCommunityIcons name={item.icon} size={24} color="#fff" />
+                </TouchableOpacity>
+                <Text style={styles.fabItemLabel}>{item.label}</Text>
+              </View>
             );
           })}
         </View>
@@ -220,6 +238,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 24,
     elevation: 6,
+  },
+  fabItemCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#0a84ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+  },
+  fabItemLabel: {
+    color: '#000',
+    fontSize: 11,
+    marginTop: 4,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   fabLabel: { color: '#fff', fontSize: 13, marginLeft: 6, fontWeight: '500' },
 });

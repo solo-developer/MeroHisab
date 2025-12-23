@@ -78,7 +78,7 @@ export const initDatabase = (): Promise<void> => {
         tx.executeSql(`
           CREATE TABLE IF NOT EXISTS TransactionSummary (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            type TEXT CHECK(type IN ('expense','income','transfer','adjustment')) NOT NULL,
+            type TEXT CHECK(type IN ('expense','income','transfer','adjustment','payment','receipt')) NOT NULL,
             categoryId INTEGER DEFAULT NULL,
             amount REAL NOT NULL,
             date DATETIME NOT NULL,
@@ -148,6 +148,28 @@ export const initDatabase = (): Promise<void> => {
             frequency TEXT,
             notificationId TEXT,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+          );
+        `);
+
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS Parties (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            type TEXT CHECK(type IN ('debtor','creditor')) NOT NULL,
+            initialBalance REAL DEFAULT 0,
+            ledgerId INTEGER,
+            deletedAt DATETIME DEFAULT NULL,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
+          );
+        `);
+
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS PartyBalance (
+            partyId INTEGER PRIMARY KEY,
+            currentBalance REAL DEFAULT 0,
+            lastUpdated DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (partyId) REFERENCES Parties(id) ON DELETE CASCADE
           );
         `);
       },

@@ -26,6 +26,11 @@ const ManageScreen = ({ navigation }) => {
       <Icon name="folder" size={24} color="#333" />
       <Text style={styles.itemText}>Manage Meta Categories</Text>
     </TouchableOpacity>
+
+    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageParties')}>
+      <Icon name="people" size={24} color="#333" />
+      <Text style={styles.itemText}>Manage Parties</Text>
+    </TouchableOpacity>
   </View>
 );
 

@@ -8,6 +8,7 @@ import { navigationRef, SwipeTabRoutes } from './navigationRef';
 import RootStack from './RootStack';
 import { AddIncomeScreen } from '../screens/AddIncomeScreen';
 import { AddExpenseScreen } from '../screens/AddExpenseScreen';
+import { AddPartyTransactionScreen } from '../screens/AddPartyTransactionScreen';
 import WalletBalanceReportScreen from '../screens/WalletBalanceReportScreen';
 import IncomeReportScreen from '../screens/IncomeReportScreen';
 import ExpenseReportScreen from '../screens/ExpenseReportScreen';
@@ -15,6 +16,9 @@ import TransferReportScreen from '../screens/TransferReportScreen';
 import ManageWalletsScreen from '../screens/ManageWalletsScreen';
 import LedgerReportScreen from '../screens/LedgerReportScreen';
 import ReportByMetaCategoryScreen from '../screens/ReportByMetaCategoryScreen';
+import PartyReportScreen from '../screens/PartyReportScreen';
+import PaymentReportScreen from '../screens/PaymentReportScreen';
+import ReceiptReportScreen from '../screens/ReceiptReportScreen';
 
 const MainContainer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SwipeTabRoutes>('Dashboard');
@@ -33,6 +37,7 @@ const MainContainer: React.FC = () => {
         <RootStack.Screen name="MainTabs" component={SwipeTabs} />
         <RootStack.Screen name="AddIncome" component={AddIncomeScreen} />
         <RootStack.Screen name="AddExpense" component={AddExpenseScreen} />
+        <RootStack.Screen name="AddPartyTransaction" component={AddPartyTransactionScreen} />
         <RootStack.Screen
           name="WalletBalanceReport"
           component={WalletBalanceReportScreen}
@@ -53,6 +58,18 @@ const MainContainer: React.FC = () => {
         <RootStack.Screen
           name="ReportsByMetaCategory"
           component={ReportByMetaCategoryScreen}
+        />
+        <RootStack.Screen
+          name="PartyReport"
+          component={PartyReportScreen}
+        />
+        <RootStack.Screen
+          name="PaymentReport"
+          component={PaymentReportScreen}
+        />
+        <RootStack.Screen
+          name="ReceiptReport"
+          component={ReceiptReportScreen}
         />
       </RootStack.Navigator>
 
