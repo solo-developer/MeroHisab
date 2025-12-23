@@ -142,7 +142,7 @@ const ManagePartiesScreen = ({ navigation }: any) => {
               <Text style={styles.inputLabel}>Party Name *</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter party name (e.g., John Doe, ABC Suppliers)"
+                placeholder="Enter party name (e.g. ABC Suppliers)"
                 value={name}
                 onChangeText={setName}
                 placeholderTextColor="#999"
