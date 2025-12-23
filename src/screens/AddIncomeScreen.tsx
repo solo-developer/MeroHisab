@@ -16,6 +16,7 @@ import { LedgerRepository } from '../repositories/LedgerRepository';
 import CategoryRepository from '../repositories/CategoryRepository';
 import { AddIncomeRequest, IncomeService } from '../services/IncomeService';
 import WalletRepository from '../repositories/WalletRepository';
+import { AppColors, GlobalStyles, PickerStyles } from '../constants/Styles';
 
 export const AddIncomeScreen = ({ navigation }: any) => {
   const [grossAmount, setGrossAmount] = useState('');
@@ -69,41 +70,41 @@ export const AddIncomeScreen = ({ navigation }: any) => {
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={GlobalStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add Income</Text>
+        <Text style={GlobalStyles.headerTitle}>Add Income</Text>
         <View style={{ width: 22 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.label}>Gross Amount</Text>
+      <ScrollView contentContainerStyle={GlobalStyles.container}>
+        <Text style={GlobalStyles.label}>Gross Amount</Text>
         <TextInput
-          style={styles.input}
+          style={GlobalStyles.input}
           keyboardType="numeric"
           value={grossAmount}
           onChangeText={setGrossAmount}
           placeholder="Enter gross amount"
         />
 
-        <Text style={styles.label}>Discount</Text>
+        <Text style={GlobalStyles.label}>Discount</Text>
         <TextInput
-          style={styles.input}
+          style={GlobalStyles.input}
           keyboardType="numeric"
           value={discount}
           onChangeText={setDiscount}
           placeholder="Enter discount"
         />
 
-        <Text style={styles.label}>Net Amount</Text>
+        <Text style={GlobalStyles.label}>Net Amount</Text>
         <TextInput
-          style={[styles.input, { backgroundColor: '#f0f0f0' }]}
+          style={[GlobalStyles.input, { backgroundColor: '#f0f0f0' }]}
           value={netAmountValue}
           editable={false}
         />
 
-        <Text style={styles.label}>Wallet</Text>
+        <Text style={GlobalStyles.label}>Wallet</Text>
         <RNPickerSelect
           placeholder={{ label: 'Select Wallet', value: undefined }}
           items={wallets.map((w) => ({
@@ -112,10 +113,10 @@ export const AddIncomeScreen = ({ navigation }: any) => {
           }))}
           onValueChange={setSelectedWallet}
           value={selectedWallet}
-          style={pickerStyles}
+          style={PickerStyles}
         />
 
-        <Text style={styles.label}>Category</Text>
+        <Text style={GlobalStyles.label}>Category</Text>
         <RNPickerSelect
           placeholder={{ label: 'Select Category', value: undefined }}
           items={categories.map((c) => ({
@@ -124,61 +125,29 @@ export const AddIncomeScreen = ({ navigation }: any) => {
           }))}
           onValueChange={setSelectedCategory}
           value={selectedCategory}
-          style={pickerStyles}
+          style={PickerStyles}
         />
 
-        <Text style={styles.label}>Note</Text>
+        <Text style={GlobalStyles.label}>Note</Text>
         <TextInput
-          style={[styles.input, { height: 60 }]}
+          style={[GlobalStyles.input, { height: 60 }]}
           value={note}
           onChangeText={setNote}
           multiline
           placeholder="Optional note"
         />
 
-        <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-          <Text style={styles.saveText}>Save Income</Text>
+        <TouchableOpacity style={localStyles.saveBtn} onPress={handleSave}>
+          <Text style={localStyles.saveText}>Save Income</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  header: {
-    height: 50,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    elevation: 2,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  container: {
-    padding: 16,
-    flexGrow: 1,
-  },
-  label: {
-    fontWeight: '600',
-    marginTop: 12,
-    fontSize: 13,
-    color: '#333',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 10,
-    marginTop: 4,
-    fontSize: 14,
-  },
+const localStyles = StyleSheet.create({
   saveBtn: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: AppColors.success,
     padding: 14,
     marginTop: 20,
     borderRadius: 8,
@@ -190,31 +159,4 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   saveText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
-});
-
-const pickerStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    color: 'black',
-    paddingRight: 30,
-    marginTop: 4,
-    backgroundColor: '#fff',
-  },
-  inputAndroid: {
-    fontSize: 14,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    color: 'black',
-    paddingRight: 30,
-    marginTop: 4,
-    backgroundColor: '#fff',
-  },
 });

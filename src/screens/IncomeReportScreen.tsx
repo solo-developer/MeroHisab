@@ -15,9 +15,8 @@ import {
   IncomeReportRepository,
   IncomeReportRow,
 } from '../repositories/IncomeReportRepository';
-
-const toSQLDate = (date?: Date) =>
-  date ? date.toISOString().split('T')[0] : undefined;
+import { toSQLDate } from '../helpers/DateHelper';
+import { AppColors, GlobalStyles } from '../constants/Styles';
 
 const IncomeReportScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -38,8 +37,8 @@ const IncomeReportScreen: React.FC = () => {
 
   const loadReport = () => {
     IncomeReportRepository.getIncomeReport(
-      toSQLDate(fromDate),
-      toSQLDate(toDate),
+      toSQLDate(fromDate) || '',
+      toSQLDate(toDate) || '',
       rows => {
         setIncomeList(rows);
         const sum = rows.reduce((acc, r) => acc + r.amount, 0);
@@ -53,18 +52,18 @@ const IncomeReportScreen: React.FC = () => {
   }, []);
 
   const renderItem = ({ item }: { item: IncomeReportRow }) => (
-    <View style={styles.row}>
+    <View style={GlobalStyles.listItem}>
       <View style={styles.left}>
-        <Text style={styles.date}>
+        <Text style={GlobalStyles.subText}>
           {new Date(item.date).toLocaleDateString()}
         </Text>
-        <Text style={styles.meta}>
+        <Text style={[GlobalStyles.text, { fontWeight: '500' }]}>
           {item.categoryName || 'N/A'} • {item.walletName || 'N/A'}
         </Text>
-        {item.note ? <Text style={styles.note}>{item.note}</Text> : null}
+        {item.note ? <Text style={GlobalStyles.subText}>{item.note}</Text> : null}
       </View>
 
-      <Text style={styles.amount}>
+      <Text style={[styles.amount, { color: AppColors.success }]}>
         {item.amount.toFixed(2)}
       </Text>
     </View>
@@ -73,12 +72,12 @@ const IncomeReportScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={GlobalStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Income Report</Text>
+        <Text style={GlobalStyles.headerTitle}>Income Report</Text>
 
         <TouchableOpacity>
           <Ionicons name="download-outline" size={22} color="#333" />
@@ -126,7 +125,7 @@ const IncomeReportScreen: React.FC = () => {
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
         contentContainerStyle={{ padding: 12 }}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No income records found</Text>
+          <Text style={GlobalStyles.listEmptyText}>No income records found</Text>
         }
       />
 
@@ -159,18 +158,7 @@ const IncomeReportScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-
-  header: {
-    height: 50,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    elevation: 2,
-  },
-  headerTitle: { fontSize: 16, fontWeight: '700' },
+  container: { flex: 1, backgroundColor: AppColors.backgroundLight },
 
   filters: {
     flexDirection: 'row',
@@ -193,7 +181,7 @@ const styles = StyleSheet.create({
   dateText: { fontSize: 13, color: '#333' },
 
   applyBtn: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: AppColors.success,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 6,
@@ -214,28 +202,12 @@ const styles = StyleSheet.create({
     color: '#2E7D32',
   },
 
-  row: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 6,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   left: { flex: 1, paddingRight: 8 },
-  date: { fontSize: 12, color: '#666' },
-  meta: { fontSize: 13, fontWeight: '500' },
-  note: { fontSize: 12, color: '#888' },
 
   amount: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#4CAF50',
-  },
-
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 40,
-    color: '#777',
+    color: AppColors.success,
   },
 });
 

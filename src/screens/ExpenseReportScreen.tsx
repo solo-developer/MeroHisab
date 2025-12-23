@@ -15,9 +15,8 @@ import {
   ExpenseReportRepository,
   ExpenseReportRow,
 } from '../repositories/ExpenseReportRepository';
-
-const toSQLDate = (date?: Date) =>
-  date ? date.toISOString().split('T')[0] : undefined;
+import { toSQLDate } from '../helpers/DateHelper';
+import { AppColors, GlobalStyles } from '../constants/Styles';
 
 const ExpenseReportScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -37,8 +36,8 @@ const ExpenseReportScreen: React.FC = () => {
 
   const loadReport = () => {
     ExpenseReportRepository.getExpenseReport(
-      toSQLDate(fromDate),
-      toSQLDate(toDate),
+      toSQLDate(fromDate) || '',
+      toSQLDate(toDate) || '',
       rows => {
         setExpenseList(rows);
         const sum = rows.reduce((acc, r) => acc + r.amount, 0);
@@ -52,18 +51,18 @@ const ExpenseReportScreen: React.FC = () => {
   }, []);
 
   const renderItem = ({ item }: { item: ExpenseReportRow }) => (
-    <View style={styles.row}>
+    <View style={GlobalStyles.listItem}>
       <View style={styles.left}>
-        <Text style={styles.date}>
+        <Text style={GlobalStyles.subText}>
           {new Date(item.date).toLocaleDateString()}
         </Text>
-        <Text style={styles.meta}>
+        <Text style={[GlobalStyles.text, { fontWeight: '500' }]}>
           {item.categoryName || 'N/A'} • {item.walletName || 'N/A'}
         </Text>
-        {item.note ? <Text style={styles.note}>{item.note}</Text> : null}
+        {item.note ? <Text style={GlobalStyles.subText}>{item.note}</Text> : null}
       </View>
 
-      <Text style={[styles.amount, { color: '#F44336' }]}>
+      <Text style={[styles.amount, { color: AppColors.danger }]}>
         {item.amount.toFixed(2)}
       </Text>
     </View>
@@ -72,12 +71,12 @@ const ExpenseReportScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={GlobalStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Expense Report</Text>
+        <Text style={GlobalStyles.headerTitle}>Expense Report</Text>
 
         <TouchableOpacity>
           <Ionicons name="download-outline" size={22} color="#333" />
@@ -125,7 +124,7 @@ const ExpenseReportScreen: React.FC = () => {
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
         contentContainerStyle={{ padding: 12 }}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No expense records found</Text>
+          <Text style={GlobalStyles.listEmptyText}>No expense records found</Text>
         }
       />
 
@@ -158,18 +157,7 @@ const ExpenseReportScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-
-  header: {
-    height: 50,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    elevation: 2,
-  },
-  headerTitle: { fontSize: 16, fontWeight: '700' },
+  container: { flex: 1, backgroundColor: AppColors.backgroundLight },
 
   filters: {
     flexDirection: 'row',
@@ -192,7 +180,7 @@ const styles = StyleSheet.create({
   dateText: { fontSize: 13, color: '#333' },
 
   applyBtn: {
-    backgroundColor: '#F44336',
+    backgroundColor: AppColors.danger,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 6,
@@ -213,28 +201,12 @@ const styles = StyleSheet.create({
     color: '#C62828',
   },
 
-  row: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 6,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   left: { flex: 1, paddingRight: 8 },
-  date: { fontSize: 12, color: '#666' },
-  meta: { fontSize: 13, fontWeight: '500' },
-  note: { fontSize: 12, color: '#888' },
 
   amount: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#F44336',
-  },
-
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 40,
-    color: '#777',
+    color: AppColors.danger,
   },
 });
 

@@ -13,6 +13,7 @@ import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { ReportService } from '../services/ReportService';
 import { ReportRange } from '../helpers/DateHelper';
+import { AppColors, GlobalStyles } from '../constants/Styles';
 
 const quickLinks = [
   { label: 'Wallet Balance', icon: '💰', screen: 'WalletBalanceReport' },
@@ -73,7 +74,7 @@ const DashboardScreen: React.FC = () => {
         <Text
           style={[
             styles.balanceValue,
-            { color: balance >= 0 ? 'green' : 'red' },
+            { color: balance >= 0 ? AppColors.success : AppColors.danger },
           ]}
         >
           ${balance}
@@ -87,14 +88,14 @@ const DashboardScreen: React.FC = () => {
           <View style={styles.incomeExpense}>
             <Text style={styles.arrowUp}>↑</Text>
             <Text style={styles.incomeText}>${income}</Text>
-            <Text style={styles.label}>Income</Text>
+            <Text style={GlobalStyles.subText}>Income</Text>
           </View>
 
           {/* Expense */}
           <View style={styles.incomeExpense}>
             <Text style={styles.arrowDown}>↓</Text>
             <Text style={styles.expenseText}>${expense}</Text>
-            <Text style={styles.label}>Expense</Text>
+            <Text style={GlobalStyles.subText}>Expense</Text>
           </View>
         </View>
       </Card>
@@ -122,7 +123,7 @@ const DashboardScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: AppColors.backgroundLight,
     paddingHorizontal: 16,
     paddingTop: 40,
   },
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     fontSize: 14,
-    color: '#777',
+    color: AppColors.textSecondary,
     marginBottom: 4,
   },
   balanceValue: {
@@ -157,18 +158,18 @@ const styles = StyleSheet.create({
   },
 
   /* Income / Expense Card */
-  card: { padding: 16, borderRadius: 12, marginBottom: 24 },
+  card: { padding: 16, borderRadius: 12, marginBottom: 24, backgroundColor: '#fff' },
   cardContent: { flexDirection: 'row', justifyContent: 'space-between' },
   incomeExpense: { alignItems: 'center' },
-  arrowUp: { fontSize: 24, color: 'green', marginBottom: 4 },
-  arrowDown: { fontSize: 24, color: 'red', marginBottom: 4 },
-  incomeText: { fontSize: 20, fontWeight: 'bold', color: 'green' },
-  expenseText: { fontSize: 20, fontWeight: 'bold', color: 'red' },
+  arrowUp: { fontSize: 24, color: AppColors.success, marginBottom: 4 },
+  arrowDown: { fontSize: 24, color: AppColors.danger, marginBottom: 4 },
+  incomeText: { fontSize: 20, fontWeight: 'bold', color: AppColors.success },
+  expenseText: { fontSize: 20, fontWeight: 'bold', color: AppColors.danger },
   label: { fontSize: 14, color: '#555' },
 
   /* Quick Links */
   quickLinksContainer: { marginTop: 16 },
-  quickLinksTitle: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
+  quickLinksTitle: { fontSize: 16, fontWeight: '600', marginBottom: 8, color: AppColors.text },
   quickLinksGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
     borderColor: '#eee',
   },
   quickLinkIcon: { fontSize: 28 },
-  quickLinkText: { fontSize: 14, marginTop: 6, textAlign: 'center', color: '#007bff' },
+  quickLinkText: { fontSize: 14, marginTop: 6, textAlign: 'center', color: AppColors.primary },
 });
 
 export default DashboardScreen;

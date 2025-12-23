@@ -22,3 +22,6 @@ export function getRangeDates(range: ReportRange): { startDate: Date; endDate: D
     }
     return { startDate, endDate };
   }
+
+export const toSQLDate = (date?: Date) =>
+  date ? date.toISOString().split('T')[0] : undefined;
