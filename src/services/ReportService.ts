@@ -6,6 +6,12 @@ import {
 } from '../repositories/TransactionSummaryRepository';
 import { getDatabase } from '../repositories/Database';
 
+export interface TrendDataPoint {
+  date: string;
+  income: number;
+  expense: number;
+}
+
 export interface PaymentReceiptRecord {
   id: number;
   partyName: string;
@@ -80,6 +86,46 @@ export class ReportService {
             const data: PaymentReceiptRecord[] = [];
             for (let i = 0; i < results.rows.length; i++) {
               data.push(results.rows.item(i));
+            }
+            resolve(data);
+          },
+          (_: any, err: any) => {
+            reject(err);
+            return false;
+          }
+        );
+      });
+    });
+  }
+
+  static async getTrendData(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<TrendDataPoint[]> {
+    const db = getDatabase();
+
+    return new Promise<TrendDataPoint[]>((resolve, reject) => {
+      db.transaction((tx: any) => {
+        tx.executeSql(
+          `SELECT 
+            date(date) as date,
+            SUM(CASE WHEN type IN ('income', 'receipt') THEN amount ELSE 0 END) as income,
+            SUM(CASE WHEN type IN ('expense', 'payment') THEN amount ELSE 0 END) as expense
+           FROM TransactionSummary
+           WHERE deletedAt IS NULL
+           AND date BETWEEN ? AND ?
+           GROUP BY date(date)
+           ORDER BY date(date) ASC`,
+          [startDate.toISOString(), endDate.toISOString()],
+          (_: any, results: any) => {
+            const data: TrendDataPoint[] = [];
+            for (let i = 0; i < results.rows.length; i++) {
+              const r = results.rows.item(i);
+              data.push({
+                date: r.date,
+                income: r.income || 0,
+                expense: r.expense || 0,
+              });
             }
             resolve(data);
           },

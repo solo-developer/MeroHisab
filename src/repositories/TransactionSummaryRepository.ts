@@ -4,8 +4,8 @@ export interface TransactionSummaryCreate {
   type: string;
   note?: string;
   date: string;
-  amount : number;
-  categoryId?:number;
+  amount: number;
+  categoryId?: number;
 }
 export interface TransactionSummaryRow {
   id: number;
@@ -29,7 +29,7 @@ export const TransactionSummaryRepository = {
     tx.executeSql(
       `INSERT INTO TransactionSummary (type, note, date,categoryId,amount)
        VALUES (?, ?, ?,?,?);`,
-      [data.type, data.note || '', data.date,data.categoryId,data.amount],
+      [data.type, data.note || '', data.date, data.categoryId, data.amount],
       (_, res) => onSuccess(res.insertId),
       (_, err) => {
         onError(err);
@@ -82,10 +82,10 @@ export const TransactionSummaryRepository = {
         tx.executeSql(
           `
           SELECT 
-            SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS income,
-            SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS expense
+            SUM(CASE WHEN type IN ('income', 'receipt') THEN amount ELSE 0 END) AS income,
+            SUM(CASE WHEN type IN ('expense', 'payment') THEN amount ELSE 0 END) AS expense
           FROM TransactionSummary
-          WHERE date BETWEEN ? AND ?;
+          WHERE deletedAt IS NULL AND date BETWEEN ? AND ?;
           `,
           [from, to],
           (_, res) => {

@@ -40,6 +40,12 @@ const reportSections: ReportSection[] = [
         icon: 'credit-card-minus',
         color: '#F44336',
       },
+      {
+        key: 'trend',
+        title: 'Trend Analysis',
+        icon: 'chart-line',
+        color: '#2196F3',
+      },
     ],
   },
   {
@@ -131,6 +137,9 @@ const ReportsScreen: React.FC = () => {
         break;
       case 'receipt':
         navigation.navigate('ReceiptReport');
+        break;
+      case 'trend':
+        navigation.navigate('TrendReport');
         break;
       default:
         console.log('Pressed:', key);

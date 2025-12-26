@@ -19,6 +19,7 @@ import ReportByMetaCategoryScreen from '../screens/ReportByMetaCategoryScreen';
 import PartyReportScreen from '../screens/PartyReportScreen';
 import PaymentReportScreen from '../screens/PaymentReportScreen';
 import ReceiptReportScreen from '../screens/ReceiptReportScreen';
+import TrendReportScreen from '../screens/TrendReportScreen';
 
 const MainContainer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SwipeTabRoutes>('Dashboard');
@@ -70,6 +71,10 @@ const MainContainer: React.FC = () => {
         <RootStack.Screen
           name="ReceiptReport"
           component={ReceiptReportScreen}
+        />
+        <RootStack.Screen
+          name="TrendReport"
+          component={TrendReportScreen}
         />
       </RootStack.Navigator>
 
