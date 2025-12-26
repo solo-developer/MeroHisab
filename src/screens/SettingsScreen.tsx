@@ -3,41 +3,45 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { SettingsStackParamList } from '../navigation/SettingsStack';
+
+type Props = NativeStackScreenProps<SettingsStackParamList, 'SettingsMain'>;
 
 const Tab = createMaterialTopTabNavigator();
 
 // --- Manage Tab ---
-const ManageScreen = ({ navigation }) => {
+const ManageScreen = ({ navigation }: any) => {
   return (
-  <View style={styles.container}>
-    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageCategories')}>
-      <Icon name="category" size={24} color="#333" />
-      <Text style={styles.itemText}>Manage Categories</Text>
-    </TouchableOpacity>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageCategories')}>
+        <Icon name="category" size={24} color="#333" />
+        <Text style={styles.itemText}>Manage Categories</Text>
+      </TouchableOpacity>
 
-    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageWallets')}>
-      <Icon name="wallet" size={24} color="#333" />
-      <Text style={styles.itemText}>Manage Wallets</Text>
-    </TouchableOpacity>
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageWallets')}>
+        <Icon name="wallet" size={24} color="#333" />
+        <Text style={styles.itemText}>Manage Wallets</Text>
+      </TouchableOpacity>
 
 
-    {/* --- New Meta Categories Option --- */}
-    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageMetaCategories')}>
-      <Icon name="folder" size={24} color="#333" />
-      <Text style={styles.itemText}>Manage Meta Categories</Text>
-    </TouchableOpacity>
+      {/* --- New Meta Categories Option --- */}
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageMetaCategories')}>
+        <Icon name="folder" size={24} color="#333" />
+        <Text style={styles.itemText}>Manage Meta Categories</Text>
+      </TouchableOpacity>
 
-    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageParties')}>
-      <Icon name="people" size={24} color="#333" />
-      <Text style={styles.itemText}>Manage Parties</Text>
-    </TouchableOpacity>
-  </View>
-);
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageParties')}>
+        <Icon name="people" size={24} color="#333" />
+        <Text style={styles.itemText}>Manage Parties</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
 };
 
 // --- General Tab ---
-const GeneralScreen = ({ navigation }) => {
+const GeneralScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.item}>
@@ -59,20 +63,20 @@ const GeneralScreen = ({ navigation }) => {
 };
 
 // --- About Tab ---
-const AboutScreen = ({ navigation }) => {
+const AboutScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.item}>
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('AboutUs')}>
         <Icon name="info" size={24} color="#333" />
         <Text style={styles.itemText}>About Us</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.item}>
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('HelpCentre')}>
         <Icon name="help-outline" size={24} color="#333" />
         <Text style={styles.itemText}>Help Center</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.item}>
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('TermsOfUse')}>
         <Icon name="description" size={24} color="#333" />
         <Text style={styles.itemText}>Terms of Use</Text>
       </TouchableOpacity>

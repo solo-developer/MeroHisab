@@ -8,6 +8,9 @@ import ManageMetaCategoriesScreen from '../screens/ManageMetaCategoriesScreen';
 import ReminderScreen from '../screens/ReminderScreen';
 import ReminderListScreen from '../screens/ReminderListScreen';
 import ManagePartiesScreen from '../screens/ManagePartiesScreen';
+import AboutUsScreen from '../screens/AboutUsScreen';
+import TermsOfUseScreen from '../screens/TermsOfUseScreen';
+import HelpCentreScreen from '../screens/HelpCentreScreen';
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
@@ -17,6 +20,9 @@ export type SettingsStackParamList = {
   Reminder: undefined;
   ReminderList: undefined;
   ManageParties: undefined;
+  AboutUs: undefined;
+  TermsOfUse: undefined;
+  HelpCentre: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -58,6 +64,21 @@ const SettingsStack: React.FC = () => {
         name="ManageParties"
         component={ManagePartiesScreen}
         options={{ title: 'Manage Parties' }}
+      />
+      <Stack.Screen
+        name="AboutUs"
+        component={AboutUsScreen}
+        options={{ title: 'About Us' }}
+      />
+      <Stack.Screen
+        name="TermsOfUse"
+        component={TermsOfUseScreen}
+        options={{ title: 'Terms of Use' }}
+      />
+      <Stack.Screen
+        name="HelpCentre"
+        component={HelpCentreScreen}
+        options={{ title: 'Help Centre' }}
       />
     </Stack.Navigator>
   );
