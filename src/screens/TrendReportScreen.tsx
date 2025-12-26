@@ -112,13 +112,13 @@ const TrendReportScreen: React.FC = () => {
                     <View style={[styles.summaryCard, { borderLeftColor: AppColors.success }]}>
                         <Text style={styles.summaryLabel}>Total Income</Text>
                         <Text style={[styles.summaryValue, { color: AppColors.success }]}>
-                            ${totals.income.toLocaleString()}
+                            ₹ {totals.income.toLocaleString()}
                         </Text>
                     </View>
                     <View style={[styles.summaryCard, { borderLeftColor: AppColors.danger }]}>
                         <Text style={styles.summaryLabel}>Total Expense</Text>
                         <Text style={[styles.summaryValue, { color: AppColors.danger }]}>
-                            ${totals.expense.toLocaleString()}
+                            ₹ {totals.expense.toLocaleString()}
                         </Text>
                     </View>
                 </View>
@@ -149,41 +149,45 @@ const TrendReportScreen: React.FC = () => {
                             height={250}
                             width={SCREEN_WIDTH - 80}
                             initialSpacing={30}
-                            spacing={range === '1M' ? 22 : 40}
+                            spacing={range === '1M' ? 35 : 55}
                             color1={AppColors.success}
                             color2={AppColors.danger}
-                            thickness={3}
+                            thickness={4}
                             dataPointsColor1={AppColors.success}
                             dataPointsColor2={AppColors.danger}
-                            yAxisColor="#ddd"
-                            xAxisColor="#ddd"
+                            dataPointsRadius={4}
+                            showValuesAsDataPointsText={false}
+                            yAxisColor="#ccc"
+                            xAxisColor="#ccc"
                             yAxisTextStyle={{ color: '#666', fontSize: 10 }}
                             xAxisLabelTextStyle={{ color: '#666', fontSize: 9, width: 40 }}
                             noOfSections={5}
-                            textColor1={AppColors.success}
-                            textColor2={AppColors.danger}
-                            textFontSize={8}
                             curved
                             animateOnDataChange
                             animationDuration={1000}
-                            areaChart1
-                            areaChart2
+                            areaChart
                             startFillColor1={AppColors.success}
                             startFillColor2={AppColors.danger}
-                            startOpacity={0.2}
-                            endOpacity={0.05}
-                            rulesType="solid"
-                            rulesColor="#f0f0f0"
+                            startOpacity={0.4}
+                            endOpacity={0.1}
+                            rulesType="dashed"
+                            rulesColor="#eee"
+                            yAxisExtraHeight={20}
                             pointerConfig={{
                                 pointerStripColor: '#ddd',
                                 pointerStripWidth: 2,
                                 pointerColor: AppColors.primary,
-                                radius: 4,
+                                radius: 5,
                                 pointerLabelComponent: (items: any) => {
+                                    if (!items || items.length === 0) return null;
                                     return (
                                         <View style={styles.pointerLabel}>
-                                            <Text style={styles.pointerText}>Inc: ₹{items[0].value}</Text>
-                                            <Text style={[styles.pointerText, { color: AppColors.danger }]}>Exp: ₹{items[1].value}</Text>
+                                            <Text style={styles.pointerText}>Inc: ₹{items[0]?.value || 0}</Text>
+                                            {items.length > 1 && (
+                                                <Text style={[styles.pointerText, { color: AppColors.danger }]}>
+                                                    Exp: ₹{items[1]?.value || 0}
+                                                </Text>
+                                            )}
                                         </View>
                                     );
                                 },

@@ -25,7 +25,7 @@ const PartyReportScreen = () => {
   const loadParties = async () => {
     const db = getDatabase();
 
-    db.transaction(tx => {
+    db.transaction((tx: any) => {
       let query = `SELECT p.id, p.name, p.type, COALESCE(pb.currentBalance, 0) as currentBalance 
                    FROM Parties p 
                    LEFT JOIN PartyBalance pb ON p.id = pb.partyId 
@@ -39,7 +39,7 @@ const PartyReportScreen = () => {
 
       query += ` ORDER BY currentBalance DESC`;
 
-      tx.executeSql(query, params, (_, results) => {
+      tx.executeSql(query, params, (_: any, results: any) => {
         const data: PartyBalance[] = [];
         for (let i = 0; i < results.rows.length; i++) {
           data.push(results.rows.item(i));
@@ -49,24 +49,30 @@ const PartyReportScreen = () => {
     });
   };
 
-  const renderItem = ({ item }: { item: PartyBalance }) => (
-    <View style={styles.card}>
-      <View style={GlobalStyles.rowBetween}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.partyName}>{item.name}</Text>
-          <Text style={[styles.partyType, { color: item.type === 'debtor' ? AppColors.success : AppColors.danger }]}>
-            {item.type === 'debtor' ? 'To Receive' : 'To Pay'}
-          </Text>
-        </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text style={styles.balanceLabel}>Balance</Text>
-          <Text style={[styles.balance, { color: item.currentBalance > 0 ? (item.type === 'debtor' ? AppColors.success : AppColors.danger) : '#999' }]}>
-            ₹{item.currentBalance.toFixed(2)}
-          </Text>
+  const renderItem = ({ item }: { item: PartyBalance }) => {
+    // Logic: Balance > 0 means they owe us (Receivable), Balance < 0 means we owe them (Payable)
+    const isReceivable = item.currentBalance >= 0;
+    const absBalance = Math.abs(item.currentBalance);
+
+    return (
+      <View style={styles.card}>
+        <View style={GlobalStyles.rowBetween}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.partyName}>{item.name}</Text>
+            <Text style={[styles.partyType, { color: isReceivable ? AppColors.success : AppColors.danger }]}>
+              {isReceivable ? 'To Receive' : 'To Pay'}
+            </Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={styles.balanceLabel}>Balance</Text>
+            <Text style={[styles.balance, { color: isReceivable ? AppColors.success : AppColors.danger }]}>
+              ₹ {absBalance.toFixed(2)}
+            </Text>
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -79,17 +85,28 @@ const PartyReportScreen = () => {
       </View>
 
       <View style={GlobalStyles.container}>
-        <View style={styles.filterContainer}>
-          <Text style={GlobalStyles.label}>Filter by Type</Text>
-          <Picker
-            selectedValue={filterType}
-            onValueChange={(value) => setFilterType(value as any)}
-            style={styles.picker}
-          >
-            <Picker.Item label="All Parties" value="all" />
-            <Picker.Item label="Debtors (To Receive)" value="debtor" />
-            <Picker.Item label="Creditors (To Pay)" value="creditor" />
-          </Picker>
+        <View style={styles.segmentedContainer}>
+          {[
+            { label: 'All', value: 'all' },
+            { label: 'Receivable', value: 'debtor' },
+            { label: 'Payable', value: 'creditor' }
+          ].map((seg) => (
+            <TouchableOpacity
+              key={seg.value}
+              style={[
+                styles.segmentButton,
+                filterType === seg.value && styles.segmentButtonActive
+              ]}
+              onPress={() => setFilterType(seg.value as any)}
+            >
+              <Text style={[
+                styles.segmentText,
+                filterType === seg.value && styles.segmentTextActive
+              ]}>
+                {seg.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <FlatList
@@ -97,7 +114,7 @@ const PartyReportScreen = () => {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           ListEmptyComponent={<Text style={GlobalStyles.listEmptyText}>No parties found.</Text>}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{ paddingBottom: 160 }}
         />
       </View>
     </View>
@@ -105,41 +122,66 @@ const PartyReportScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  filterContainer: {
-    marginBottom: 16,
+  segmentedContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    padding: 4,
+    marginBottom: 20,
+    marginHorizontal: 16,
   },
-  picker: {
-    borderWidth: 1,
-    borderColor: '#ccc',
+  segmentButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
     borderRadius: 6,
+  },
+  segmentButtonActive: {
     backgroundColor: '#fff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  segmentText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666',
+  },
+  segmentTextActive: {
+    color: AppColors.primary,
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     elevation: 2,
     borderWidth: 1,
     borderColor: '#eee',
+    marginHorizontal: 16, // Ensure alignment with segmented container
   },
   partyName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#333',
   },
   partyType: {
     fontSize: 12,
     marginTop: 4,
+    fontWeight: '500',
   },
   balanceLabel: {
-    fontSize: 12,
-    color: '#777',
+    fontSize: 11,
+    color: '#888',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   balance: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 4,
+    marginTop: 2,
   },
 });
 

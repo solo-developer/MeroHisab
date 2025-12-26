@@ -175,7 +175,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ddd',
   },
   headerTitle: { fontSize: 22, fontWeight: '700' },
-  listContent: { padding: 16, paddingBottom: 24 },
+  listContent: {
+    padding: 16,
+    paddingBottom: 160
+  },
   groupContainer: { marginBottom: 16 },
   groupDate: { fontSize: 14, fontWeight: '600', marginBottom: 8, color: '#555' },
   card: {

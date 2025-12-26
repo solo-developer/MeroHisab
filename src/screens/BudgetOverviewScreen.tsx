@@ -9,7 +9,7 @@ import BudgetRepository, { BudgetMetric } from '../repositories/BudgetRepository
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'BudgetOverview'>;
 
-const BudgetOverviewScreen: React.FC<Props> = ({ navigation }) => {
+const BudgetOverviewScreen: React.FC<any> = ({ navigation }) => {
     const [metrics, setMetrics] = useState<BudgetMetric[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());

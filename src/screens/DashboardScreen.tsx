@@ -19,8 +19,9 @@ import { AppColors, GlobalStyles } from '../constants/Styles';
 const quickLinks = [
   { label: 'Wallet Balance', icon: '💰', screen: 'WalletBalanceReport' },
   { label: 'Transactions', icon: '🧾', screen: 'Transactions' },
-  { label: 'Reports', icon: '📊', screen: 'Reports' },
-  // Add more links here
+  { label: 'Budget Progress', icon: '📊', screen: 'BudgetOverview' },
+  { label: 'Trend Analysis', icon: '📈', screen: 'TrendReport' },
+  { label: 'Party Balance', icon: '👥', screen: 'PartyReport' },
 ];
 
 const numColumns = 3; // max 3 per row
@@ -29,103 +30,95 @@ const screenWidth = Dimensions.get('window').width;
 const buttonWidth = (screenWidth - 16 * 2 - spacing * (numColumns - 1)) / numColumns;
 
 const DashboardScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
+  const [range, setRange] = useState<ReportRange>('this_month');
+  const [summary, setSummary] = useState({ income: 0, expense: 0 });
 
-  const [range, setRange] = useState<ReportRange>('this_week'); // default range
-  const [income, setIncome] = useState(0);
-  const [expense, setExpense] = useState(0);
-
-  useEffect(() => {
-    loadData(range);
-
-    const sub1 = DeviceEventEmitter.addListener('transactionAdded', () => loadData(range));
-    const sub2 = DeviceEventEmitter.addListener('expenseAdded', () => loadData(range));
-    const sub3 = DeviceEventEmitter.addListener('incomeAdded', () => loadData(range));
-
-    return () => {
-      sub1.remove();
-      sub2.remove();
-      sub3.remove();
-    };
-  }, [range]);
-
-  const loadData = async (selectedRange: ReportRange) => {
+  const loadData = async () => {
     try {
-      // Replace with actual from/to dates if needed
-      const report = await ReportService.getIncomeExpense(selectedRange);
-      setIncome(report.income);
-      setExpense(report.expense);
+      const data = await ReportService.getIncomeExpense(range);
+      setSummary(data);
     } catch (error) {
-      console.error('Error loading report:', error);
-      setIncome(0);
-      setExpense(0);
+      console.error('Dashboard loadData error:', error);
     }
   };
 
-  const balance = income - expense;
+  useEffect(() => {
+    loadData();
+
+    const subs = [
+      DeviceEventEmitter.addListener('transactionAdded', loadData),
+      DeviceEventEmitter.addListener('expenseAdded', loadData),
+      DeviceEventEmitter.addListener('incomeAdded', loadData),
+    ];
+
+    return () => {
+      subs.forEach(s => s.remove());
+    };
+  }, [range]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
-      {/* Dropdown for range selection */}
-      <View style={styles.dropdownContainer}>
-        <Picker
-          selectedValue={range}
-          onValueChange={itemValue => setRange(itemValue as ReportRange)}
-          style={styles.picker}
-        >
-          <Picker.Item label="This Week" value="this_week" />
-          <Picker.Item label="This Month" value="this_month" />
-          <Picker.Item label="Previous Month" value="previous_month" />
-        </Picker>
-      </View>
-
-      {/* Accounts Balance */}
-      <View style={styles.balanceContainer}>
-        <Text style={styles.balanceLabel}>Accounts Balance</Text>
-        <Text
-          style={[
-            styles.balanceValue,
-            { color: balance >= 0 ? AppColors.success : AppColors.danger },
-          ]}
-        >
-          ${balance}
-        </Text>
-      </View>
-
-      {/* Income / Expense Card */}
-      <Card style={styles.card}>
-        <View style={styles.cardContent}>
-          {/* Income */}
-          <View style={styles.incomeExpense}>
-            <Text style={styles.arrowUp}>↑</Text>
-            <Text style={styles.incomeText}>${income}</Text>
-            <Text style={GlobalStyles.subText}>Income</Text>
-          </View>
-
-          {/* Expense */}
-          <View style={styles.incomeExpense}>
-            <Text style={styles.arrowDown}>↓</Text>
-            <Text style={styles.expenseText}>${expense}</Text>
-            <Text style={GlobalStyles.subText}>Expense</Text>
-          </View>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
+      <View style={styles.header}>
+        <Text style={styles.title}>Dashboard</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={range}
+            onValueChange={(itemValue) => setRange(itemValue as ReportRange)}
+            style={styles.picker}
+            dropdownIconColor={AppColors.primary}
+          >
+            <Picker.Item label="This Week" value="this_week" />
+            <Picker.Item label="This Month" value="this_month" />
+            <Picker.Item label="Last Month" value="previous_month" />
+          </Picker>
         </View>
+      </View>
+
+      <View style={styles.summaryRow}>
+        <Card style={[styles.card, { borderTopColor: AppColors.success, borderTopWidth: 4 }]}>
+          <Card.Content>
+            <Text style={styles.cardLabel}>Income</Text>
+            <Text style={[styles.cardValue, { color: AppColors.success }]}>
+              ₹ {summary.income.toLocaleString()}
+            </Text>
+          </Card.Content>
+        </Card>
+
+        <Card style={[styles.card, { borderTopColor: AppColors.danger, borderTopWidth: 4 }]}>
+          <Card.Content>
+            <Text style={styles.cardLabel}>Expense</Text>
+            <Text style={[styles.cardValue, { color: AppColors.danger }]}>
+              ₹ {summary.expense.toLocaleString()}
+            </Text>
+          </Card.Content>
+        </Card>
+      </View>
+
+      <Card style={[styles.card, { marginTop: 16, borderTopColor: AppColors.primary, borderTopWidth: 4 }]}>
+        <Card.Content>
+          <Text style={styles.cardLabel}>Net Balance</Text>
+          <Text style={[styles.cardValue, { color: '#000', fontSize: 24 }]}>
+            ₹ {(summary.income - summary.expense).toLocaleString()}
+          </Text>
+        </Card.Content>
       </Card>
 
-      {/* Quick Links */}
+      <Text style={styles.sectionTitle}>Quick Links</Text>
       <View style={styles.quickLinksContainer}>
-        <Text style={styles.quickLinksTitle}>Quick Links</Text>
-        <View style={styles.quickLinksGrid}>
-          {quickLinks.map((link, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[styles.quickLinkItem, { width: buttonWidth }]}
-              onPress={() => navigation.navigate(link.screen as never)}
-            >
-              <Text style={styles.quickLinkIcon}>{link.icon}</Text>
-              <Text style={styles.quickLinkText}>{link.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {quickLinks.map((link, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[styles.quickLinkButton, { width: buttonWidth }]}
+            onPress={() => navigation.navigate(link.screen)}
+          >
+            <Text style={styles.quickLinkIcon}>{link.icon}</Text>
+            <Text style={styles.quickLinkText}>{link.label}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
     </ScrollView>
   );
@@ -134,69 +127,87 @@ const DashboardScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.backgroundLight,
-    paddingHorizontal: 16,
-    paddingTop: 40,
+    padding: 16,
+    backgroundColor: '#f8f9fa',
   },
-  dropdownContainer: {
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    overflow: 'hidden',
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  pickerContainer: {
     backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#eee',
+    height: 50,
+    justifyContent: 'center',
+    width: 160,
+    overflow: 'hidden',
   },
-  picker: { height: 50, width: '100%' },
-
-  /* Accounts Balance */
-  balanceContainer: {
+  picker: {
+    height: 50,
+    width: '100%',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  card: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    elevation: 2,
+  },
+  cardLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  cardValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 30,
+    marginBottom: 16,
+    color: '#333',
+  },
+  quickLinksContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing,
+  },
+  quickLinkButton: {
     backgroundColor: '#fff',
     padding: 16,
     borderRadius: 12,
-    marginBottom: 16,
     alignItems: 'center',
+    elevation: 1,
     borderWidth: 1,
     borderColor: '#eee',
-  },
-  balanceLabel: {
-    fontSize: 14,
-    color: AppColors.textSecondary,
     marginBottom: 4,
   },
-  balanceValue: {
+  quickLinkIcon: {
     fontSize: 24,
-    fontWeight: '700',
+    marginBottom: 8,
   },
-
-  /* Income / Expense Card */
-  card: { padding: 16, borderRadius: 12, marginBottom: 24, backgroundColor: '#fff' },
-  cardContent: { flexDirection: 'row', justifyContent: 'space-between' },
-  incomeExpense: { alignItems: 'center' },
-  arrowUp: { fontSize: 24, color: AppColors.success, marginBottom: 4 },
-  arrowDown: { fontSize: 24, color: AppColors.danger, marginBottom: 4 },
-  incomeText: { fontSize: 20, fontWeight: 'bold', color: AppColors.success },
-  expenseText: { fontSize: 20, fontWeight: 'bold', color: AppColors.danger },
-  label: { fontSize: 14, color: '#555' },
-
-  /* Quick Links */
-  quickLinksContainer: { marginTop: 16 },
-  quickLinksTitle: { fontSize: 16, fontWeight: '600', marginBottom: 8, color: AppColors.text },
-  quickLinksGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+  quickLinkText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#444',
+    textAlign: 'center',
   },
-  quickLinkItem: {
-    backgroundColor: '#fff',
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#eee',
-  },
-  quickLinkIcon: { fontSize: 28 },
-  quickLinkText: { fontSize: 14, marginTop: 6, textAlign: 'center', color: AppColors.primary },
 });
 
 export default DashboardScreen;

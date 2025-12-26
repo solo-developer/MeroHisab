@@ -19,7 +19,7 @@ interface CategoryBudgetConfig {
     initialAmount: number;
 }
 
-const ManageBudgetsScreen: React.FC<Props> = ({ route, navigation }) => {
+const ManageBudgetsScreen: React.FC<any> = ({ route, navigation }) => {
     const { month } = route.params;
     const [categories, setCategories] = useState<CategoryBudgetConfig[]>([]);
     const [loading, setLoading] = useState(true);
