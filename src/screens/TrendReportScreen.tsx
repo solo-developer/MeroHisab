@@ -147,9 +147,9 @@ const TrendReportScreen: React.FC = () => {
                             data={chartData.income}
                             data2={chartData.expense}
                             height={250}
-                            width={SCREEN_WIDTH - 60}
-                            initialSpacing={20}
-                            spacing={range === '1M' ? 40 : 20}
+                            width={SCREEN_WIDTH - 80}
+                            initialSpacing={30}
+                            spacing={range === '1M' ? 22 : 40}
                             color1={AppColors.success}
                             color2={AppColors.danger}
                             thickness={3}
@@ -158,19 +158,36 @@ const TrendReportScreen: React.FC = () => {
                             yAxisColor="#ddd"
                             xAxisColor="#ddd"
                             yAxisTextStyle={{ color: '#666', fontSize: 10 }}
-                            xAxisLabelTextStyle={{ color: '#666', fontSize: 10 }}
+                            xAxisLabelTextStyle={{ color: '#666', fontSize: 9, width: 40 }}
                             noOfSections={5}
                             textColor1={AppColors.success}
                             textColor2={AppColors.danger}
                             textFontSize={8}
+                            curved
+                            animateOnDataChange
+                            animationDuration={1000}
                             areaChart1
                             areaChart2
                             startFillColor1={AppColors.success}
                             startFillColor2={AppColors.danger}
-                            startOpacity={0.1}
-                            endOpacity={0.01}
+                            startOpacity={0.2}
+                            endOpacity={0.05}
                             rulesType="solid"
-                            rulesColor="#eee"
+                            rulesColor="#f0f0f0"
+                            pointerConfig={{
+                                pointerStripColor: '#ddd',
+                                pointerStripWidth: 2,
+                                pointerColor: AppColors.primary,
+                                radius: 4,
+                                pointerLabelComponent: (items: any) => {
+                                    return (
+                                        <View style={styles.pointerLabel}>
+                                            <Text style={styles.pointerText}>Inc: ₹{items[0].value}</Text>
+                                            <Text style={[styles.pointerText, { color: AppColors.danger }]}>Exp: ₹{items[1].value}</Text>
+                                        </View>
+                                    );
+                                },
+                            }}
                         />
                     ) : (
                         <View style={styles.emptyContainer}>
@@ -270,6 +287,17 @@ const styles = StyleSheet.create({
     },
     summaryValue: {
         fontSize: 18,
+        fontWeight: '500',
+    },
+    pointerLabel: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        padding: 8,
+        borderRadius: 8,
+        width: 100,
+    },
+    pointerText: {
+        color: AppColors.success,
+        fontSize: 10,
         fontWeight: 'bold',
     },
     chartContainer: {

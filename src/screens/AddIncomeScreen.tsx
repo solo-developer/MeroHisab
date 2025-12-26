@@ -81,7 +81,7 @@ export const AddIncomeScreen = ({ navigation }: any) => {
         <View style={{ width: 22 }} />
       </View>
 
-      <ScrollView contentContainerStyle={GlobalStyles.container}>
+      <ScrollView contentContainerStyle={[GlobalStyles.container, { paddingBottom: 40 }]}>
         <Text style={GlobalStyles.label}>Gross Amount</Text>
         <TextInput
           style={GlobalStyles.input}

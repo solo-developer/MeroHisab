@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  DeviceEventEmitter,
 } from 'react-native';
 import { Card } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
@@ -36,6 +37,16 @@ const DashboardScreen: React.FC = () => {
 
   useEffect(() => {
     loadData(range);
+
+    const sub1 = DeviceEventEmitter.addListener('transactionAdded', () => loadData(range));
+    const sub2 = DeviceEventEmitter.addListener('expenseAdded', () => loadData(range));
+    const sub3 = DeviceEventEmitter.addListener('incomeAdded', () => loadData(range));
+
+    return () => {
+      sub1.remove();
+      sub2.remove();
+      sub3.remove();
+    };
   }, [range]);
 
   const loadData = async (selectedRange: ReportRange) => {

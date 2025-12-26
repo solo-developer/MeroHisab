@@ -27,10 +27,17 @@ const MainContainer: React.FC = () => {
   useEffect(() => {
     const unsubscribe = navigationRef.addListener('state', () => {
       const route = navigationRef.getCurrentRoute();
-      if (route?.name) setActiveTab(route.name as SwipeTabRoutes);
+      if (route?.name) {
+        if (['Dashboard', 'Transactions', 'Reports', 'Settings'].includes(route.name)) {
+          setActiveTab(route.name as SwipeTabRoutes);
+        }
+      }
     });
     return unsubscribe;
   }, []);
+
+  const currentRouteName = navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : 'Dashboard';
+  const showTabs = ['Dashboard', 'Transactions', 'Reports', 'Settings'].includes(currentRouteName || '');
 
   return (
     <NavigationContainer ref={navigationRef}>
@@ -78,17 +85,16 @@ const MainContainer: React.FC = () => {
         />
       </RootStack.Navigator>
 
-      <BottomTabs
-        activeTab={activeTab}
-        onTabPress={route =>
-          navigationRef.current?.navigate('MainTabs', {
-            screen: route,
-          })
-        }
-        onFabPress={() => {
-          navigationRef.navigate('Dashboard');
-        }}
-      />
+      {showTabs && (
+        <BottomTabs
+          activeTab={activeTab}
+          onTabPress={route =>
+            (navigationRef as any).navigate('MainTabs', {
+              screen: route,
+            })
+          }
+        />
+      )}
     </NavigationContainer>
   );
 };
