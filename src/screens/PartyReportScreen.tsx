@@ -24,21 +24,21 @@ const PartyReportScreen = () => {
 
   const loadParties = async () => {
     const db = getDatabase();
-    
+
     db.transaction(tx => {
       let query = `SELECT p.id, p.name, p.type, COALESCE(pb.currentBalance, 0) as currentBalance 
                    FROM Parties p 
                    LEFT JOIN PartyBalance pb ON p.id = pb.partyId 
                    WHERE p.deletedAt IS NULL`;
       const params: any[] = [];
-      
+
       if (filterType !== 'all') {
         query += ` AND type = ?`;
         params.push(filterType);
       }
-      
+
       query += ` ORDER BY currentBalance DESC`;
-      
+
       tx.executeSql(query, params, (_, results) => {
         const data: PartyBalance[] = [];
         for (let i = 0; i < results.rows.length; i++) {
@@ -61,7 +61,7 @@ const PartyReportScreen = () => {
         <View style={{ alignItems: 'flex-end' }}>
           <Text style={styles.balanceLabel}>Balance</Text>
           <Text style={[styles.balance, { color: item.currentBalance > 0 ? (item.type === 'debtor' ? AppColors.success : AppColors.danger) : '#999' }]}>
-            ${item.currentBalance.toFixed(2)}
+            ₹{item.currentBalance.toFixed(2)}
           </Text>
         </View>
       </View>

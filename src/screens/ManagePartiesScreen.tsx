@@ -54,11 +54,15 @@ const ManagePartiesScreen = ({ navigation }: any) => {
           text: 'Create',
           style: 'default',
           onPress: async () => {
-            await PartyService.createParty(name, partyType, balance);
-            setModalVisible(false);
-            resetForm();
-            loadParties();
-            Alert.alert('Success', `Party "${name}" has been created successfully!`);
+            const result = await PartyService.createParty(name, partyType, balance);
+            if (result > 0) {
+              setModalVisible(false);
+              resetForm();
+              loadParties();
+              Alert.alert('Success', `Party "${name}" has been created successfully!`);
+            } else {
+              Alert.alert('Error', 'Failed to create party. Please try again.');
+            }
           },
         },
       ]
@@ -96,7 +100,14 @@ const ManagePartiesScreen = ({ navigation }: any) => {
         </View>
         <View style={styles.balanceContainer}>
           <Text style={styles.balanceLabel}>Balance</Text>
-          <Text style={[styles.balanceAmount, { color: item.currentBalance >= 0 ? AppColors.success : AppColors.danger }]}>
+          <Text style={[
+            styles.balanceAmount,
+            {
+              color: item.type === 'debtor'
+                ? (item.currentBalance >= 0 ? AppColors.success : AppColors.danger)
+                : (item.currentBalance >= 0 ? AppColors.danger : AppColors.success)
+            }
+          ]}>
             ₹{Math.abs(item.currentBalance).toFixed(2)}
           </Text>
         </View>

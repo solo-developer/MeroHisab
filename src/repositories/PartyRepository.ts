@@ -6,46 +6,47 @@ export const PartyRepository = {
   create: async (party: Omit<Party, 'id' | 'ledgerId'>): Promise<number> => {
     const db = getDatabase();
     
-    // 1. Create a Ledger for the party
-    const ledgerType = party.type === 'debtor' ? 'asset' : 'liability';
-    const ledgerId = await LedgerRepository.create({
-        name: party.name,
-        type: ledgerType,
-        isSystem: 0
-    });
-
-    if (!ledgerId) throw new Error("Failed to create ledger for party");
-
-    // 2. Create the Party record
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
-        tx.executeSql(
-          `INSERT INTO Parties (name, type, initialBalance, ledgerId) VALUES (?, ?, ?, ?)`,
-          [
-            party.name,
-            party.type,
-            party.initialBalance,
-            ledgerId
-          ],
-          (tx, results) => {
-            const partyId = results.insertId;
-            
-            // 3. Create initial balance record
+        // 1. Create a Ledger for the party
+        const ledgerType = party.type === 'debtor' ? 'asset' : 'liability';
+        LedgerRepository.create(tx, {
+            name: party.name,
+            type: ledgerType,
+            isSystem: false
+        }, (ledgerId) => {
+            // 2. Create the Party record
             tx.executeSql(
-              `INSERT INTO PartyBalance (partyId, currentBalance) VALUES (?, ?)`,
-              [partyId, party.initialBalance],
-              () => resolve(partyId),
-              (error) => {
-                console.error('Error creating party balance', error);
-                resolve(0);
-              }
+                `INSERT INTO Parties (name, type, initialBalance, ledgerId) VALUES (?, ?, ?, ?)`,
+                [
+                    party.name,
+                    party.type,
+                    party.initialBalance,
+                    ledgerId
+                ],
+                (tx, results) => {
+                    const partyId = results.insertId;
+                    
+                    // 3. Create initial balance record
+                    tx.executeSql(
+                        `INSERT INTO PartyBalance (partyId, currentBalance) VALUES (?, ?)`,
+                        [partyId, party.initialBalance],
+                        () => resolve(partyId),
+                        (error) => {
+                            console.error('Error creating party balance', error);
+                            resolve(0);
+                        }
+                    );
+                },
+                (error) => {
+                    console.error('Error creating party', error);
+                    resolve(0);
+                }
             );
-          },
-          (error) => {
-            console.error('Error creating party', error);
+        }, (error) => {
+            console.error('Error creating ledger', error);
             resolve(0);
-          }
-        );
+        });
       });
     });
   },
