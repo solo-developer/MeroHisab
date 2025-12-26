@@ -6302,6 +6302,11 @@ react-native-tab-view@^4.2.2:
   dependencies:
     use-latest-callback "^0.2.4"
 
+react-native-toast-message@^2.3.3:
+  version "2.3.3"
+  resolved "https://registry.npmjs.org/react-native-toast-message/-/react-native-toast-message-2.3.3.tgz"
+  integrity sha512-4IIUHwUPvKHu4gjD0Vj2aGQzqPATiblL1ey8tOqsxOWRPGGu52iIbL8M/mCz4uyqecvPdIcMY38AfwRuUADfQQ==
+
 react-native-vector-icons@^10.3.0:
   version "10.3.0"
   resolved "https://registry.npmjs.org/react-native-vector-icons/-/react-native-vector-icons-10.3.0.tgz"

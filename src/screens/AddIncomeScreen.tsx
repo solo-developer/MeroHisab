@@ -10,6 +10,7 @@ import {
   View,
   DeviceEventEmitter,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import RNPickerSelect from 'react-native-picker-select';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LedgerRepository } from '../repositories/LedgerRepository';
@@ -17,8 +18,10 @@ import CategoryRepository from '../repositories/CategoryRepository';
 import { AddIncomeRequest, IncomeService } from '../services/IncomeService';
 import WalletRepository from '../repositories/WalletRepository';
 import { AppColors, GlobalStyles, PickerStyles } from '../constants/Styles';
+import { useSnackbar } from '../context/SnackbarContext';
 
 export const AddIncomeScreen = ({ navigation }: any) => {
+  const { showSnackbar } = useSnackbar();
   const [grossAmount, setGrossAmount] = useState('');
   const [discount, setDiscount] = useState('');
   const [wallets, setWallets] = useState<any[]>([]);
@@ -45,7 +48,7 @@ export const AddIncomeScreen = ({ navigation }: any) => {
 
   const handleSave = async () => {
     if (!selectedWallet)
-      return Alert.alert('Error', 'Please select a wallet');
+      return showSnackbar('Please select a wallet', 3000, 'error');
 
     const request: AddIncomeRequest = {
       amount: netAmount,
@@ -59,11 +62,11 @@ export const AddIncomeScreen = ({ navigation }: any) => {
 
     try {
       await IncomeService.addIncome(request);
-      Alert.alert('Success', 'Income added successfully');
+      showSnackbar('Income added successfully', 3000, 'success');
       DeviceEventEmitter.emit('incomeAdded');
       navigation.goBack();
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Failed to add income');
+      showSnackbar(err.message || 'Failed to add income', 3000, 'error');
     }
   };
 

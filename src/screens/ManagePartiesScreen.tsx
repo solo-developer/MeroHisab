@@ -5,8 +5,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { GlobalStyles, AppColors } from '../constants/Styles';
 import { PartyService } from '../services/PartyService';
 import { Party } from '../models/Party';
+import Toast from 'react-native-toast-message';
+import { useSnackbar } from '../context/SnackbarContext';
 
 const ManagePartiesScreen = ({ navigation }: any) => {
+  const { showSnackbar } = useSnackbar();
   const [parties, setParties] = useState<Party[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [name, setName] = useState('');
@@ -34,7 +37,7 @@ const ManagePartiesScreen = ({ navigation }: any) => {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a party name');
+      showSnackbar('Please enter a party name', 3000, 'error');
       return;
     }
 
@@ -59,9 +62,9 @@ const ManagePartiesScreen = ({ navigation }: any) => {
               setModalVisible(false);
               resetForm();
               loadParties();
-              Alert.alert('Success', `Party "${name}" has been created successfully!`);
+              showSnackbar(`Party "${name}" has been created successfully!`, 3000, 'success');
             } else {
-              Alert.alert('Error', 'Failed to create party. Please try again.');
+              showSnackbar('Failed to create party. Please try again.', 3000, 'error');
             }
           },
         },

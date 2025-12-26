@@ -9,14 +9,17 @@ import {
   View,
   DeviceEventEmitter,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import RNPickerSelect from 'react-native-picker-select';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CategoryRepository from '../repositories/CategoryRepository';
 import WalletRepository from '../repositories/WalletRepository';
 import { AddExpenseRequest, ExpenseService } from '../services/ExpenseService';
 import { AppColors, GlobalStyles, PickerStyles } from '../constants/Styles';
+import { useSnackbar } from '../context/SnackbarContext';
 
 export const AddExpenseScreen = ({ navigation }: any) => {
+  const { showSnackbar } = useSnackbar();
   const [grossAmount, setGrossAmount] = useState('');
   const [discount, setDiscount] = useState('');
   const [wallets, setWallets] = useState<any[]>([]);
@@ -44,10 +47,10 @@ export const AddExpenseScreen = ({ navigation }: any) => {
 
   const handleSave = async () => {
     if (!selectedWallet)
-      return Alert.alert('Error', 'Please select a wallet');
+      return showSnackbar('Please select a wallet', 3000, 'error');
 
     if (!grossAmount || netAmount <= 0)
-      return Alert.alert('Error', 'Invalid amount');
+      return showSnackbar('Invalid amount', 3000, 'error');
 
     const request: AddExpenseRequest = {
       amount: netAmount,
@@ -61,11 +64,11 @@ export const AddExpenseScreen = ({ navigation }: any) => {
 
     try {
       await ExpenseService.addExpense(request);
-      Alert.alert('Success', 'Expense added successfully');
+      showSnackbar('Expense added successfully', 3000, 'success');
       DeviceEventEmitter.emit('expenseAdded');
       navigation.goBack();
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Failed to add expense');
+      showSnackbar(err.message || 'Failed to add expense', 3000, 'error');
     }
   };
 

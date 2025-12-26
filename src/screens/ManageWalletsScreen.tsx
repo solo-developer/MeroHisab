@@ -16,10 +16,13 @@ import WalletRepository from '../repositories/WalletRepository';
 import { WalletsService } from '../services/WalletsService';
 import Wallet from '../models/Wallet';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Toast from 'react-native-toast-message';
+import { useSnackbar } from '../context/SnackbarContext';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'ManageWallets'>;
 
 const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
+  const { showSnackbar } = useSnackbar();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editing, setEditing] = useState<Wallet | null>(null);
@@ -75,8 +78,9 @@ const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
 
       setModalVisible(false);
       load();
+      showSnackbar(editing ? 'Wallet updated successfully' : 'Wallet created successfully', 3000, 'success');
     } catch (e) {
-      Alert.alert('Error', 'Failed to save wallet');
+      showSnackbar('Failed to save wallet', 3000, 'error');
     }
   };
 
@@ -88,6 +92,7 @@ const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
         style: 'destructive',
         onPress: async () => {
           await WalletRepository.delete(wallet.id!);
+          showSnackbar('Wallet deleted successfully', 3000, 'success');
           load();
         },
       },

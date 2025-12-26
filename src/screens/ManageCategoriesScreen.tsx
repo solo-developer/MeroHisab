@@ -13,6 +13,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -21,10 +22,12 @@ import CategoryRepository from '../repositories/CategoryRepository';
 import { CategoriesService } from '../services/CategoriesService';
 import Category from '../models/Category';
 import { CATEGORY_ICONS, CATEGORY_COLORS } from '../constants/categoryOptions';
+import { useSnackbar } from '../context/SnackbarContext';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'ManageCategories'>;
 
 const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
+  const { showSnackbar } = useSnackbar();
   const [categories, setCategories] = useState<Category[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
@@ -83,7 +86,7 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
 
   const save = async () => {
     if (!name.trim() || !icon || !color) {
-      Alert.alert('Missing information', 'Please enter name, icon and color');
+      showSnackbar('Please enter name, icon and color', 3000, 'error');
       return;
     }
 
@@ -104,8 +107,9 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
 
       setModalVisible(false);
       load();
+      showSnackbar(editing ? 'Category updated successfully' : 'Category created successfully', 3000, 'success');
     } catch {
-      Alert.alert('Error', 'Failed to save category');
+      showSnackbar('Failed to save category', 3000, 'error');
     }
   };
 
@@ -117,6 +121,7 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
         style: 'destructive',
         onPress: async () => {
           await CategoryRepository.delete(category.id!);
+          showSnackbar('Category deleted successfully', 3000, 'success');
           load();
         },
       },

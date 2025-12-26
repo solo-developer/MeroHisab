@@ -9,6 +9,7 @@ import {
   View,
   DeviceEventEmitter,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import RNPickerSelect from 'react-native-picker-select';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -20,8 +21,10 @@ import { AppColors, GlobalStyles, PickerStyles } from '../constants/Styles';
 import { Party } from '../models/Party';
 import { useRoute } from '@react-navigation/native';
 import DateField from '../components/DateField';
+import { useSnackbar } from '../context/SnackbarContext';
 
 export const AddPartyTransactionScreen = ({ navigation }: any) => {
+  const { showSnackbar } = useSnackbar();
   const route = useRoute();
   const { type } = route.params as { type: 'payment' | 'receipt' };
 
@@ -46,12 +49,12 @@ export const AddPartyTransactionScreen = ({ navigation }: any) => {
   }, []);
 
   const handleSave = async () => {
-    if (!selectedWallet) return Alert.alert('Error', 'Please select a wallet');
-    if (!selectedParty) return Alert.alert('Error', 'Please select a party');
-    if (!amount) return Alert.alert('Error', 'Please enter amount');
+    if (!selectedWallet) return showSnackbar('Please select a wallet', 3000, 'error');
+    if (!selectedParty) return showSnackbar('Please select a party', 3000, 'error');
+    if (!amount) return showSnackbar('Please enter amount', 3000, 'error');
 
     const amountVal = parseFloat(amount);
-    if (isNaN(amountVal) || amountVal <= 0) return Alert.alert('Error', 'Invalid amount');
+    if (isNaN(amountVal) || amountVal <= 0) return showSnackbar('Invalid amount', 3000, 'error');
 
     try {
       await PartyService.addTransaction({
@@ -62,17 +65,17 @@ export const AddPartyTransactionScreen = ({ navigation }: any) => {
         date: date.toISOString(),
         note
       });
-      
-      Alert.alert('Success', 'Transaction recorded successfully');
+
+      showSnackbar('Transaction recorded successfully', 3000, 'success');
       DeviceEventEmitter.emit('transactionAdded'); // refresh dashboard/lists if listening
       navigation.goBack();
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Failed to record transaction');
+      showSnackbar(err.message || 'Failed to record transaction', 3000, 'error');
     }
   };
 
   const isPayment = type === 'payment';
-  
+
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <View style={GlobalStyles.header}>
@@ -92,11 +95,6 @@ export const AddPartyTransactionScreen = ({ navigation }: any) => {
           onChangeText={setAmount}
           placeholder="Enter amount"
         />
-
-        {/* 
-            Payment (Pay to Creditor): Party is Receiver, Wallet is Source.
-            Receipt (Receive from Debtor): Wallet is Receiver, Party is Source. 
-        */}
 
         <Text style={GlobalStyles.label}>{isPayment ? 'Paid To (Party)' : 'Received From (Party)'}</Text>
         <RNPickerSelect
@@ -122,18 +120,12 @@ export const AddPartyTransactionScreen = ({ navigation }: any) => {
           style={PickerStyles}
         />
 
-        <DateField 
-             label="Date"
-             value={date} 
-             onPress={() => setShowDatePicker(true)}
+        <DateField
+          label="Date"
+          value={date}
+          onPress={() => setShowDatePicker(true)}
         />
-        {/* We would render DateTimePicker modal here if using common pattern, assuming DateField handles display only */}
-        {/* Since I cannot see DateField implementation deeply or if it includes the modal, I'll assume standard pattern or simple native picker usage if DateField requires external picker. 
-           Actually, looking at previous ReminderScreen, I might need the datetimepicker component here too.
-           For brevity, just keeping DateField display logic and verify if DateField has internal picker or if I should add it.
-           The DateField read earlier seemed to just have a TouchableOpacity.
-        */}
-        
+
         {showDatePicker && (
           <DateTimePicker
             value={date}
@@ -155,17 +147,13 @@ export const AddPartyTransactionScreen = ({ navigation }: any) => {
           placeholder="Optional note"
         />
 
-        <TouchableOpacity 
-          style={[localStyles.saveBtn, { backgroundColor: isPayment ? AppColors.danger : AppColors.success }]} 
+        <TouchableOpacity
+          style={[localStyles.saveBtn, { backgroundColor: isPayment ? AppColors.danger : AppColors.success }]}
           onPress={handleSave}
         >
           <Text style={localStyles.saveText}>{isPayment ? 'Save Payment' : 'Save Receipt'}</Text>
         </TouchableOpacity>
       </ScrollView>
-      
-      {/* Import DateTimePicker dynamically or at top if needed. I'll stick to a simple impl for now and if user needs it, I'll add the proper picker code similar to ReminderScreen. 
-          Actually, let's just add it to be safe.
-      */}
     </View>
   );
 };

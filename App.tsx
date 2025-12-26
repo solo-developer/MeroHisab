@@ -10,7 +10,9 @@ import {
   StyleSheet,
   View
 } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, Provider as PaperProvider } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
+import { SnackbarProvider } from './src/context/SnackbarContext';
 
 enableScreens();
 
@@ -43,19 +45,22 @@ const App = () => {
 
     init();
   }, []);
-  
-   if (!dbReady) {
-    return  <DbLoadingScreen />; // or splash/loading screen
+
+  if (!dbReady) {
+    return <DbLoadingScreen />; // or splash/loading screen
   }
 
-return (
-    <>
-      <StatusBar
-        backgroundColor={APP_COLOR}
-        barStyle="light-content"
-      />
-      <MainContainer />
-    </>
+  return (
+    <PaperProvider>
+      <SnackbarProvider>
+        <StatusBar
+          backgroundColor={APP_COLOR}
+          barStyle="light-content"
+        />
+        <MainContainer />
+        <Toast />
+      </SnackbarProvider>
+    </PaperProvider>
   );
 };
 
