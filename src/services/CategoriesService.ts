@@ -28,7 +28,7 @@ export const CategoriesService = {
             type: request.type,
             isSystem: false,
           },
-          (          ledgerId: any) => {
+          (ledgerId: any) => {
 
             /* -----------------------------
              * 2️⃣ Create category

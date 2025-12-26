@@ -1,4 +1,3 @@
-// src/repositories/CategoryRepository.ts
 import { getDatabase } from './Database';
 import Category from '../models/Category';
 
@@ -8,7 +7,7 @@ export default class CategoryRepository {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `
           SELECT id, name, type, icon, color, ledgerId
@@ -17,7 +16,7 @@ export default class CategoryRepository {
           ORDER BY name;
           `,
           [],
-          (_, res) => {
+          (_: any, res: any) => {
             const categories: Category[] = [];
             for (let i = 0; i < res.rows.length; i++) {
               const r = res.rows.item(i);
@@ -34,16 +33,16 @@ export default class CategoryRepository {
             }
             resolve(categories);
           },
-          (_, err) => reject(err),
+          (_: any, err: any) => reject(err),
         );
       });
     });
   }
 
-    /**
-   * 🔹 Get single category by id (USED FOR ACCOUNTING)
-   * Must be transaction-aware
-   */
+  /**
+ * 🔹 Get single category by id (USED FOR ACCOUNTING)
+ * Must be transaction-aware
+ */
   static getById(
     tx: any,
     id: number,
@@ -86,7 +85,7 @@ export default class CategoryRepository {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `
           INSERT INTO categories (name, type, icon, color, ledgerId)
@@ -100,7 +99,7 @@ export default class CategoryRepository {
             category.ledgerId,
           ],
           () => resolve(),
-          (_, err) => reject(err),
+          (_: any, err: any) => reject(err),
         );
       });
     });
@@ -110,7 +109,7 @@ export default class CategoryRepository {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `
           UPDATE categories
@@ -124,7 +123,7 @@ export default class CategoryRepository {
             category.id,
           ],
           () => resolve(),
-          (_, err) => reject(err),
+          (_: any, err: any) => reject(err),
         );
       });
     });
@@ -134,7 +133,7 @@ export default class CategoryRepository {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `
           UPDATE categories
@@ -143,7 +142,7 @@ export default class CategoryRepository {
           `,
           [id],
           () => resolve(),
-          (_, err) => reject(err),
+          (_: any, err: any) => reject(err),
         );
       });
     });

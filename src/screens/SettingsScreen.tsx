@@ -44,9 +44,9 @@ const ManageScreen = ({ navigation }: any) => {
 const GeneralScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.item}>
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('BudgetOverview')}>
         <Icon name="bar-chart" size={24} color="#333" />
-        <Text style={styles.itemText}>Charts</Text>
+        <Text style={styles.itemText}>Budget Progress</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.item}>

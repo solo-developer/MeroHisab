@@ -64,6 +64,18 @@ export const initDatabase = (): Promise<void> => {
         `);
 
         tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS CategoryBudgets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            categoryId INTEGER NOT NULL,
+            month TEXT NOT NULL, -- Format: YYYY-MM
+            amount REAL NOT NULL DEFAULT 0,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(categoryId, month),
+            FOREIGN KEY (categoryId) REFERENCES categories(id)
+          );
+        `);
+
+        tx.executeSql(`
           CREATE TABLE IF NOT EXISTS wallets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -122,7 +134,7 @@ export const initDatabase = (): Promise<void> => {
             ('Discount Received', 'income', 1, 'DISCOUNT_RECEIVED');
         `);
 
-         tx.executeSql(`
+        tx.executeSql(`
           CREATE TABLE IF NOT EXISTS MetaCategory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE,
@@ -172,6 +184,12 @@ export const initDatabase = (): Promise<void> => {
             FOREIGN KEY (partyId) REFERENCES Parties(id) ON DELETE CASCADE
           );
         `);
+
+        tx.executeSql(`
+          ALTER TABLE categories ADD COLUMN monthlyLimit REAL DEFAULT 0;
+        `, [], () => { }, () => {
+          // Ignore error if column already exists
+        });
       },
       error => {
         console.error('DB init error:', error);

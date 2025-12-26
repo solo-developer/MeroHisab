@@ -4,7 +4,7 @@ export default class Category {
   type: 'Income' | 'Expense';
   icon: string;
   color: string;
-  ledgerId: number; 
+  ledgerId: number;
 
   constructor(
     name: string,

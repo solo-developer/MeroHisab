@@ -11,6 +11,8 @@ import ManagePartiesScreen from '../screens/ManagePartiesScreen';
 import AboutUsScreen from '../screens/AboutUsScreen';
 import TermsOfUseScreen from '../screens/TermsOfUseScreen';
 import HelpCentreScreen from '../screens/HelpCentreScreen';
+import BudgetOverviewScreen from '../screens/BudgetOverviewScreen';
+import ManageBudgetsScreen from '../screens/ManageBudgetsScreen';
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
@@ -23,6 +25,8 @@ export type SettingsStackParamList = {
   AboutUs: undefined;
   TermsOfUse: undefined;
   HelpCentre: undefined;
+  BudgetOverview: undefined;
+  ManageBudgets: { month: string };
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -79,6 +83,16 @@ const SettingsStack: React.FC = () => {
         name="HelpCentre"
         component={HelpCentreScreen}
         options={{ title: 'Help Centre' }}
+      />
+      <Stack.Screen
+        name="BudgetOverview"
+        component={BudgetOverviewScreen}
+        options={{ title: 'Budget Progress' }}
+      />
+      <Stack.Screen
+        name="ManageBudgets"
+        component={ManageBudgetsScreen}
+        options={{ title: 'Set Budget' }}
       />
     </Stack.Navigator>
   );
