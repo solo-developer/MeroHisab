@@ -1,7 +1,8 @@
 // src/services/WalletsService.ts
 import { getDatabase } from '../repositories/Database';
 import { LedgerRepository } from '../repositories/LedgerRepository';
-import WalletRepository from '../repositories/WalletRepository';
+import { TransactionSummaryRepository } from '../repositories/TransactionSummaryRepository';
+import { TransactionEntryRepository } from '../repositories/TransactionEntryRepository';
 import Wallet from '../models/Wallet';
 
 export interface CreateWalletRequest {
@@ -15,11 +16,7 @@ export const WalletsService = {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
-
-      /* ---------------------------------------------
-       * 1️⃣ Create Ledger (transaction-aware)
-       * --------------------------------------------- */
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         LedgerRepository.create(
           tx,
           {
@@ -27,28 +24,50 @@ export const WalletsService = {
             type: 'asset',
             isSystem: false,
           },
-          async (ledgerId: number) => {
-            try {
-              /* ---------------------------------------------
-               * 2️⃣ Create Wallet (repo handles its own tx)
-               * --------------------------------------------- */
-              const wallet = new Wallet(
-                request.name,
-                request.openingBalance ?? 0,
-                undefined,
-                ledgerId
-              );
-
-              await WalletRepository.add(wallet);
-              resolve();
-            } catch (e) {
-              reject(e);
-            }
+          (ledgerId: number) => {
+            // 2️⃣ Create Wallet record
+            const openingBal = request.openingBalance ?? 0;
+            
+            tx.executeSql(
+              `INSERT INTO wallets (name, balance, ledgerId) VALUES (?, ?, ?)`,
+              [request.name, openingBal, ledgerId],
+              (_: any, res: any) => {
+                // 3️⃣ If there's an opening balance, record it in ledger as a transaction
+                // This ensures the ledger calculation matches the snapshot
+                if (openingBal !== 0) {
+                  TransactionSummaryRepository.create(
+                    tx,
+                    {
+                      type: 'adjustment',
+                      date: new Date().toISOString(),
+                      note: 'Opening Balance',
+                      amount: openingBal,
+                    },
+                    (summaryId: number) => {
+                      TransactionEntryRepository.create(
+                        tx,
+                        {
+                          transactionSummaryId: summaryId,
+                          ledgerId: ledgerId,
+                          entryType: openingBal > 0 ? 'debit' : 'credit',
+                          amount: Math.abs(openingBal),
+                        },
+                        () => resolve(),
+                        (err) => reject(err)
+                      );
+                    },
+                    (err) => reject(err)
+                  );
+                } else {
+                  resolve();
+                }
+              },
+              (_: any, err: any) => { reject(err); return false; }
+            );
           },
           reject
         );
       });
-
     });
   }
 

@@ -151,14 +151,14 @@ const ReportsScreen: React.FC = () => {
       key={item.key}
       style={styles.card}
       onPress={() => handlePress(item.key)}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
       <View
-        style={[styles.iconContainer, { backgroundColor: item.color + '20' }]}
+        style={[styles.iconWrapper, { backgroundColor: item.color }]}
       >
-        <Icon name={item.icon} size={28} color={item.color} />
+        <Icon name={item.icon} size={24} color="#fff" />
       </View>
-      <Text style={[styles.cardTitle, { color: item.color }]}>
+      <Text style={styles.cardTitle}>
         {item.title}
       </Text>
     </TouchableOpacity>
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 20,
-    paddingBottom: 24,
+    paddingBottom: 120, // Increased to avoid overlap with BottomTabs
   },
   section: {
     marginBottom: 28,
@@ -221,23 +221,32 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_SIZE,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  iconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    marginBottom: 10,
   },
-  cardTitle: { fontSize: 13, textAlign: 'center', fontWeight: '500' },
+  cardTitle: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: '600',
+    color: '#333'
+  },
 });
 
 export default ReportsScreen;

@@ -116,32 +116,18 @@ export default class WalletRepository {
     const db = getDatabase();
 
     /**
-     * Balance logic:
-     * - Debit  => +amount (asset increase)
-     * - Credit => -amount (asset decrease)
-     *
-     * Wallets are assets → normal balance = debit
+     * Optimization: instead of re-calculating everything from TransactionEntry 
+     * which might miss initial/manual snapshots, we use the 'balance' column 
+     * which is maintained as a live snapshot in the wallets table.
      */
     const query = `
       SELECT
         w.id            AS walletId,
         w.name          AS walletName,
         w.ledgerId      AS ledgerId,
-        COALESCE(
-          SUM(
-            CASE
-              WHEN te.entryType = 'debit'  THEN te.amount
-              WHEN te.entryType = 'credit' THEN -te.amount
-              ELSE 0
-            END
-          ),
-          0
-        ) AS balance
+        COALESCE(w.balance, 0) AS balance
       FROM wallets w
-      LEFT JOIN TransactionEntry te
-        ON te.ledgerId = w.ledgerId
       WHERE w.deletedAt IS NULL
-      GROUP BY w.id, w.name, w.ledgerId
       ORDER BY w.name ASC
     `;
 

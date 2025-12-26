@@ -16,7 +16,7 @@ export const TransferService = {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
 
         const transactionDate =
           request.date || new Date().toISOString().split('T')[0];
@@ -27,10 +27,10 @@ export const TransferService = {
           (externalLedgerId) => {
 
             const fromLedgerId =
-              request.fromLedgerId == 0 ? externalLedgerId : request.fromLedgerId;
+              (request.fromLedgerId === 0 || request.fromLedgerId === undefined) ? externalLedgerId : request.fromLedgerId;
 
             const toLedgerId =
-              request.toLedgerId== 0 ? externalLedgerId : request.toLedgerId;
+              (request.toLedgerId === 0 || request.toLedgerId === undefined) ? externalLedgerId : request.toLedgerId;
 
             // 2️⃣ Create transaction summary
             TransactionSummaryRepository.create(
@@ -42,6 +42,11 @@ export const TransferService = {
                 amount : request.amount
               },
               (summaryId) => {
+                // 2.5️⃣ Record in Transfer table for reports
+                tx.executeSql(
+                  `INSERT INTO Transfer (transactionSummaryId, fromLedgerId, toLedgerId) VALUES (?, ?, ?)`,
+                  [summaryId, fromLedgerId, toLedgerId]
+                );
 
                 // 3️⃣ Always double-entry
                 const entries = [
@@ -76,7 +81,7 @@ export const TransferService = {
                     () => {
                       LedgerDailyBalanceRepository.updateBalance(
                         tx,
-                        e.ledgerId,
+                        e.ledgerId!,
                         transactionDate,
                         0,
                         0,

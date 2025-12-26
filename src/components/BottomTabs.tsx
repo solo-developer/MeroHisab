@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
+  Keyboard,
+  Platform,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { navigationRef, SwipeTabRoutes } from '../navigation/navigationRef';
@@ -38,6 +40,23 @@ const FabItem: React.FC<FabItemProps & { style?: object }> = ({
 const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
   const [isFabOpen, setIsFabOpen] = useState(false);
   const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  React.useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => setIsKeyboardVisible(true)
+    );
+    const hideSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setIsKeyboardVisible(false)
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const { width } = Dimensions.get('window');
   const fabBottom = 32;
@@ -67,13 +86,13 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
     if (item.label === 'Transfer') {
       setTimeout(() => setIsTransferModalVisible(true), 50);
     } else if (item.label === 'Income') {
-      navigationRef.navigate('AddIncome');
+      (navigationRef as any).navigate('AddIncome');
     } else if (item.label === 'Expense') {
-      navigationRef.navigate('AddExpense');
+      (navigationRef as any).navigate('AddExpense');
     } else if (item.label === 'Receipt') {
-      navigationRef.navigate('AddPartyTransaction', { type: 'receipt' });
+      (navigationRef as any).navigate('AddPartyTransaction', { type: 'receipt' });
     } else if (item.label === 'Payment') {
-      navigationRef.navigate('AddPartyTransaction', { type: 'payment' });
+      (navigationRef as any).navigate('AddPartyTransaction', { type: 'payment' });
     } else {
       item.onPress();
     }
@@ -94,6 +113,8 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
       </TouchableOpacity>
     );
   };
+
+  if (isKeyboardVisible) return null;
 
   return (
     <>

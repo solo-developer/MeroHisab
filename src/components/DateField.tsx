@@ -34,7 +34,7 @@ const DateField: React.FC<DateFieldProps> = ({ label, value, onPress }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { marginBottom: 12 },
   label: {
     fontSize: 12,
     color: '#666',
