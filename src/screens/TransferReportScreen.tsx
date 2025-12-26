@@ -16,14 +16,19 @@ import {
   TransferReportRow,
 } from '../repositories/TransferReportRepository';
 
-const toSQLDate = (date?: Date) =>
-  date ? date.toISOString().split('T')[0] : undefined;
+import { toSQLDate } from '../helpers/DateHelper';
+import { ExportHelper } from '../helpers/ExportHelper';
+import { GlobalStyles, AppColors } from '../constants/Styles';
 
 const TransferReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
-  const [fromDate, setFromDate] = useState<Date | undefined>();
-  const [toDate, setToDate] = useState<Date | undefined>();
+  const today = new Date();
+  const lastWeek = new Date();
+  lastWeek.setDate(today.getDate() - 6);
+
+  const [fromDate, setFromDate] = useState<Date>(lastWeek);
+  const [toDate, setToDate] = useState<Date>(today);
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
@@ -74,7 +79,7 @@ const TransferReportScreen: React.FC = () => {
 
         <Text style={styles.headerTitle}>Transfer Report</Text>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => ExportHelper.exportReport('Transfer Report', transferList)}>
           <Ionicons name="download-outline" size={22} color="#333" />
         </TouchableOpacity>
       </View>

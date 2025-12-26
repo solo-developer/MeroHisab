@@ -19,7 +19,8 @@ import RNPickerSelect from 'react-native-picker-select';
 import MetaCategoryRepository, { MetaCategory } from '../repositories/MetaCategoryRepository';
 import { Ledger } from '../repositories/LedgerRepository';
 
-const toSQLDate = (date?: Date) => date ? date.toISOString().split('T')[0] : undefined;
+import { toSQLDate } from '../helpers/DateHelper';
+import { ExportHelper } from '../helpers/ExportHelper';
 
 interface MetaCategoryLedgerRow {
   ledgerName: string;
@@ -33,7 +34,7 @@ const ReportByMetaCategoryScreen: React.FC = () => {
   // Default date range: last 7 days
   const today = new Date();
   const lastWeek = new Date();
-  lastWeek.setDate(today.getDate() - 7);
+  lastWeek.setDate(today.getDate() - 6);
 
   const [fromDate, setFromDate] = useState<Date>(lastWeek);
   const [toDate, setToDate] = useState<Date>(today);
@@ -62,25 +63,25 @@ const ReportByMetaCategoryScreen: React.FC = () => {
 
   // Load report
   const loadReport = async () => {
-  if (!selectedCategoryId) return;
-  setLoading(true);
+    if (!selectedCategoryId) return;
+    setLoading(true);
 
-  const rows = await MetaCategoryRepository.getReportByMetaCategory(
-    selectedCategoryId,
-    toSQLDate(fromDate),
-    toSQLDate(toDate)
-  );
+    const rows = await MetaCategoryRepository.getReportByMetaCategory(
+      selectedCategoryId,
+      toSQLDate(fromDate) || '',
+      toSQLDate(toDate) || ''
+    );
 
-  setLedgerReport(rows);
+    setLedgerReport(rows);
 
-  // Compute totals
-  const incomeTotal = rows.reduce((acc, r) => acc + r.totalIncome, 0);
-  const expenseTotal = rows.reduce((acc, r) => acc + r.totalExpense, 0);
-  setTotalIncome(incomeTotal);
-  setTotalExpense(expenseTotal);
+    // Compute totals
+    const incomeTotal = rows.reduce((acc, r) => acc + r.totalIncome, 0);
+    const expenseTotal = rows.reduce((acc, r) => acc + r.totalExpense, 0);
+    setTotalIncome(incomeTotal);
+    setTotalExpense(expenseTotal);
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   useEffect(() => {
     loadReport();
@@ -106,9 +107,17 @@ const ReportByMetaCategoryScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Meta Category Report</Text>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Ionicons name="filter-outline" size={24} color="#333" />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => ExportHelper.exportReport('Meta Category Report', ledgerReport)}
+            style={{ marginRight: 15 }}
+          >
+            <Ionicons name="download-outline" size={22} color="#333" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Ionicons name="filter-outline" size={24} color="#333" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Total Bar */}

@@ -17,14 +17,15 @@ import {
 } from '../repositories/IncomeReportRepository';
 import { toSQLDate } from '../helpers/DateHelper';
 import { AppColors, GlobalStyles } from '../constants/Styles';
+import { ExportHelper } from '../helpers/ExportHelper';
 
 const IncomeReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
-    // Default date range: last 7 days
+  // Default date range: last 7 days
   const today = new Date();
   const lastWeek = new Date();
-  lastWeek.setDate(today.getDate() - 7);
+  lastWeek.setDate(today.getDate() - 6);
 
   const [fromDate, setFromDate] = useState<Date>(lastWeek);
   const [toDate, setToDate] = useState<Date>(today);
@@ -79,7 +80,7 @@ const IncomeReportScreen: React.FC = () => {
 
         <Text style={GlobalStyles.headerTitle}>Income Report</Text>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => ExportHelper.exportReport('Income Report', incomeList)}>
           <Ionicons name="download-outline" size={22} color="#333" />
         </TouchableOpacity>
       </View>

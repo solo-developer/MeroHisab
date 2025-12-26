@@ -5,6 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { ReportService, PaymentReceiptRecord } from '../services/ReportService';
+import { ExportHelper } from '../helpers/ExportHelper';
 
 interface ReceiptRecord {
   id: number;
@@ -17,7 +18,7 @@ interface ReceiptRecord {
 const ReceiptReportScreen = () => {
   const navigation = useNavigation();
   const [receipts, setReceipts] = useState<ReceiptRecord[]>([]);
-  const [startDate, setStartDate] = useState(new Date(new Date().setDate(1)));
+  const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 6)));
   const [endDate, setEndDate] = useState(new Date());
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
@@ -43,7 +44,7 @@ const ReceiptReportScreen = () => {
           <Text style={styles.date}>{new Date(item.date).toLocaleDateString()}</Text>
           {item.note && <Text style={styles.note}>{item.note}</Text>}
         </View>
-        <Text style={[styles.amount, { color: AppColors.success }]}>+${item.amount.toFixed(2)}</Text>
+        <Text style={[styles.amount, { color: AppColors.success }]}>₹ {item.amount.toFixed(2)}</Text>
       </View>
     </View>
   );
@@ -57,7 +58,9 @@ const ReceiptReportScreen = () => {
           <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
         <Text style={GlobalStyles.headerTitle}>Receipts</Text>
-        <View style={{ width: 22 }} />
+        <TouchableOpacity onPress={() => ExportHelper.exportReport('Receipts Report', receipts)}>
+          <Ionicons name="download-outline" size={22} color="#333" />
+        </TouchableOpacity>
       </View>
 
       <View style={GlobalStyles.container}>
@@ -78,7 +81,7 @@ const ReceiptReportScreen = () => {
 
         <View style={styles.totalCard}>
           <Text style={styles.totalLabel}>Total Receipts</Text>
-          <Text style={[styles.totalAmount, { color: AppColors.success }]}>${totalReceipts.toFixed(2)}</Text>
+          <Text style={[styles.totalAmount, { color: AppColors.success }]}>₹ {totalReceipts.toFixed(2)}</Text>
         </View>
 
         <FlatList

@@ -17,14 +17,15 @@ import {
 } from '../repositories/ExpenseReportRepository';
 import { toSQLDate } from '../helpers/DateHelper';
 import { AppColors, GlobalStyles } from '../constants/Styles';
+import { ExportHelper } from '../helpers/ExportHelper';
 
 const ExpenseReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
-    // Default date range: last 7 days
+  // Default date range: last 7 days
   const today = new Date();
   const lastWeek = new Date();
-  lastWeek.setDate(today.getDate() - 7);
+  lastWeek.setDate(today.getDate() - 6);
 
   const [fromDate, setFromDate] = useState<Date>(lastWeek);
   const [toDate, setToDate] = useState<Date>(today);
@@ -78,7 +79,7 @@ const ExpenseReportScreen: React.FC = () => {
 
         <Text style={GlobalStyles.headerTitle}>Expense Report</Text>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => ExportHelper.exportReport('Expense Report', expenseList)}>
           <Ionicons name="download-outline" size={22} color="#333" />
         </TouchableOpacity>
       </View>

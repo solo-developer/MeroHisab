@@ -11,6 +11,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import WalletRepository, {
   WalletBalanceRow,
 } from '../repositories/WalletRepository';
+import { ExportHelper } from '../helpers/ExportHelper';
+import { GlobalStyles } from '../constants/Styles';
 
 const WalletBalanceReportScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -57,7 +59,7 @@ const WalletBalanceReportScreen: React.FC = () => {
         You haven't added any wallets yet.
       </Text>
 
-      
+
     </View>
   );
 
@@ -69,7 +71,9 @@ const WalletBalanceReportScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Wallet Balances</Text>
-        <View style={{ width: 22 }} />
+        <TouchableOpacity onPress={() => ExportHelper.exportReport('Wallet Balance', wallets)}>
+          <Ionicons name="download-outline" size={22} color="#333" />
+        </TouchableOpacity>
       </View>
 
       {/* Total Wallet Balance Card */}

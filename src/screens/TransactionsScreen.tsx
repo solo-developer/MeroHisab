@@ -5,12 +5,16 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { DeviceEventEmitter } from 'react-native';
 
 import { TransactionSummaryRepository } from '../repositories/TransactionSummaryRepository';
+import { ExportHelper } from '../helpers/ExportHelper';
+import { toSQLDate } from '../helpers/DateHelper';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface TransactionEntry {
   id: number;
@@ -38,7 +42,8 @@ const typeColors: Record<string, string> = {
   transfer: '#1976d2',
 };
 
-// Helper: format date/time for transactions
+const PAGE_SIZE = 20;
+
 const formatDateTime = (isoString: string) => {
   const dt = new Date(isoString);
   const options: Intl.DateTimeFormatOptions = {
@@ -51,55 +56,97 @@ const formatDateTime = (isoString: string) => {
   return dt.toLocaleString('en-IN', options);
 };
 
-// Helper: get only yyyy-mm-dd for grouping
-const getDateOnly = (isoString: string) => isoString.split('T')[0];
+const getDateOnly = (isoString: string) => toSQLDate(new Date(isoString)) || isoString.split(' ')[0];
 
 const TransactionsScreen: React.FC = () => {
   const [transactions, setTransactions] = useState<TransactionSummary[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  const loadTransactions = () => {
+  const loadTransactions = (isRefresh = false) => {
+    if (loading) return;
+    if (!isRefresh && !hasMore) return;
+
+    setLoading(true);
+    const currentOffset = isRefresh ? 0 : offset;
+
     TransactionSummaryRepository.listWithNetAmount(
+      PAGE_SIZE,
+      currentOffset,
       summaries => {
-        setTransactions(
-          summaries.map(s => ({
-            id: s.id,
-            type: s.type,
-            note: s.note,
-            date: s.date,
-            netAmount: s.netAmount,
-            entries: [],
-          }))
-        );
+        const mapped = summaries.map(s => ({
+          id: s.id,
+          type: s.type,
+          note: s.note,
+          date: s.date,
+          netAmount: s.netAmount,
+          entries: [],
+        }));
+
+        if (isRefresh) {
+          setTransactions(mapped);
+          setOffset(PAGE_SIZE);
+        } else {
+          setTransactions(prev => [...prev, ...mapped]);
+          setOffset(prev => prev + PAGE_SIZE);
+        }
+
+        setHasMore(summaries.length === PAGE_SIZE);
+        setLoading(false);
+        setRefreshing(false);
       },
-      err => console.error('Failed to load transactions', err)
+      err => {
+        console.error('Failed to load transactions', err);
+        setLoading(false);
+        setRefreshing(false);
+      }
     );
   };
 
-  useFocusEffect(useCallback(() => loadTransactions(), []));
+  useFocusEffect(useCallback(() => {
+    loadTransactions(true);
+  }, []));
 
   useEffect(() => {
     const subs = [
-      DeviceEventEmitter.addListener('transactionsUpdated', loadTransactions),
-      DeviceEventEmitter.addListener('incomeAdded', loadTransactions),
-      DeviceEventEmitter.addListener('expenseAdded', loadTransactions),
+      DeviceEventEmitter.addListener('transactionsUpdated', () => loadTransactions(true)),
+      DeviceEventEmitter.addListener('incomeAdded', () => loadTransactions(true)),
+      DeviceEventEmitter.addListener('expenseAdded', () => loadTransactions(true)),
     ];
     return () => subs.forEach(sub => sub.remove());
-  }, []);
+  }, [offset, hasMore]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadTransactions(true);
+  };
+
+  const onEndReached = () => {
+    if (!loading && hasMore) {
+      loadTransactions();
+    }
+  };
 
   const toggleExpand = (id: number) => {
     setExpandedId(prev => (prev === id ? null : id));
   };
 
   // Group by date only
-  const groupedTransactions: GroupedTransactions[] = Object.values(
-    transactions.reduce((acc, tx) => {
-      const dateKey = getDateOnly(tx.date);
-      if (!acc[dateKey]) acc[dateKey] = { date: dateKey, transactions: [] };
-      acc[dateKey].transactions.push(tx);
-      return acc;
-    }, {} as Record<string, GroupedTransactions>)
-  ).sort((a, b) => (a.date < b.date ? 1 : -1)); // latest first
+  const groupedTransactions: GroupedTransactions[] = [];
+  const groups: Record<string, TransactionSummary[]> = {};
+
+  transactions.forEach(tx => {
+    const dateKey = getDateOnly(tx.date);
+    if (!groups[dateKey]) groups[dateKey] = [];
+    groups[dateKey].push(tx);
+  });
+
+  Object.keys(groups).sort((a, b) => b.localeCompare(a)).forEach(date => {
+    groupedTransactions.push({ date, transactions: groups[date] });
+  });
 
   const renderTransaction = (tx: TransactionSummary) => {
     const isExpanded = expandedId === tx.id;
@@ -143,6 +190,9 @@ const TransactionsScreen: React.FC = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Transactions</Text>
+          <TouchableOpacity onPress={() => ExportHelper.exportReport('Transactions', transactions)}>
+            <Ionicons name="download-outline" size={24} color="#333" />
+          </TouchableOpacity>
         </View>
 
         <FlatList
@@ -150,13 +200,22 @@ const TransactionsScreen: React.FC = () => {
           keyExtractor={item => item.date}
           renderItem={renderGroup}
           contentContainerStyle={styles.listContent}
+          onRefresh={onRefresh}
+          refreshing={refreshing}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={() => (
+            loading && !refreshing ? <ActivityIndicator style={{ marginVertical: 20 }} color="#0a84ff" /> : null
+          )}
           ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyTitle}>No transactions yet</Text>
-              <Text style={styles.emptySubtitle}>
-                Your expenses, income, and transfers will appear here.
-              </Text>
-            </View>
+            !loading ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyTitle}>No transactions yet</Text>
+                <Text style={styles.emptySubtitle}>
+                  Your expenses, income, and transfers will appear here.
+                </Text>
+              </View>
+            ) : null
           }
         />
       </View>
@@ -170,6 +229,9 @@ const styles = StyleSheet.create({
   header: {
     paddingVertical: 16,
     paddingHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: '#fff',
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#ddd',

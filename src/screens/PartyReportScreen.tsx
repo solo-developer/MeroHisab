@@ -5,6 +5,7 @@ import { GlobalStyles, AppColors } from '../constants/Styles';
 import { getDatabase } from '../repositories/Database';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ExportHelper } from '../helpers/ExportHelper';
 
 interface PartyBalance {
   id: number;
@@ -81,7 +82,9 @@ const PartyReportScreen = () => {
           <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
         <Text style={GlobalStyles.headerTitle}>Party Balances</Text>
-        <View style={{ width: 22 }} />
+        <TouchableOpacity onPress={() => ExportHelper.exportReport('Party Balance', parties)}>
+          <Ionicons name="download-outline" size={22} color="#333" />
+        </TouchableOpacity>
       </View>
 
       <View style={GlobalStyles.container}>

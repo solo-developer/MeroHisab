@@ -31,7 +31,7 @@ const buttonWidth = (screenWidth - 16 * 2 - spacing * (numColumns - 1)) / numCol
 
 const DashboardScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const [range, setRange] = useState<ReportRange>('this_month');
+  const [range, setRange] = useState<ReportRange>('last_7_days');
   const [summary, setSummary] = useState({ income: 0, expense: 0 });
 
   const loadData = async () => {
@@ -71,6 +71,7 @@ const DashboardScreen: React.FC = () => {
             style={styles.picker}
             dropdownIconColor={AppColors.primary}
           >
+            <Picker.Item label="Last 7 Days" value="last_7_days" />
             <Picker.Item label="This Week" value="this_week" />
             <Picker.Item label="This Month" value="this_month" />
             <Picker.Item label="Last Month" value="previous_month" />

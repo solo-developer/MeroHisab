@@ -13,14 +13,16 @@ import { LineChart } from 'react-native-gifted-charts';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { AppColors, GlobalStyles } from '../constants/Styles';
 import { ReportService, TrendDataPoint } from '../services/ReportService';
+import { ExportHelper } from '../helpers/ExportHelper';
+import { toSQLDate } from '../helpers/DateHelper';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-type RangeType = '1M' | '3M';
+type RangeType = '1W' | '1M' | '3M';
 
 const TrendReportScreen: React.FC = () => {
     const [loading, setLoading] = useState(true);
-    const [range, setRange] = useState<RangeType>('1M');
+    const [range, setRange] = useState<RangeType>('1W');
     const [data, setData] = useState<TrendDataPoint[]>([]);
 
     const loadData = async (selectedRange: RangeType) => {
@@ -28,7 +30,9 @@ const TrendReportScreen: React.FC = () => {
             setLoading(true);
             const endDate = new Date();
             const startDate = new Date();
-            if (selectedRange === '1M') {
+            if (selectedRange === '1W') {
+                startDate.setDate(startDate.getDate() - 6);
+            } else if (selectedRange === '1M') {
                 startDate.setMonth(startDate.getMonth() - 1);
             } else {
                 startDate.setMonth(startDate.getMonth() - 3);
@@ -40,7 +44,7 @@ const TrendReportScreen: React.FC = () => {
             const filledData: TrendDataPoint[] = [];
             const curr = new Date(startDate);
             while (curr <= endDate) {
-                const dateStr = curr.toISOString().split('T')[0];
+                const dateStr = toSQLDate(curr)!;
                 const existing = trendData.find(d => d.date === dateStr);
                 filledData.push(existing || { date: dateStr, income: 0, expense: 0 });
                 curr.setDate(curr.getDate() + 1);
@@ -90,19 +94,33 @@ const TrendReportScreen: React.FC = () => {
         <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Trend Analysis</Text>
-                <View style={styles.rangeSelector}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <TouchableOpacity
-                        style={[styles.rangeButton, range === '1M' && styles.rangeButtonActive]}
-                        onPress={() => setRange('1M')}
+                        onPress={() => ExportHelper.exportReport('Trend Analysis', data)}
+                        style={{ marginRight: 15 }}
                     >
-                        <Text style={[styles.rangeText, range === '1M' && styles.rangeTextActive]}>1 Month</Text>
+                        <MaterialIcons name="download" size={24} color="#333" />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.rangeButton, range === '3M' && styles.rangeButtonActive]}
-                        onPress={() => setRange('3M')}
-                    >
-                        <Text style={[styles.rangeText, range === '3M' && styles.rangeTextActive]}>3 Months</Text>
-                    </TouchableOpacity>
+                    <View style={styles.rangeSelector}>
+                        <TouchableOpacity
+                            style={[styles.rangeButton, range === '1W' && styles.rangeButtonActive]}
+                            onPress={() => setRange('1W')}
+                        >
+                            <Text style={[styles.rangeText, range === '1W' && styles.rangeTextActive]}>1W</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.rangeButton, range === '1M' && styles.rangeButtonActive]}
+                            onPress={() => setRange('1M')}
+                        >
+                            <Text style={[styles.rangeText, range === '1M' && styles.rangeTextActive]}>1M</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.rangeButton, range === '3M' && styles.rangeButtonActive]}
+                            onPress={() => setRange('3M')}
+                        >
+                            <Text style={[styles.rangeText, range === '3M' && styles.rangeTextActive]}>3M</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
 

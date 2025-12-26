@@ -5,6 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { ReportService, PaymentReceiptRecord } from '../services/ReportService';
+import { ExportHelper } from '../helpers/ExportHelper';
 
 interface PaymentRecord {
   id: number;
@@ -17,7 +18,7 @@ interface PaymentRecord {
 const PaymentReportScreen = () => {
   const navigation = useNavigation();
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
-  const [startDate, setStartDate] = useState(new Date(new Date().setDate(1))); // First day of month
+  const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 6)));
   const [endDate, setEndDate] = useState(new Date());
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
@@ -43,7 +44,7 @@ const PaymentReportScreen = () => {
           <Text style={styles.date}>{new Date(item.date).toLocaleDateString()}</Text>
           {item.note && <Text style={styles.note}>{item.note}</Text>}
         </View>
-        <Text style={[styles.amount, { color: AppColors.danger }]}>-${item.amount.toFixed(2)}</Text>
+        <Text style={[styles.amount, { color: AppColors.danger }]}>₹ {item.amount.toFixed(2)}</Text>
       </View>
     </View>
   );
@@ -57,7 +58,9 @@ const PaymentReportScreen = () => {
           <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
         <Text style={GlobalStyles.headerTitle}>Payments</Text>
-        <View style={{ width: 22 }} />
+        <TouchableOpacity onPress={() => ExportHelper.exportReport('Payments Report', payments)}>
+          <Ionicons name="download-outline" size={22} color="#333" />
+        </TouchableOpacity>
       </View>
 
       <View style={GlobalStyles.container}>
@@ -78,7 +81,7 @@ const PaymentReportScreen = () => {
 
         <View style={styles.totalCard}>
           <Text style={styles.totalLabel}>Total Payments</Text>
-          <Text style={[styles.totalAmount, { color: AppColors.danger }]}>${totalPayments.toFixed(2)}</Text>
+          <Text style={[styles.totalAmount, { color: AppColors.danger }]}>₹ {totalPayments.toFixed(2)}</Text>
         </View>
 
         <FlatList

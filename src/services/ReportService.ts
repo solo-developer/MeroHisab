@@ -1,5 +1,5 @@
 // src/services/ReportService.ts
-import { getRangeDates, ReportRange } from '../helpers/DateHelper';
+import { getRangeDates, ReportRange, toSQLDate } from '../helpers/DateHelper';
 import {
   IncomeExpenseReport,
   TransactionSummaryRepository,
@@ -26,9 +26,10 @@ export class ReportService {
   ): Promise<IncomeExpenseReport> {
     const { startDate, endDate } = getRangeDates(range);
 
+    // Using date() function in SQL for robust comparison
     return TransactionSummaryRepository.getIncomeExpense(
-      startDate.toISOString(),
-      endDate.toISOString(),
+      toSQLDate(startDate)!,
+      toSQLDate(endDate)!,
     );
   }
 
@@ -46,9 +47,9 @@ export class ReportService {
            JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
            JOIN Parties p ON p.ledgerId = te.ledgerId
            WHERE ts.type = 'payment'
-           AND ts.date BETWEEN ? AND ?
+           AND date(ts.date) BETWEEN ? AND ?
            ORDER BY ts.date DESC`,
-          [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]],
+          [toSQLDate(startDate), toSQLDate(endDate)],
           (_: any, results: any) => {
             const data: PaymentReceiptRecord[] = [];
             for (let i = 0; i < results.rows.length; i++) {
@@ -79,9 +80,9 @@ export class ReportService {
            JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
            JOIN Parties p ON p.ledgerId = te.ledgerId
            WHERE ts.type = 'receipt'
-           AND ts.date BETWEEN ? AND ?
+           AND date(ts.date) BETWEEN ? AND ?
            ORDER BY ts.date DESC`,
-          [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]],
+          [toSQLDate(startDate), toSQLDate(endDate)],
           (_: any, results: any) => {
             const data: PaymentReceiptRecord[] = [];
             for (let i = 0; i < results.rows.length; i++) {
@@ -113,10 +114,10 @@ export class ReportService {
             SUM(CASE WHEN type IN ('expense', 'payment') THEN amount ELSE 0 END) as expense
            FROM TransactionSummary
            WHERE deletedAt IS NULL
-           AND date BETWEEN ? AND ?
+           AND date(date) BETWEEN ? AND ?
            GROUP BY date(date)
            ORDER BY date(date) ASC`,
-          [startDate.toISOString(), endDate.toISOString()],
+          [toSQLDate(startDate), toSQLDate(endDate)],
           (_: any, results: any) => {
             const data: TrendDataPoint[] = [];
             for (let i = 0; i < results.rows.length; i++) {

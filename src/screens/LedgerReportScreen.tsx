@@ -24,8 +24,8 @@ import { LedgerRepository } from '../repositories/LedgerRepository';
 import CategoryRepository from '../repositories/CategoryRepository';
 import WalletRepository from '../repositories/WalletRepository';
 
-const toSQLDate = (date?: Date) =>
-  date ? date.toISOString().split('T')[0] : undefined;
+import { toSQLDate } from '../helpers/DateHelper';
+import { ExportHelper } from '../helpers/ExportHelper';
 
 const LedgerReportScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -33,7 +33,7 @@ const LedgerReportScreen: React.FC = () => {
   // Default date range: last 7 days
   const today = new Date();
   const lastWeek = new Date();
-  lastWeek.setDate(today.getDate() - 7);
+  lastWeek.setDate(today.getDate() - 6);
 
   const [fromDate, setFromDate] = useState<Date>(lastWeek);
   const [toDate, setToDate] = useState<Date>(today);
@@ -76,8 +76,8 @@ const LedgerReportScreen: React.FC = () => {
   /** Load ledger report */
   const loadReport = async () => {
     const rows = await LedgerReportRepository.getReport(
-      toSQLDate(fromDate),
-      toSQLDate(toDate),
+      toSQLDate(fromDate) || '',
+      toSQLDate(toDate) || '',
       filterType,
       filterId,
     );
@@ -117,9 +117,17 @@ const LedgerReportScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Ledger Report</Text>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Ionicons name="filter-outline" size={24} color="#333" />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => ExportHelper.exportReport('Ledger Report', reportList)}
+            style={{ marginRight: 15 }}
+          >
+            <Ionicons name="download-outline" size={22} color="#333" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Ionicons name="filter-outline" size={24} color="#333" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Total */}
