@@ -1,46 +1,52 @@
-import notifee, { TimestampTrigger, TriggerType, RepeatFrequency, AndroidImportance } from '@notifee/react-native';
+import notifee, { TimestampTrigger, TriggerType, RepeatFrequency, AndroidImportance, AndroidVisibility } from '@notifee/react-native';
 import { Reminder } from '../models/Reminder';
 import { ReminderRepository } from '../repositories/ReminderRepository';
 
 export const ReminderService = {
+  /**
+   * Request notification permissions (required for Android 13+)
+   */
+  requestPermissions: async () => {
+    const settings = await notifee.requestPermission();
+    return settings.authorizationStatus >= 1; // 1 = Authorized
+  },
+
   scheduleReminder: async (reminder: Reminder) => {
-    // 1. Create a channel (required for Android)
+    // 0. Permission check
+    await ReminderService.requestPermissions();
+
+    // 1. Create a high-priority channel (required for Android)
     const channelId = await notifee.createChannel({
       id: 'reminders',
-      name: 'Reminders',
+      name: 'Budget Reminders',
       importance: AndroidImportance.HIGH,
+      visibility: AndroidVisibility.PUBLIC,
+      sound: 'default',
     });
 
     // 2. Set up the trigger
     const date = new Date(reminder.date);
     
-    // Ensure date is in the future.
-    if (date.getTime() <= Date.now()) {
-        // Automatically bump to tomorrow if time is passed? 
-        // Or just let notifee handle it (it might fire immediately).
+    // If the date is in the past and not recurring, we probably shouldn't schedule it
+    if (date.getTime() <= Date.now() && !reminder.isRecurring) {
+        throw new Error('Please select a future date and time.');
     }
 
     let trigger: TimestampTrigger = {
       type: TriggerType.TIMESTAMP,
       timestamp: date.getTime(),
+      alarmManager: true, // Use exact alarms for higher reliability
     };
 
     if (reminder.isRecurring && reminder.frequency) {
-      switch (reminder.frequency) {
-        case 'daily':
-            trigger.repeatFrequency = RepeatFrequency.DAILY;
-            break;
-        case 'weekly':
-            trigger.repeatFrequency = RepeatFrequency.WEEKLY;
-            break;
-        case 'monthly':
-            // Notifee simple trigger doesn't support monthly directly without custom logic. 
-            // We serve it as one-time for now to avoid complexity of headless tasks in this snippet.
-            // Or we could leave repeatFrequency undefined which means fire once.
-            break;
-        case 'yearly':
-            break;
-      }
+        switch (reminder.frequency) {
+            case 'daily':
+                trigger.repeatFrequency = RepeatFrequency.DAILY;
+                break;
+            case 'weekly':
+                trigger.repeatFrequency = RepeatFrequency.WEEKLY;
+                break;
+        }
     }
 
     // 3. Create the notification
@@ -48,28 +54,30 @@ export const ReminderService = {
     try {
         notificationId = await notifee.createTriggerNotification(
             {
-              title: 'Reminder',
+              title: '🔔 Mero Hisab Reminder',
               body: reminder.message,
               android: {
                 channelId,
+                importance: AndroidImportance.HIGH,
                 pressAction: {
                   id: 'default',
                 },
-                smallIcon: 'ic_launcher', // verify this exists or remove if not sure
+                smallIcon: 'ic_launcher', 
               },
+              ios: {
+                critical: true,
+              }
             },
             trigger,
           );
     } catch (e) {
         console.error("Failed to schedule notification", e);
-        // If scheduling fails, we still might want to save it but without ID?
-        // Or rethrow.
         notificationId = ''; 
     }
 
     // 4. Save to DB
     reminder.notificationId = notificationId;
-    await ReminderRepository.create(reminder);
+    return await ReminderRepository.create(reminder);
   },
 
   getAllReminders: async () => {

@@ -42,7 +42,18 @@ const ReminderScreen = ({ navigation }: any) => {
         Alert.alert('Error', 'Please enter a message');
         return;
       }
-      
+
+      // Check for permissions
+      const hasPermission = await ReminderService.requestPermissions();
+      if (!hasPermission) {
+        Alert.alert(
+          'Notifications Disabled',
+          'To receive reminders, please enable notifications for Mero Hisab in your phone settings.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
       const newReminder: Reminder = {
         message: message,
         date: date.toISOString(),
@@ -54,9 +65,9 @@ const ReminderScreen = ({ navigation }: any) => {
 
       Alert.alert("Success", "Reminder set successfully!");
       navigation.goBack();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      Alert.alert("Error", "Failed to schedule reminder.");
+      Alert.alert("Error", error.message || "Failed to schedule reminder.");
     }
   };
 
@@ -73,8 +84,8 @@ const ReminderScreen = ({ navigation }: any) => {
       />
 
       <Text style={GlobalStyles.label}>Date</Text>
-      <TouchableOpacity 
-        style={styles.pickerButton} 
+      <TouchableOpacity
+        style={styles.pickerButton}
         onPress={() => setShowDatePicker(true)}
       >
         <Text style={GlobalStyles.text}>{date.toLocaleDateString()}</Text>
@@ -82,14 +93,14 @@ const ReminderScreen = ({ navigation }: any) => {
       </TouchableOpacity>
 
       <Text style={GlobalStyles.label}>Time</Text>
-      <TouchableOpacity 
-        style={styles.pickerButton} 
+      <TouchableOpacity
+        style={styles.pickerButton}
         onPress={() => setShowTimePicker(true)}
       >
         <Text style={GlobalStyles.text}>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
         <Ionicons name="time-outline" size={20} color={AppColors.textSecondary} />
       </TouchableOpacity>
-      
+
       <View style={[GlobalStyles.rowBetween, { marginTop: 20 }]}>
         <View>
           <Text style={[GlobalStyles.text, { fontSize: 16, fontWeight: '500' }]}>Recurring Reminder</Text>
@@ -122,8 +133,8 @@ const ReminderScreen = ({ navigation }: any) => {
         </View>
       )}
 
-      <TouchableOpacity 
-        style={[GlobalStyles.button, { marginTop: 30 }]} 
+      <TouchableOpacity
+        style={[GlobalStyles.button, { marginTop: 30 }]}
         onPress={handleSave}
       >
         <Text style={GlobalStyles.buttonText}>Set Reminder</Text>
