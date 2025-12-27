@@ -24,11 +24,13 @@ const TrendReportScreen: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [range, setRange] = useState<RangeType>('1W');
     const [data, setData] = useState<TrendDataPoint[]>([]);
+    const [spacingMultiplier, setSpacingMultiplier] = useState(1);
 
     const loadData = async (selectedRange: RangeType) => {
         try {
             setLoading(true);
             const endDate = new Date();
+            endDate.setHours(23, 59, 59, 999); // Ensure today is included
             const startDate = new Date();
             if (selectedRange === '1W') {
                 startDate.setDate(startDate.getDate() - 6);
@@ -43,14 +45,24 @@ const TrendReportScreen: React.FC = () => {
             // Fill gaps
             const filledData: TrendDataPoint[] = [];
             const curr = new Date(startDate);
-            while (curr <= endDate) {
+            // Normalize dates for comparison
+            const endCompare = new Date(endDate);
+            endCompare.setHours(0, 0, 0, 0);
+
+            while (true) {
                 const dateStr = toSQLDate(curr)!;
                 const existing = trendData.find(d => d.date === dateStr);
                 filledData.push(existing || { date: dateStr, income: 0, expense: 0 });
+
+                const currCompare = new Date(curr);
+                currCompare.setHours(0, 0, 0, 0);
+                if (currCompare >= endCompare) break;
+
                 curr.setDate(curr.getDate() + 1);
             }
 
             setData(filledData);
+            setSpacingMultiplier(1); // Reset zoom on range change
         } catch (error) {
             console.error('Failed to load trend data:', error);
         } finally {
@@ -61,6 +73,14 @@ const TrendReportScreen: React.FC = () => {
     useEffect(() => {
         loadData(range);
     }, [range]);
+
+    // Calculate spacing to FIT center of screen
+    const baseSpacing = useMemo(() => {
+        if (data.length <= 1) return 100;
+        const availableWidth = SCREEN_WIDTH - 100; // Left axis + paddings
+        const fit = availableWidth / (data.length - 1);
+        return Math.max(fit, 15); // Minimum 15px spacing
+    }, [data]);
 
     const chartData = useMemo(() => {
         if (data.length === 0) return { income: [], expense: [] };
@@ -93,34 +113,35 @@ const TrendReportScreen: React.FC = () => {
     return (
         <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Trend Analysis</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={styles.headerTopRow}>
+                    <Text style={styles.headerTitle}>Trend Analysis</Text>
                     <TouchableOpacity
                         onPress={() => ExportHelper.exportReport('Trend Analysis', data)}
-                        style={{ marginRight: 15 }}
+                        style={styles.downloadIcon}
                     >
-                        <MaterialIcons name="download" size={24} color="#333" />
+                        <MaterialIcons name="download" size={26} color={AppColors.primary} />
                     </TouchableOpacity>
-                    <View style={styles.rangeSelector}>
-                        <TouchableOpacity
-                            style={[styles.rangeButton, range === '1W' && styles.rangeButtonActive]}
-                            onPress={() => setRange('1W')}
-                        >
-                            <Text style={[styles.rangeText, range === '1W' && styles.rangeTextActive]}>1W</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.rangeButton, range === '1M' && styles.rangeButtonActive]}
-                            onPress={() => setRange('1M')}
-                        >
-                            <Text style={[styles.rangeText, range === '1M' && styles.rangeTextActive]}>1M</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.rangeButton, range === '3M' && styles.rangeButtonActive]}
-                            onPress={() => setRange('3M')}
-                        >
-                            <Text style={[styles.rangeText, range === '3M' && styles.rangeTextActive]}>3M</Text>
-                        </TouchableOpacity>
-                    </View>
+                </View>
+
+                <View style={styles.rangeSelector}>
+                    <TouchableOpacity
+                        style={[styles.rangeButton, range === '1W' && styles.rangeButtonActive]}
+                        onPress={() => setRange('1W')}
+                    >
+                        <Text style={[styles.rangeText, range === '1W' && styles.rangeTextActive]}>1W</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.rangeButton, range === '1M' && styles.rangeButtonActive]}
+                        onPress={() => setRange('1M')}
+                    >
+                        <Text style={[styles.rangeText, range === '1M' && styles.rangeTextActive]}>1M</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.rangeButton, range === '3M' && styles.rangeButtonActive]}
+                        onPress={() => setRange('3M')}
+                    >
+                        <Text style={[styles.rangeText, range === '3M' && styles.rangeTextActive]}>3M</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -142,8 +163,27 @@ const TrendReportScreen: React.FC = () => {
                 </View>
 
                 {/* Chart Section */}
-                <View style={styles.chartContainer}>
-                    <Text style={styles.chartTitle}>Income vs Expense Trend</Text>
+                <View style={styles.chartSection}>
+                    <View style={styles.chartHeader}>
+                        <Text style={styles.chartTitle}>Income vs Expense</Text>
+
+                        {/* Zoom Controls */}
+                        <View style={styles.zoomControls}>
+                            <TouchableOpacity
+                                onPress={() => setSpacingMultiplier(Math.max(0.5, spacingMultiplier - 0.2))}
+                                style={styles.zoomBtn}
+                            >
+                                <MaterialIcons name="remove" size={18} color="#666" />
+                            </TouchableOpacity>
+                            <Text style={styles.zoomVal}>{Math.round(spacingMultiplier * 100)}%</Text>
+                            <TouchableOpacity
+                                onPress={() => setSpacingMultiplier(Math.min(5, spacingMultiplier + 0.2))}
+                                style={styles.zoomBtn}
+                            >
+                                <MaterialIcons name="add" size={18} color="#666" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
 
                     <View style={styles.legendContainer}>
                         <View style={styles.legendItem}>
@@ -161,56 +201,57 @@ const TrendReportScreen: React.FC = () => {
                             <ActivityIndicator size="large" color={AppColors.primary} />
                         </View>
                     ) : data.length > 0 ? (
-                        <LineChart
-                            data={chartData.income}
-                            data2={chartData.expense}
-                            height={250}
-                            width={SCREEN_WIDTH - 80}
-                            initialSpacing={30}
-                            spacing={range === '1M' ? 35 : 55}
-                            color1={AppColors.success}
-                            color2={AppColors.danger}
-                            thickness={4}
-                            dataPointsColor1={AppColors.success}
-                            dataPointsColor2={AppColors.danger}
-                            dataPointsRadius={4}
-                            showValuesAsDataPointsText={false}
-                            yAxisColor="#ccc"
-                            xAxisColor="#ccc"
-                            yAxisTextStyle={{ color: '#666', fontSize: 10 }}
-                            xAxisLabelTextStyle={{ color: '#666', fontSize: 9, width: 40 }}
-                            noOfSections={5}
-                            curved
-                            animateOnDataChange
-                            animationDuration={1000}
-                            areaChart
-                            startFillColor1={AppColors.success}
-                            startFillColor2={AppColors.danger}
-                            startOpacity={0.4}
-                            endOpacity={0.1}
-                            rulesType="dashed"
-                            rulesColor="#eee"
-                            yAxisExtraHeight={20}
-                            pointerConfig={{
-                                pointerStripColor: '#ddd',
-                                pointerStripWidth: 2,
-                                pointerColor: AppColors.primary,
-                                radius: 5,
-                                pointerLabelComponent: (items: any) => {
-                                    if (!items || items.length === 0) return null;
-                                    return (
-                                        <View style={styles.pointerLabel}>
-                                            <Text style={styles.pointerText}>Inc: ₹{items[0]?.value || 0}</Text>
-                                            {items.length > 1 && (
-                                                <Text style={[styles.pointerText, { color: AppColors.danger }]}>
-                                                    Exp: ₹{items[1]?.value || 0}
-                                                </Text>
-                                            )}
-                                        </View>
-                                    );
-                                },
-                            }}
-                        />
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 40 }}>
+                            <LineChart
+                                data={chartData.income}
+                                data2={chartData.expense}
+                                height={250}
+                                initialSpacing={30}
+                                spacing={baseSpacing * spacingMultiplier}
+                                color1={AppColors.success}
+                                color2={AppColors.danger}
+                                thickness={4}
+                                dataPointsColor1={AppColors.success}
+                                dataPointsColor2={AppColors.danger}
+                                dataPointsRadius={4}
+                                showValuesAsDataPointsText={false}
+                                yAxisColor="#ccc"
+                                xAxisColor="#ccc"
+                                yAxisTextStyle={{ color: '#666', fontSize: 10 }}
+                                xAxisLabelTextStyle={{ color: '#666', fontSize: 9, width: 40 }}
+                                noOfSections={5}
+                                curved
+                                animateOnDataChange
+                                animationDuration={1000}
+                                areaChart
+                                startFillColor1={AppColors.success}
+                                startFillColor2={AppColors.danger}
+                                startOpacity={0.4}
+                                endOpacity={0.1}
+                                rulesType="dashed"
+                                rulesColor="#eee"
+                                yAxisExtraHeight={20}
+                                pointerConfig={{
+                                    pointerStripColor: '#ddd',
+                                    pointerStripWidth: 2,
+                                    pointerColor: AppColors.primary,
+                                    radius: 5,
+                                    pointerLabelComponent: (items: any) => {
+                                        if (!items || items.length === 0) return null;
+                                        return (
+                                            <View style={styles.pointerLabel}>
+                                                <Text style={[styles.pointerText, { color: AppColors.success }]}>Inc: ₹{items[0]?.value || 0}</Text>
+                                                {items.length > 1 && (
+                                                    <Text style={[styles.pointerText, { color: AppColors.danger, marginTop: 4 }]}>
+                                                        Exp: ₹{items[1]?.value || 0}
+                                                    </Text>
+                                                )}
+                                            </View>
+                                        );
+                                    },
+                                }}
+                            />
+                        </ScrollView>
                     ) : (
                         <View style={styles.emptyContainer}>
                             <MaterialIcons name="show-chart" size={48} color="#ccc" />
@@ -220,10 +261,10 @@ const TrendReportScreen: React.FC = () => {
                 </View>
 
                 {/* Info Card */}
-                <View style={styles.infoCard}>
+                <View style={[styles.infoCard, { marginBottom: 120 }]}>
                     <MaterialIcons name="info-outline" size={20} color={AppColors.primary} />
                     <Text style={styles.infoText}>
-                        Showing daily aggregation for the selected period. Labels represent the day of the month.
+                        Showing daily aggregation. Use the <MaterialIcons name="add" size={12} /> and <MaterialIcons name="remove" size={12} /> buttons to stretch or contract the chart.
                     </Text>
                 </View>
             </ScrollView>
@@ -243,31 +284,40 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#f0f0f0',
     },
+    headerTopRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 10,
+        marginBottom: 15,
+    },
     headerTitle: {
         fontSize: 24,
         fontWeight: 'bold',
         color: '#333',
-        marginTop: 10,
-        marginBottom: 15,
+    },
+    downloadIcon: {
+        padding: 5,
     },
     rangeSelector: {
         flexDirection: 'row',
         backgroundColor: '#f5f5f5',
-        borderRadius: 10,
+        borderRadius: 12,
         padding: 4,
+        width: 180,
     },
     rangeButton: {
         flex: 1,
         paddingVertical: 8,
         alignItems: 'center',
-        borderRadius: 8,
+        borderRadius: 10,
     },
     rangeButtonActive: {
         backgroundColor: '#fff',
-        elevation: 2,
+        elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.15,
         shadowRadius: 2,
     },
     rangeText: {
@@ -309,35 +359,71 @@ const styles = StyleSheet.create({
     },
     summaryValue: {
         fontSize: 18,
-        fontWeight: '500',
+        fontWeight: '700',
     },
     pointerLabel: {
-        backgroundColor: 'rgba(0,0,0,0.8)',
-        padding: 8,
-        borderRadius: 8,
-        width: 100,
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        padding: 10,
+        borderRadius: 10,
+        width: 110,
+        borderWidth: 1,
+        borderColor: '#eee',
+        elevation: 5,
     },
     pointerText: {
-        color: AppColors.success,
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: 'bold',
     },
-    chartContainer: {
+    chartSection: {
         backgroundColor: '#fff',
         padding: 15,
-        borderRadius: 16,
-        elevation: 3,
+        borderRadius: 18,
+        elevation: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
+        shadowOpacity: 0.12,
+        shadowRadius: 8,
         marginBottom: 20,
+        overflow: 'hidden',
+    },
+    chartHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 15,
+    },
+    zoomControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f8f9fa',
+        borderRadius: 20,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderWidth: 1,
+        borderColor: '#eee',
+    },
+    zoomBtn: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#eee',
+    },
+    zoomVal: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#333',
+        marginHorizontal: 10,
+        minWidth: 35,
+        textAlign: 'center',
     },
     chartTitle: {
         fontSize: 16,
-        fontWeight: 'bold',
+        fontWeight: '800',
         color: '#333',
-        marginBottom: 10,
     },
     legendContainer: {
         flexDirection: 'row',
@@ -358,6 +444,7 @@ const styles = StyleSheet.create({
     legendText: {
         fontSize: 12,
         color: '#666',
+        fontWeight: '500',
     },
     loaderContainer: {
         height: 250,
