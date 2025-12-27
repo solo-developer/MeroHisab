@@ -64,7 +64,8 @@ export const TransferService = {
 
                 const insertNext = (i: number) => {
                   if (i >= entries.length) {
-                    resolve();
+                    // All entries inserted. Now update Wallet Balances.
+                    updateWalletBalances();
                     return;
                   }
 
@@ -91,6 +92,25 @@ export const TransferService = {
                     },
                     reject
                   );
+                };
+
+                const updateWalletBalances = () => {
+                 // 4️⃣ Update Wallets (Live Snapshot)
+                 // Decrease 'From' Wallet (Credit Ledger)
+                 tx.executeSql(
+                   `UPDATE wallets SET balance = balance - ? WHERE ledgerId = ?`,
+                   [request.amount, fromLedgerId],
+                   () => {
+                      // Increase 'To' Wallet (Debit Ledger)
+                      tx.executeSql(
+                        `UPDATE wallets SET balance = balance + ? WHERE ledgerId = ?`,
+                        [request.amount, toLedgerId],
+                        () => resolve(),
+                        (_: any, err: any) => reject(err)
+                      );
+                   },
+                   (_: any, err: any) => reject(err)
+                 );
                 };
 
                 insertNext(0);

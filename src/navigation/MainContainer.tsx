@@ -9,6 +9,7 @@ import RootStack from './RootStack';
 import { AddIncomeScreen } from '../screens/AddIncomeScreen';
 import { AddExpenseScreen } from '../screens/AddExpenseScreen';
 import { AddPartyTransactionScreen } from '../screens/AddPartyTransactionScreen';
+import { AddTransferScreen } from '../screens/AddTransferScreen';
 import WalletBalanceReportScreen from '../screens/WalletBalanceReportScreen';
 import IncomeReportScreen from '../screens/IncomeReportScreen';
 import ExpenseReportScreen from '../screens/ExpenseReportScreen';
@@ -26,11 +27,13 @@ import AllTransactionsReportScreen from '../screens/AllTransactionsReportScreen'
 
 const MainContainer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SwipeTabRoutes>('Dashboard');
+  const [currentRoute, setCurrentRoute] = useState<string>('Dashboard');
 
   useEffect(() => {
     const unsubscribe = navigationRef.addListener('state', () => {
       const route = navigationRef.getCurrentRoute();
       if (route?.name) {
+        setCurrentRoute(route.name);
         if (['Dashboard', 'Transactions', 'Reports', 'Settings'].includes(route.name)) {
           setActiveTab(route.name as SwipeTabRoutes);
         }
@@ -39,8 +42,7 @@ const MainContainer: React.FC = () => {
     return unsubscribe;
   }, []);
 
-  const currentRouteName = navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : 'Dashboard';
-  const showTabs = ['Dashboard', 'Transactions', 'Reports', 'Settings'].includes(currentRouteName || '');
+  const showTabs = ['Dashboard', 'Transactions', 'Reports', 'Settings'].includes(currentRoute);
 
   return (
     <NavigationContainer ref={navigationRef}>
@@ -49,6 +51,7 @@ const MainContainer: React.FC = () => {
         <RootStack.Screen name="AddIncome" component={AddIncomeScreen} />
         <RootStack.Screen name="AddExpense" component={AddExpenseScreen} />
         <RootStack.Screen name="AddPartyTransaction" component={AddPartyTransactionScreen} />
+        <RootStack.Screen name="AddTransferScreen" component={AddTransferScreen} />
         <RootStack.Screen
           name="WalletBalanceReport"
           component={WalletBalanceReportScreen}

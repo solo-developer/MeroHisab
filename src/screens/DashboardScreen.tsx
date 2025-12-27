@@ -1,4 +1,3 @@
-// src/screens/DashboardScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -8,31 +7,29 @@ import {
   ScrollView,
   Dimensions,
   DeviceEventEmitter,
+  StatusBar,
 } from 'react-native';
-import { Card } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ReportService } from '../services/ReportService';
 import { ReportRange } from '../helpers/DateHelper';
-import { AppColors, GlobalStyles } from '../constants/Styles';
+import { AppColors } from '../constants/Styles';
 
-const quickLinks = [
-  { label: 'Wallet Balance', icon: '💰', screen: 'WalletBalanceReport' },
-  { label: 'Transactions', icon: '🧾', screen: 'Transactions' },
-  { label: 'Budget Progress', icon: '📊', screen: 'BudgetOverview' },
-  { label: 'Trend Analysis', icon: '📈', screen: 'TrendReport' },
-  { label: 'Party Balance', icon: '👥', screen: 'PartyReport' },
-];
-
-const numColumns = 3; // max 3 per row
-const spacing = 12;
-const screenWidth = Dimensions.get('window').width;
-const buttonWidth = (screenWidth - 16 * 2 - spacing * (numColumns - 1)) / numColumns;
+const { width } = Dimensions.get('window');
 
 const DashboardScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const [range, setRange] = useState<ReportRange>('last_7_days');
+  const [range, setRange] = useState<ReportRange>('this_month');
   const [summary, setSummary] = useState({ income: 0, expense: 0 });
+
+  // Quick Links Configuration
+  const quickLinks = [
+    { label: 'All Activity', icon: 'receipt-outline', screen: 'Transactions', color: '#5C6BC0' }, // Indigo
+    { label: 'Wallets', icon: 'wallet-outline', screen: 'WalletBalanceReport', color: '#26A69A' }, // Teal
+    { label: 'Parties', icon: 'people-outline', screen: 'PartyReport', color: '#AB47BC' }, // Purple
+    { label: 'Trends', icon: 'trending-up-outline', screen: 'TrendReport', color: '#FFA726' }, // Orange
+  ];
 
   const loadData = async () => {
     try {
@@ -45,170 +42,200 @@ const DashboardScreen: React.FC = () => {
 
   useEffect(() => {
     loadData();
-
     const subs = [
       DeviceEventEmitter.addListener('transactionAdded', loadData),
       DeviceEventEmitter.addListener('expenseAdded', loadData),
       DeviceEventEmitter.addListener('incomeAdded', loadData),
+      DeviceEventEmitter.addListener('transferAdded', loadData),
     ];
-
-    return () => {
-      subs.forEach(s => s.remove());
-    };
+    return () => subs.forEach(s => s.remove());
   }, [range]);
 
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingBottom: 100 }}
+  const netBalance = summary.income - summary.expense;
+
+  const renderQuickLink = (link: any, index: number) => (
+    <TouchableOpacity
+      key={index}
+      style={styles.quickLinkCard}
+      onPress={() => navigation.navigate(link.screen)}
+      activeOpacity={0.7}
     >
+      <View style={[styles.iconCircle, { backgroundColor: link.color + '20' }]}>
+        <Ionicons name={link.icon} size={24} color={link.color} />
+      </View>
+      <Text style={styles.quickLinkText}>{link.label}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Dashboard</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={range}
-            onValueChange={(itemValue) => setRange(itemValue as ReportRange)}
-            style={styles.picker}
-            dropdownIconColor={AppColors.primary}
-          >
-            <Picker.Item label="Last 7 Days" value="last_7_days" />
-            <Picker.Item label="This Week" value="this_week" />
-            <Picker.Item label="This Month" value="this_month" />
-            <Picker.Item label="Last Month" value="previous_month" />
-          </Picker>
+        <View>
+          <Text style={styles.greeting}>Welcome Back,</Text>
+          <Text style={styles.appName}>MeroHisab</Text>
         </View>
+        <TouchableOpacity
+          style={styles.settingsBtn}
+          onPress={() => navigation.navigate('SettingsStack')}
+        >
+          <Ionicons name="settings-outline" size={24} color="#333" />
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.summaryRow}>
-        <Card style={[styles.card, { borderTopColor: AppColors.success, borderTopWidth: 4 }]}>
-          <Card.Content>
-            <Text style={styles.cardLabel}>Income</Text>
-            <Text style={[styles.cardValue, { color: AppColors.success }]}>
-              ₹ {summary.income.toLocaleString()}
-            </Text>
-          </Card.Content>
-        </Card>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Date Filter Tabs */}
+        <View style={styles.filterTabs}>
+          {['this_month', 'last_month', 'this_week'].map((r) => (
+            <TouchableOpacity
+              key={r}
+              style={[styles.filterTab, range === r && styles.activeFilterTab]}
+              onPress={() => setRange(r as ReportRange)}
+            >
+              <Text style={[styles.filterText, range === r && styles.activeFilterText]}>
+                {r.replace('_', ' ').toUpperCase()}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-        <Card style={[styles.card, { borderTopColor: AppColors.danger, borderTopWidth: 4 }]}>
-          <Card.Content>
-            <Text style={styles.cardLabel}>Expense</Text>
-            <Text style={[styles.cardValue, { color: AppColors.danger }]}>
-              ₹ {summary.expense.toLocaleString()}
-            </Text>
-          </Card.Content>
-        </Card>
-      </View>
-
-      <Card style={[styles.card, { marginTop: 16, borderTopColor: AppColors.primary, borderTopWidth: 4 }]}>
-        <Card.Content>
-          <Text style={styles.cardLabel}>Net Balance</Text>
-          <Text style={[styles.cardValue, { color: '#000', fontSize: 24 }]}>
-            ₹ {(summary.income - summary.expense).toLocaleString()}
+        {/* Hero Card - Net Balance */}
+        <View style={styles.heroCard}>
+          <Text style={styles.heroLabel}>Net Balance ({range.replace('_', ' ')})</Text>
+          <Text style={styles.heroAmount}>
+            ₹ {netBalance.toLocaleString()}
           </Text>
-        </Card.Content>
-      </Card>
+          <View style={styles.heroRow}>
+            <View style={styles.heroItem}>
+              <View style={styles.heroBadgeIncome}>
+                <Ionicons name="arrow-down-outline" size={14} color="#2E7D32" />
+              </View>
+              <View>
+                <Text style={styles.heroItemLabel}>Income</Text>
+                <Text style={styles.heroItemValueIncome}>₹{summary.income.toLocaleString()}</Text>
+              </View>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.heroItem}>
+              <View style={styles.heroBadgeExpense}>
+                <Ionicons name="arrow-up-outline" size={14} color="#C62828" />
+              </View>
+              <View>
+                <Text style={styles.heroItemLabel}>Expense</Text>
+                <Text style={styles.heroItemValueExpense}>₹{summary.expense.toLocaleString()}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
 
-      <Text style={styles.sectionTitle}>Quick Links</Text>
-      <View style={styles.quickLinksContainer}>
-        {quickLinks.map((link, index) => (
+        {/* Quick Actions Grid */}
+        <Text style={styles.sectionTitle}>Overview</Text>
+        <View style={styles.gridContainer}>
+          {quickLinks.map(renderQuickLink)}
+        </View>
+
+        {/* Add Actions */}
+        <Text style={styles.sectionTitle}>Quick Add</Text>
+        <View style={styles.actionRow}>
           <TouchableOpacity
-            key={index}
-            style={[styles.quickLinkButton, { width: buttonWidth }]}
-            onPress={() => navigation.navigate(link.screen)}
+            style={[styles.actionBtn, { backgroundColor: '#E8F5E9' }]}
+            onPress={() => navigation.navigate('AddIncome')}
           >
-            <Text style={styles.quickLinkIcon}>{link.icon}</Text>
-            <Text style={styles.quickLinkText}>{link.label}</Text>
+            <Ionicons name="add-circle" size={24} color="#2E7D32" />
+            <Text style={[styles.actionBtnText, { color: '#1B5E20' }]}>Income</Text>
           </TouchableOpacity>
-        ))}
-      </View>
-    </ScrollView>
+
+          <TouchableOpacity
+            style={[styles.actionBtn, { backgroundColor: '#FFEBEE' }]}
+            onPress={() => navigation.navigate('AddExpense')}
+          >
+            <Ionicons name="remove-circle" size={24} color="#C62828" />
+            <Text style={[styles.actionBtnText, { color: '#B71C1C' }]}>Expense</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionBtn, { backgroundColor: '#E3F2FD' }]}
+            onPress={() => navigation.navigate('AddTransferScreen')}
+          >
+            <Ionicons name="swap-horizontal" size={24} color="#1565C0" />
+            <Text style={[styles.actionBtnText, { color: '#0D47A1' }]}>Transfer</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#f8f9fa',
-  },
+  container: { flex: 1, backgroundColor: '#FAFAFA' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  pickerContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#eee',
-    height: 50,
-    justifyContent: 'center',
-    width: 160,
-    overflow: 'hidden',
   },
-  picker: {
-    height: 50,
-    width: '100%',
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  card: {
-    flex: 1,
+  greeting: { fontSize: 14, color: '#666', fontWeight: '500' },
+  appName: { fontSize: 22, fontWeight: '800', color: AppColors.primary },
+  settingsBtn: { padding: 4 },
+
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 100 },
+
+  filterTabs: { flexDirection: 'row', marginBottom: 20, backgroundColor: '#F0F0F0', borderRadius: 12, padding: 4 },
+  filterTab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 10 },
+  activeFilterTab: { backgroundColor: '#fff', elevation: 2 },
+  filterText: { fontSize: 11, fontWeight: '600', color: '#888' },
+  activeFilterText: { color: '#333', fontWeight: '800' },
+
+  heroCard: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    elevation: 2,
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 24,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
-  cardLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  cardValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 30,
-    marginBottom: 16,
-    color: '#333',
-  },
-  quickLinksContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing,
-  },
-  quickLinkButton: {
+  heroLabel: { fontSize: 13, color: '#888', fontWeight: '600', marginBottom: 8, textAlign: 'center', textTransform: 'uppercase' },
+  heroAmount: { fontSize: 36, color: '#333', fontWeight: '900', textAlign: 'center', marginBottom: 24 },
+
+  heroRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
+  heroItem: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  heroBadgeIncome: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' },
+  heroBadgeExpense: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' },
+  heroItemLabel: { fontSize: 11, color: '#999', fontWeight: '600' },
+  heroItemValueIncome: { fontSize: 16, fontWeight: '800', color: '#2E7D32' },
+  heroItemValueExpense: { fontSize: 16, fontWeight: '800', color: '#C62828' },
+  divider: { width: 1, height: 30, backgroundColor: '#EEE' },
+
+  sectionTitle: { fontSize: 18, fontWeight: '800', color: '#333', marginBottom: 12 },
+
+  gridContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 24 },
+  quickLinkCard: {
+    width: (width - 40 - 12) / 2, // 2 columns
     backgroundColor: '#fff',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
+    flexDirection: 'row',
     alignItems: 'center',
-    elevation: 1,
+    gap: 12,
     borderWidth: 1,
-    borderColor: '#eee',
-    marginBottom: 4,
+    borderColor: '#F0F0F0',
   },
-  quickLinkIcon: {
-    fontSize: 24,
-    marginBottom: 8,
-  },
-  quickLinkText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#444',
-    textAlign: 'center',
-  },
+  iconCircle: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+  quickLinkText: { fontSize: 14, fontWeight: '600', color: '#333' },
+
+  actionRow: { flexDirection: 'row', gap: 12 },
+  actionBtn: { flex: 1, paddingVertical: 16, borderRadius: 16, alignItems: 'center', gap: 8 },
+  actionBtnText: { fontSize: 13, fontWeight: '700' },
 });
 
 export default DashboardScreen;

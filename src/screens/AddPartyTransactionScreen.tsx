@@ -5,10 +5,11 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  Alert,
   View,
   DeviceEventEmitter,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import RNPickerSelect from 'react-native-picker-select';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -27,6 +28,7 @@ export const AddPartyTransactionScreen = ({ navigation }: any) => {
   const { showSnackbar } = useSnackbar();
   const route = useRoute();
   const { type } = route.params as { type: 'payment' | 'receipt' };
+  const isPayment = type === 'payment';
 
   const [amount, setAmount] = useState('');
   const [wallets, setWallets] = useState<any[]>([]);
@@ -36,6 +38,11 @@ export const AddPartyTransactionScreen = ({ navigation }: any) => {
   const [note, setNote] = useState('');
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Theme Colors based on Type
+  const accentColor = isPayment ? '#C62828' : '#2E7D32'; // Red vs Green
+  const bgLightColor = isPayment ? '#FFEBEE' : '#E8F5E9'; // Light Red vs Light Green
+  const placeholderColor = isPayment ? '#EF9A9A' : '#A5D6A7';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,101 +81,208 @@ export const AddPartyTransactionScreen = ({ navigation }: any) => {
     }
   };
 
-  const isPayment = type === 'payment';
-
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <View style={GlobalStyles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={22} color="#333" />
+    <SafeAreaView style={[styles.container, { backgroundColor: bgLightColor }]} edges={['top', 'bottom', 'left', 'right']}>
+      <StatusBar barStyle="dark-content" backgroundColor={bgLightColor} />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backButton, { backgroundColor: isPayment ? 'rgba(198, 40, 40, 0.1)' : 'rgba(46, 125, 50, 0.1)' }]}>
+          <Ionicons name="close" size={24} color={accentColor} />
         </TouchableOpacity>
-        <Text style={GlobalStyles.headerTitle}>{isPayment ? 'Make Payment' : 'Receive Payment'}</Text>
-        <View style={{ width: 22 }} />
+        <Text style={[styles.headerTitle, { color: accentColor }]}>{isPayment ? 'Make Payment' : 'Receive Payment'}</Text>
+        <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={[GlobalStyles.container, { paddingBottom: 40 }]}>
-        <Text style={GlobalStyles.label}>Amount</Text>
-        <TextInput
-          style={GlobalStyles.input}
-          keyboardType="numeric"
-          value={amount}
-          onChangeText={setAmount}
-          placeholder="Enter amount"
-        />
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-        <Text style={GlobalStyles.label}>{isPayment ? 'Paid To (Party)' : 'Received From (Party)'}</Text>
-        <RNPickerSelect
-          placeholder={{ label: 'Select Party', value: undefined }}
-          items={parties.map((p) => ({
-            label: p.name + ` (${p.type === 'creditor' ? 'Cr' : 'Dr'})`,
-            value: p.id,
-          }))}
-          onValueChange={setSelectedParty}
-          value={selectedParty}
-          style={PickerStyles}
-        />
-
-        <Text style={GlobalStyles.label}>{isPayment ? 'Paid From (Wallet)' : 'Deposit To (Wallet)'}</Text>
-        <RNPickerSelect
-          placeholder={{ label: 'Select Wallet', value: undefined }}
-          items={wallets.map((w) => ({
-            label: String(w.name) + ` (Bal: ${w.balance})`,
-            value: w.id,
-          }))}
-          onValueChange={setSelectedWallet}
-          value={selectedWallet}
-          style={PickerStyles}
-        />
-
-        <DateField
-          label="Date"
-          value={date}
-          onPress={() => setShowDatePicker(true)}
-        />
-
-        {showDatePicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={(event, selectedDate) => {
-              setShowDatePicker(false);
-              if (selectedDate) setDate(selectedDate);
-            }}
+        {/* Amount */}
+        <View style={styles.amountContainer}>
+          <Text style={[styles.currencySymbol, { color: placeholderColor }]}>₹</Text>
+          <TextInput
+            style={[styles.amountInput, { color: accentColor }]}
+            placeholder="0"
+            placeholderTextColor={placeholderColor}
+            keyboardType="numeric"
+            value={amount}
+            onChangeText={setAmount}
+            autoFocus
           />
-        )}
+        </View>
+        <Text style={[styles.amountLabel, { color: isPayment ? '#E57373' : '#81C784' }]}>Total Amount</Text>
 
-        <Text style={GlobalStyles.label}>Note</Text>
-        <TextInput
-          style={[GlobalStyles.input, { height: 60 }]}
-          value={note}
-          onChangeText={setNote}
-          multiline
-          placeholder="Optional note"
-        />
+        <View style={styles.formContainer}>
 
-        <TouchableOpacity
-          style={[localStyles.saveBtn, { backgroundColor: isPayment ? AppColors.danger : AppColors.success }]}
-          onPress={handleSave}
-        >
-          <Text style={localStyles.saveText}>{isPayment ? 'Save Payment' : 'Save Receipt'}</Text>
-        </TouchableOpacity>
+          {/* Party Selection */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>{isPayment ? 'Paid To (Party)' : 'Received From (Party)'}</Text>
+            <RNPickerSelect
+              onValueChange={setSelectedParty}
+              items={parties.map(p => ({ label: p.name, value: p.id }))}
+              value={selectedParty}
+              style={pickerStyles}
+              placeholder={{ label: 'Select Party', value: null }}
+              Icon={() => <Ionicons name="person-outline" size={20} color={accentColor} style={{ marginTop: 12, marginRight: 10 }} />}
+            />
+          </View>
+
+          {/* Wallet Selection */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>{isPayment ? 'Paid From (Wallet)' : 'Deposit To (Wallet)'}</Text>
+            <RNPickerSelect
+              onValueChange={setSelectedWallet}
+              items={wallets.map(w => ({ label: w.name, value: w.id }))}
+              value={selectedWallet}
+              style={pickerStyles}
+              placeholder={{ label: 'Select Wallet', value: null }}
+              Icon={() => <Ionicons name="wallet-outline" size={20} color={accentColor} style={{ marginTop: 12, marginRight: 10 }} />}
+            />
+          </View>
+
+          {/* Date Picker */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Date</Text>
+            <TouchableOpacity style={styles.dateSelector} onPress={() => setShowDatePicker(true)}>
+              <Ionicons name="calendar-outline" size={20} color={accentColor} />
+              <Text style={styles.dateText}>{date.toLocaleDateString()}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Note */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Note</Text>
+            <View style={styles.textAreaWrapper}>
+              <TextInput
+                style={styles.textArea}
+                placeholder="About this transaction..."
+                multiline
+                numberOfLines={3}
+                value={note}
+                onChangeText={setNote}
+              />
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.saveButton, { backgroundColor: accentColor }]}
+            onPress={handleSave}
+          >
+            <Text style={styles.saveButtonText}>{isPayment ? 'Save Payment' : 'Save Receipt'}</Text>
+            <Ionicons name="checkmark-circle" size={20} color="#fff" />
+          </TouchableOpacity>
+
+        </View>
       </ScrollView>
-    </View>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          onChange={(_, d) => {
+            setShowDatePicker(false);
+            if (d) setDate(d);
+          }}
+        />
+      )}
+    </SafeAreaView>
   );
 };
 
-const localStyles = StyleSheet.create({
-  saveBtn: {
-    padding: 14,
-    marginTop: 20,
-    borderRadius: 8,
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 3,
-    elevation: 2,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  saveText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+  },
+  headerTitle: { fontSize: 18, fontWeight: '700' },
+
+  scrollContent: { paddingBottom: 40 },
+
+  amountContainer: { alignItems: 'center', justifyContent: 'center', marginVertical: 30 },
+  currencySymbol: { fontSize: 32, fontWeight: '700' },
+  amountInput: { fontSize: 56, fontWeight: '900', textAlign: 'center', minWidth: 100 },
+  amountLabel: { fontSize: 14, marginTop: -6 },
+
+  formContainer: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    padding: 24,
+    minHeight: 500,
+  },
+
+  inputGroup: { marginBottom: 20 },
+  label: { fontSize: 13, fontWeight: '700', color: '#888', marginBottom: 8, textTransform: 'uppercase' },
+
+  dateSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F9F9F9',
+    padding: 14,
+    borderRadius: 12,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: '#EEE',
+  },
+  dateText: { fontSize: 16, fontWeight: '600', color: '#333' },
+
+  textAreaWrapper: {
+    backgroundColor: '#F9F9F9',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#EEE',
+  },
+  textArea: { fontSize: 15, color: '#333', height: 80, textAlignVertical: 'top' },
+
+  saveButton: {
+    borderRadius: 16,
+    paddingVertical: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 20,
+    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+  },
+  saveButtonText: { color: '#fff', fontSize: 18, fontWeight: '800' },
 });
+
+const pickerStyles = {
+  inputIOS: {
+    fontSize: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    backgroundColor: '#F9F9F9',
+    borderRadius: 12,
+    color: '#333',
+    paddingRight: 30,
+    fontWeight: '600' as any,
+    borderWidth: 1,
+    borderColor: '#EEE',
+  },
+  inputAndroid: {
+    fontSize: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: '#F9F9F9',
+    borderRadius: 12,
+    color: '#333',
+    paddingRight: 30,
+    fontWeight: '600' as any,
+    borderWidth: 1,
+    borderColor: '#EEE',
+  },
+  iconContainer: { top: 0, right: 0 },
+};
+
+export default AddPartyTransactionScreen;
