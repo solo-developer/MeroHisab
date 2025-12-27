@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,10 @@ import {
   Modal,
   ScrollView,
   TouchableWithoutFeedback,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -26,33 +29,33 @@ import WalletRepository from '../repositories/WalletRepository';
 
 import { toSQLDate } from '../helpers/DateHelper';
 import { ExportHelper } from '../helpers/ExportHelper';
+import { AppColors } from '../constants/Styles';
 
 const LedgerReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
-  // Default date range: last 7 days
+  // Search/Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // Default date range: last 30 days
   const today = new Date();
-  const lastWeek = new Date();
-  lastWeek.setDate(today.getDate() - 6);
+  const lastMonth = new Date();
+  lastMonth.setDate(today.getDate() - 30);
 
-  const [fromDate, setFromDate] = useState<Date>(lastWeek);
+  const [fromDate, setFromDate] = useState<Date>(lastMonth);
   const [toDate, setToDate] = useState<Date>(today);
-
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
   const [filterType, setFilterType] = useState<LedgerFilterType>('ALL');
   const [filterId, setFilterId] = useState<number | undefined>();
-  const [secondaryOptions, setSecondaryOptions] = useState<
-    { id?: number; name: string }[]
-  >([]);
+  const [secondaryOptions, setSecondaryOptions] = useState<{ id?: number; name: string }[]>([]);
 
   const [reportList, setReportList] = useState<LedgerReportRow[]>([]);
   const [total, setTotal] = useState(0);
 
-  const [modalVisible, setModalVisible] = useState(false);
-
-  /** Load secondary dropdown options */
   const loadSecondaryOptions = async () => {
     setFilterId(undefined);
     if (filterType === 'LEDGER') {
@@ -73,170 +76,176 @@ const LedgerReportScreen: React.FC = () => {
     loadSecondaryOptions();
   }, [filterType]);
 
-  /** Load ledger report */
   const loadReport = async () => {
-    const rows = await LedgerReportRepository.getReport(
-      toSQLDate(fromDate) || '',
-      toSQLDate(toDate) || '',
-      filterType,
-      filterId,
-    );
-    setReportList(rows);
-    setTotal(rows.reduce((acc, r) => acc + r.amount, 0));
+    setLoading(true);
+    try {
+      const rows = await LedgerReportRepository.getReport(
+        toSQLDate(fromDate) || '',
+        toSQLDate(toDate) || '',
+        filterType,
+        filterId,
+        searchQuery
+      );
+      setReportList(rows);
+      setTotal(rows.reduce((acc, r) => acc + r.amount, 0));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     loadReport();
-  }, []);
+  }, [fromDate, toDate, filterType, filterId]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      loadReport();
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   const renderItem = ({ item }: { item: LedgerReportRow }) => (
-    <View style={styles.row}>
-      <View style={styles.left}>
-        <Text style={styles.date}>
-          {new Date(item.date).toLocaleDateString()}
+    <View style={styles.card}>
+      <View style={styles.row}>
+        <View style={styles.left}>
+          <Text style={styles.dateText}>{new Date(item.date).toLocaleDateString()}</Text>
+          <Text style={styles.ledgerName}>{item.ledgerName || 'N/A'}</Text>
+        </View>
+        <Text style={[styles.amountText, item.amount >= 0 ? styles.positiveColor : styles.negativeColor]}>
+          ₹{item.amount.toFixed(0)}
         </Text>
-        <Text style={styles.meta}>{item.ledgerName || 'N/A'}</Text>
       </View>
-
-      <Text
-        style={[
-          styles.amount,
-          item.amount >= 0 ? styles.positive : styles.negative,
-        ]}
-      >
-        {item.amount.toFixed(2)}
-      </Text>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={22} color="#333" />
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
+      <View style={styles.headerBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Ledger Report</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Text style={styles.headerTitle}>Ledger Summary</Text>
+        <View style={styles.headerActions}>
           <TouchableOpacity
-            onPress={() => ExportHelper.exportReport('Ledger Report', reportList)}
-            style={{ marginRight: 15 }}
+            onPress={() => ExportHelper.exportReport('Ledger_Report', reportList)}
+            style={styles.actionButton}
           >
-            <Ionicons name="download-outline" size={22} color="#333" />
+            <Ionicons name="download-outline" size={24} color="#333" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <Ionicons name="filter-outline" size={24} color="#333" />
+          <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.actionButton}>
+            <Ionicons name="options-outline" size={24} color="#333" />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Total */}
-      <View style={styles.totalBar}>
-        <Text style={styles.totalLabel}>Total Amount</Text>
-        <Text
-          style={[
-            styles.totalAmount,
-            total >= 0 ? styles.positive : styles.negative,
-          ]}
-        >
-          {total.toFixed(2)}
-        </Text>
+      <View style={styles.searchBox}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={20} color="#666" />
+          <TextInput
+            placeholder="Search activity or account..."
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+        <View style={styles.rangeIndicator}>
+          <Ionicons name="calendar-outline" size={12} color="#888" />
+          <Text style={styles.rangeText}>
+            {fromDate.toLocaleDateString()} — {toDate.toLocaleDateString()}
+          </Text>
+        </View>
       </View>
 
-      {/* Ledger List */}
+      {/* Total Card - Compact & Light */}
+      <View style={[styles.totalCard, total >= 0 ? styles.positiveBg : styles.negativeBg]}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.totalLabel, total >= 0 ? { color: '#1B5E20' } : { color: '#B71C1C' }]}>
+            Current Net Balance
+          </Text>
+          <Text style={[styles.totalValue, total >= 0 ? styles.positiveColor : styles.negativeColor]}>
+            ₹{total.toFixed(0)}
+          </Text>
+        </View>
+        <Ionicons
+          name={total >= 0 ? "checkmark-circle" : "alert-circle"}
+          size={28}
+          color={total >= 0 ? "#2E7D32" : "#C62828"}
+          style={{ opacity: 0.6 }}
+        />
+      </View>
+
       <FlatList
         data={reportList}
         keyExtractor={item => `${item.date}-${item.ledgerId}`}
         renderItem={renderItem}
-        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-        contentContainerStyle={{ padding: 12 }}
+        contentContainerStyle={styles.listPadding}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No records found</Text>
+          loading ? (
+            <ActivityIndicator size="large" color={AppColors.primary} style={{ marginTop: 40 }} />
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="book-outline" size={64} color="#DDD" />
+              <Text style={styles.emptyText}>No records match your criteria.</Text>
+            </View>
+          )
         }
       />
 
-      {/* Filter Modal as Bottom Sheet */}
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal visible={modalVisible} animationType="slide" transparent>
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
               <View style={styles.modalContent}>
-                {/* Drag handle */}
-                <View style={styles.dragHandle} />
-
-                <ScrollView>
-                  <Text style={styles.modalTitle}>Filter Ledger Report</Text>
-
-                  {/* Date Range */}
-                  <Text style={styles.label}>From Date</Text>
-                  <TouchableOpacity
-                    style={styles.dateField}
-                    onPress={() => setShowFromPicker(true)}
-                  >
-                    <Ionicons name="calendar-outline" size={16} color="#666" />
-                    <Text style={styles.dateText}>
-                      {fromDate ? fromDate.toLocaleDateString() : 'Select Date'}
-                    </Text>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Refine Ledger</Text>
+                  <TouchableOpacity onPress={() => setModalVisible(false)}>
+                    <Ionicons name="close" size={24} color="#333" />
                   </TouchableOpacity>
+                </View>
 
-                  <Text style={styles.label}>To Date</Text>
-                  <TouchableOpacity
-                    style={styles.dateField}
-                    onPress={() => setShowToPicker(true)}
-                  >
-                    <Ionicons name="calendar-outline" size={16} color="#666" />
-                    <Text style={styles.dateText}>
-                      {toDate ? toDate.toLocaleDateString() : 'Select Date'}
-                    </Text>
-                  </TouchableOpacity>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <Text style={styles.label}>Date Range</Text>
+                  <View style={styles.dateRow}>
+                    <TouchableOpacity style={styles.dateBtn} onPress={() => setShowFromPicker(true)}>
+                      <Text style={styles.dateBtnLabel}>From</Text>
+                      <Text style={styles.dateBtnValue}>{fromDate.toLocaleDateString()}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.dateBtn} onPress={() => setShowToPicker(true)}>
+                      <Text style={styles.dateBtnLabel}>To</Text>
+                      <Text style={styles.dateBtnValue}>{toDate.toLocaleDateString()}</Text>
+                    </TouchableOpacity>
+                  </View>
 
-                  {/* Filter Type */}
-                  <Text style={styles.label}>Filter Type</Text>
+                  <Text style={styles.label}>Filter By Object</Text>
                   <RNPickerSelect
-                    placeholder={{ label: 'Select Filter Type', value: 'ALL' }}
-                    value={filterType}
-                    onValueChange={value =>
-                      setFilterType(value as LedgerFilterType)
-                    }
+                    onValueChange={value => setFilterType(value as LedgerFilterType)}
                     items={[
-                      { label: 'All', value: 'ALL' },
-                      { label: 'Ledger', value: 'LEDGER' },
-                      { label: 'Category', value: 'CATEGORY' },
-                      { label: 'Wallet', value: 'WALLET' },
+                      { label: 'All Ledgers', value: 'ALL' },
+                      { label: 'Specific Ledger', value: 'LEDGER' },
+                      { label: 'Specific Category', value: 'CATEGORY' },
+                      { label: 'Specific Wallet', value: 'WALLET' },
                     ]}
+                    value={filterType}
                     style={pickerSelectStyles}
                   />
 
                   {filterType !== 'ALL' && (
                     <>
-                      <Text style={styles.label}>Select Option</Text>
+                      <Text style={styles.label}>Choose {filterType.toLowerCase()}</Text>
                       <RNPickerSelect
-                        placeholder={{ label: 'Select...', value: undefined }}
-                        value={filterId}
                         onValueChange={value => setFilterId(Number(value))}
-                        items={secondaryOptions.map(opt => ({
-                          label: opt.name,
-                          value: opt.id,
-                        }))}
+                        items={secondaryOptions.map(opt => ({ label: opt.name, value: opt.id }))}
+                        value={filterId}
+                        placeholder={{ label: 'Select...', value: undefined }}
                         style={pickerSelectStyles}
                       />
                     </>
                   )}
 
-                  {/* Apply Button */}
-                  <TouchableOpacity
-                    style={[styles.applyBtn, { marginTop: 20 }]}
-                    onPress={() => {
-                      loadReport();
-                      setModalVisible(false);
-                    }}
-                  >
-                    <Text style={styles.applyText}>Apply</Text>
+                  <TouchableOpacity style={styles.applyBtn} onPress={() => { loadReport(); setModalVisible(false); }}>
+                    <Text style={styles.applyBtnText}>Update Results</Text>
                   </TouchableOpacity>
                 </ScrollView>
               </View>
@@ -245,145 +254,105 @@ const LedgerReportScreen: React.FC = () => {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Date Pickers */}
       {showFromPicker && (
-        <DateTimePicker
-          value={fromDate || new Date()}
-          mode="date"
-          display="default"
-          onChange={(_, d) => {
-            setShowFromPicker(false);
-            if (d) setFromDate(d);
-          }}
-        />
+        <DateTimePicker value={fromDate} mode="date" onChange={(_, d) => { setShowFromPicker(false); if (d) setFromDate(d); }} />
       )}
       {showToPicker && (
-        <DateTimePicker
-          value={toDate || new Date()}
-          mode="date"
-          display="default"
-          onChange={(_, d) => {
-            setShowToPicker(false);
-            if (d) setToDate(d);
-          }}
-        />
+        <DateTimePicker value={toDate} mode="date" onChange={(_, d) => { setShowToPicker(false); if (d) setToDate(d); }} />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-
-  header: {
-    height: 50,
-    paddingHorizontal: 16,
+  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  headerBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     backgroundColor: '#fff',
+  },
+  backButton: { padding: 4 },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
+  headerActions: { flexDirection: 'row' },
+  actionButton: { padding: 4, marginLeft: 16 },
+
+  searchBox: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
     elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
   },
-  headerTitle: { fontSize: 16, fontWeight: '700' },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 44,
+  },
+  searchInput: { flex: 1, marginLeft: 8, fontSize: 14 },
+  rangeIndicator: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, justifyContent: 'center' },
+  rangeText: { fontSize: 11, color: '#888', fontWeight: '600' },
 
-  totalBar: {
+  totalCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#E8F5E9',
-    marginTop: 8,
-  },
-  totalLabel: { fontSize: 14, fontWeight: '600' },
-  totalAmount: { fontSize: 15, fontWeight: '700', color: '#2E7D32' },
-
-  row: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 6,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  left: { flex: 1, paddingRight: 8 },
-  date: { fontSize: 12, color: '#666' },
-  meta: { fontSize: 13, fontWeight: '500' },
-
-  amount: { fontSize: 14, fontWeight: '700', color: '#4CAF50' },
-  positive: { color: '#2E7D32' },
-  negative: { color: '#C62828' },
-
-  emptyText: { textAlign: 'center', marginTop: 40, color: '#777' },
-
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
+    alignItems: 'center',
+    margin: 16,
     padding: 16,
-    borderTopRightRadius: 16,
-    borderTopLeftRadius: 16,
-    maxHeight: '80%',
-  },
-  dragHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: '#ccc',
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 12,
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  dateField: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    gap: 6,
-    marginTop: 4,
+    borderColor: 'rgba(0,0,0,0.05)',
   },
-  dateText: { fontSize: 13, color: '#333' },
-  label: { fontSize: 12, fontWeight: '600', color: '#555', marginTop: 12 },
-  applyBtn: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 10,
-    borderRadius: 6,
-    alignItems: 'center',
+  totalLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+  totalValue: { fontSize: 24, fontWeight: '900', marginTop: 2 },
+  positiveBg: { backgroundColor: '#E8F5E9', borderColor: '#C8E6C9' },
+  negativeBg: { backgroundColor: '#FFEBEE', borderColor: '#FFCDD2' },
+  positiveColor: { color: '#2E7D32' },
+  negativeColor: { color: '#C62828' },
+
+  listPadding: { paddingHorizontal: 16, paddingBottom: 40 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
-  applyText: { color: '#fff', fontWeight: '600', fontSize: 14 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  left: { flex: 1 },
+  dateText: { fontSize: 11, color: '#999', marginBottom: 2 },
+  ledgerName: { fontSize: 15, fontWeight: '700', color: '#333' },
+  amountText: { fontSize: 16, fontWeight: '800' },
+
+  emptyContainer: { alignItems: 'center', marginTop: 40 },
+  emptyText: { marginTop: 12, fontSize: 14, color: '#999' },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  modalTitle: { fontSize: 20, fontWeight: '800' },
+  label: { fontSize: 13, fontWeight: '700', color: '#666', marginTop: 20, marginBottom: 8 },
+  dateRow: { flexDirection: 'row', gap: 12 },
+  dateBtn: { flex: 1, backgroundColor: '#F3F4F6', padding: 12, borderRadius: 12 },
+  dateBtnLabel: { fontSize: 10, color: '#666', textTransform: 'uppercase' },
+  dateBtnValue: { fontSize: 14, fontWeight: '600', color: '#333' },
+  applyBtn: { backgroundColor: AppColors.primary, paddingVertical: 16, borderRadius: 16, alignItems: 'center', marginTop: 30 },
+  applyBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
 });
 
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    color: '#333',
-    marginTop: 4,
-  },
-  inputAndroid: {
-    fontSize: 14,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    color: '#333',
-    marginTop: 4,
-  },
-});
+const pickerSelectStyles = {
+  inputIOS: { fontSize: 15, paddingVertical: 12, paddingHorizontal: 12, backgroundColor: '#F3F4F6', borderRadius: 12, color: '#333', marginTop: 4 },
+  inputAndroid: { fontSize: 15, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: '#F3F4F6', borderRadius: 12, color: '#333', marginTop: 4 },
+};
 
 export default LedgerReportScreen;

@@ -1,5 +1,4 @@
-// src/screens/ReportsByMetaCategoryScreen.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,36 +8,35 @@ import {
   Modal,
   ScrollView,
   TouchableWithoutFeedback,
+  TextInput,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
 
-import MetaCategoryRepository, { MetaCategory } from '../repositories/MetaCategoryRepository';
-import { Ledger } from '../repositories/LedgerRepository';
-
+import MetaCategoryRepository, { MetaCategory, MetaCategoryLedgerRow } from '../repositories/MetaCategoryRepository';
 import { toSQLDate } from '../helpers/DateHelper';
 import { ExportHelper } from '../helpers/ExportHelper';
-
-interface MetaCategoryLedgerRow {
-  ledgerName: string;
-  totalIncome: number;
-  totalExpense: number;
-}
+import { AppColors } from '../constants/Styles';
 
 const ReportByMetaCategoryScreen: React.FC = () => {
   const navigation = useNavigation();
 
-  // Default date range: last 7 days
+  // Search/Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // Default date range: last 30 days
   const today = new Date();
-  const lastWeek = new Date();
-  lastWeek.setDate(today.getDate() - 6);
+  const lastMonth = new Date();
+  lastMonth.setDate(today.getDate() - 30);
 
-  const [fromDate, setFromDate] = useState<Date>(lastWeek);
+  const [fromDate, setFromDate] = useState<Date>(lastMonth);
   const [toDate, setToDate] = useState<Date>(today);
-
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
@@ -48,150 +46,198 @@ const ReportByMetaCategoryScreen: React.FC = () => {
   const [ledgerReport, setLedgerReport] = useState<MetaCategoryLedgerRow[]>([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
-  const [loading, setLoading] = useState(false);
 
-  const [modalVisible, setModalVisible] = useState(false);
-
-  // Load meta categories
   useEffect(() => {
     const loadCategories = async () => {
       const cats = await MetaCategoryRepository.getAll();
       setMetaCategories(cats);
+      if (cats.length > 0 && selectedCategoryId === undefined) {
+        setSelectedCategoryId(cats[0].id);
+      }
     };
     loadCategories();
   }, []);
 
-  // Load report
-  const loadReport = async () => {
-    if (!selectedCategoryId) return;
+  const loadReport = async (catId?: number) => {
+    const targetId = catId || selectedCategoryId;
+    if (!targetId) return;
     setLoading(true);
 
-    const rows = await MetaCategoryRepository.getReportByMetaCategory(
-      selectedCategoryId,
-      toSQLDate(fromDate) || '',
-      toSQLDate(toDate) || ''
-    );
+    try {
+      const rows = await MetaCategoryRepository.getReportByMetaCategory(
+        targetId,
+        toSQLDate(fromDate) || '',
+        toSQLDate(toDate) || '',
+        searchQuery
+      );
 
-    setLedgerReport(rows);
-
-    // Compute totals
-    const incomeTotal = rows.reduce((acc, r) => acc + r.totalIncome, 0);
-    const expenseTotal = rows.reduce((acc, r) => acc + r.totalExpense, 0);
-    setTotalIncome(incomeTotal);
-    setTotalExpense(expenseTotal);
-
-    setLoading(false);
+      setLedgerReport(rows);
+      setTotalIncome(rows.reduce((acc, r) => acc + r.totalIncome, 0));
+      setTotalExpense(rows.reduce((acc, r) => acc + r.totalExpense, 0));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     loadReport();
   }, [selectedCategoryId, fromDate, toDate]);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      loadReport();
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const renderItem = ({ item }: { item: MetaCategoryLedgerRow }) => (
-    <View style={styles.row}>
-      <View style={styles.left}>
-        <Text style={styles.meta}>{item.ledgerName}</Text>
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.dateText}>{new Date(item.date).toLocaleDateString()}</Text>
+        <Text style={styles.ledgerName}>{item.ledgerName}</Text>
       </View>
-      <View style={styles.right}>
-        <Text style={[styles.amount, styles.positive]}>₹ {item.totalIncome.toFixed(2)}</Text>
-        <Text style={[styles.amount, styles.negative]}>₹ {item.totalExpense.toFixed(2)}</Text>
+      <View style={styles.cardValues}>
+        <View style={styles.valueBox}>
+          <Text style={styles.valueLabel}>Inflow</Text>
+          <Text style={[styles.valueText, styles.positive]}>+₹{item.totalIncome.toFixed(0)}</Text>
+        </View>
+        <View style={styles.valueBox}>
+          <Text style={styles.valueLabel}>Outflow</Text>
+          <Text style={[styles.valueText, styles.negative]}>-₹{item.totalExpense.toFixed(0)}</Text>
+        </View>
       </View>
     </View>
   );
 
+  const selectedCategoryName = metaCategories.find(c => c.id === selectedCategoryId)?.name || 'Select Group';
+
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={22} color="#333" />
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
+      {/* Header Bar */}
+      <View style={styles.headerBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Meta Category Report</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Text style={styles.headerTitle}>Category Analysis</Text>
+        <View style={styles.headerActions}>
           <TouchableOpacity
-            onPress={() => ExportHelper.exportReport('Meta Category Report', ledgerReport)}
-            style={{ marginRight: 15 }}
+            onPress={() => ExportHelper.exportReport('Meta_Report', ledgerReport)}
+            style={styles.actionButton}
           >
-            <Ionicons name="download-outline" size={22} color="#333" />
+            <Ionicons name="download-outline" size={24} color="#333" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <Ionicons name="filter-outline" size={24} color="#333" />
+          <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.actionButton}>
+            <Ionicons name="options-outline" size={24} color="#333" />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Total Bar */}
-      <View style={styles.totalBar}>
-        <Text style={styles.totalLabel}>Total Income</Text>
-        <Text style={[styles.totalAmount, styles.positive]}>₹ {totalIncome.toFixed(2)}</Text>
-        <Text style={styles.totalLabel}>Total Expense</Text>
-        <Text style={[styles.totalAmount, styles.negative]}>₹ {totalExpense.toFixed(2)}</Text>
+      {/* Meta Category Selection - Prominent Horizontal Scroll */}
+      <View style={styles.selectionArea}>
+        <Text style={styles.selectionTitle}>Selected Group</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsContainer}>
+          {metaCategories.map(cat => (
+            <TouchableOpacity
+              key={cat.id}
+              onPress={() => setSelectedCategoryId(cat.id)}
+              style={[
+                styles.tab,
+                selectedCategoryId === cat.id && styles.activeTab
+              ]}
+            >
+              <Text style={[
+                styles.tabText,
+                selectedCategoryId === cat.id && styles.activeTabText
+              ]}>
+                {cat.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+          {metaCategories.length === 0 && (
+            <Text style={styles.noGroupText}>No Metadata Groups found. Create one in Settings.</Text>
+          )}
+        </ScrollView>
       </View>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#007AFF" style={{ marginTop: 20 }} />
-      ) : (
-        <FlatList
-          data={ledgerReport}
-          keyExtractor={item => item.ledgerName}
-          renderItem={renderItem}
-          contentContainerStyle={{ padding: 12 }}
-          ListEmptyComponent={<Text style={styles.emptyText}>No records found</Text>}
-        />
-      )}
+      <View style={styles.filterBar}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={20} color="#666" />
+          <TextInput
+            placeholder={`Search within ${selectedCategoryName}...`}
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+      </View>
+
+      <View style={styles.summaryRow}>
+        <View style={[styles.summaryCard, { backgroundColor: '#E8F5E9', borderLeftWidth: 3, borderLeftColor: '#2E7D32' }]}>
+          <Text style={styles.summaryLabel}>Range Income</Text>
+          <Text style={[styles.summaryValue, styles.positive]}>₹{totalIncome.toFixed(0)}</Text>
+        </View>
+        <View style={[styles.summaryCard, { backgroundColor: '#FFEBEE', borderLeftWidth: 3, borderLeftColor: '#C62828' }]}>
+          <Text style={styles.summaryLabel}>Range Expense</Text>
+          <Text style={[styles.summaryValue, styles.negative]}>₹{totalExpense.toFixed(0)}</Text>
+        </View>
+      </View>
+
+      <FlatList
+        data={ledgerReport}
+        keyExtractor={(item, index) => `${item.date}-${item.ledgerName}-${index}`}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listPadding}
+        ListEmptyComponent={
+          loading ? (
+            <ActivityIndicator size="large" color={AppColors.primary} style={{ marginTop: 40 }} />
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="pie-chart-outline" size={64} color="#DDD" />
+              <Text style={styles.emptyText}>No data available. Try changing filters.</Text>
+            </View>
+          )
+        }
+      />
 
       {/* Filter Modal */}
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal visible={modalVisible} animationType="slide" transparent>
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
               <View style={styles.modalContent}>
-                <View style={styles.dragHandle} />
-                <ScrollView>
-                  <Text style={styles.modalTitle}>Filter Report</Text>
-
-                  {/* Date Range */}
-                  <Text style={styles.label}>From Date</Text>
-                  <TouchableOpacity
-                    style={styles.dateField}
-                    onPress={() => setShowFromPicker(true)}
-                  >
-                    <Ionicons name="calendar-outline" size={16} color="#666" />
-                    <Text style={styles.dateText}>{fromDate.toLocaleDateString()}</Text>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Refine Report</Text>
+                  <TouchableOpacity onPress={() => setModalVisible(false)}>
+                    <Ionicons name="close" size={24} color="#333" />
                   </TouchableOpacity>
+                </View>
 
-                  <Text style={styles.label}>To Date</Text>
-                  <TouchableOpacity
-                    style={styles.dateField}
-                    onPress={() => setShowToPicker(true)}
-                  >
-                    <Ionicons name="calendar-outline" size={16} color="#666" />
-                    <Text style={styles.dateText}>{toDate.toLocaleDateString()}</Text>
-                  </TouchableOpacity>
-
-                  {/* Meta Category Picker */}
-                  <Text style={styles.label}>Meta Category</Text>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+                  <Text style={styles.label}>Analysis Group</Text>
                   <RNPickerSelect
-                    placeholder={{ label: 'Select Meta Category', value: undefined }}
-                    value={selectedCategoryId}
                     onValueChange={value => setSelectedCategoryId(Number(value))}
                     items={metaCategories.map(c => ({ label: c.name, value: c.id }))}
+                    value={selectedCategoryId}
+                    placeholder={{ label: 'Select Meta Category...', value: undefined }}
                     style={pickerSelectStyles}
                   />
 
-                  <TouchableOpacity
-                    style={[styles.applyBtn, { marginTop: 20 }]}
-                    onPress={() => {
-                      loadReport();
-                      setModalVisible(false);
-                    }}
-                  >
-                    <Text style={styles.applyText}>Apply</Text>
+                  <Text style={styles.label}>Time Period</Text>
+                  <View style={styles.dateRow}>
+                    <TouchableOpacity style={styles.dateBtn} onPress={() => setShowFromPicker(true)}>
+                      <Text style={styles.dateBtnLabel}>From</Text>
+                      <Text style={styles.dateBtnValue}>{fromDate.toLocaleDateString()}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.dateBtn} onPress={() => setShowToPicker(true)}>
+                      <Text style={styles.dateBtnLabel}>To</Text>
+                      <Text style={styles.dateBtnValue}>{toDate.toLocaleDateString()}</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <TouchableOpacity style={styles.applyBtn} onPress={() => { loadReport(); setModalVisible(false); }}>
+                    <Text style={styles.applyBtnText}>Apply Selection</Text>
                   </TouchableOpacity>
                 </ScrollView>
               </View>
@@ -200,144 +246,135 @@ const ReportByMetaCategoryScreen: React.FC = () => {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Date Pickers */}
       {showFromPicker && (
-        <DateTimePicker
-          value={fromDate}
-          mode="date"
-          display="default"
-          onChange={(_, d) => {
-            setShowFromPicker(false);
-            if (d) setFromDate(d);
-          }}
-        />
+        <DateTimePicker value={fromDate} mode="date" onChange={(_, d) => { setShowFromPicker(false); if (d) setFromDate(d); }} />
       )}
       {showToPicker && (
-        <DateTimePicker
-          value={toDate}
-          mode="date"
-          display="default"
-          onChange={(_, d) => {
-            setShowToPicker(false);
-            if (d) setToDate(d);
-          }}
-        />
+        <DateTimePicker value={toDate} mode="date" onChange={(_, d) => { setShowToPicker(false); if (d) setToDate(d); }} />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
-export default ReportByMetaCategoryScreen;
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-
-  header: {
-    height: 50,
-    paddingHorizontal: 16,
+  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  headerBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    elevation: 2,
-  },
-  headerTitle: { fontSize: 16, fontWeight: '700' },
-
-  totalBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#E8F5E9',
-    marginTop: 8,
-  },
-  totalLabel: { fontSize: 14, fontWeight: '600' },
-  totalAmount: { fontSize: 15, fontWeight: '700' },
-
-  row: {
+    paddingVertical: 12,
     backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 6,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  },
+  backButton: { padding: 4 },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
+  headerActions: { flexDirection: 'row' },
+  actionButton: { padding: 4, marginLeft: 16 },
+
+  selectionArea: {
+    backgroundColor: '#fff',
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
+  selectionTitle: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#999',
+    textTransform: 'uppercase',
+    marginLeft: 16,
     marginBottom: 8,
   },
-  left: { flex: 1, paddingRight: 8 },
-  right: { alignItems: 'flex-end' },
-  meta: { fontSize: 13, fontWeight: '500' },
-  amount: { fontSize: 14, fontWeight: '700' },
-  positive: { color: '#4CAF50' },
-  negative: { color: '#F44336' },
-
-  emptyText: { textAlign: 'center', marginTop: 40, color: '#777' },
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
+  tabsContainer: {
+    paddingHorizontal: 16,
+    gap: 8,
   },
-  modalContent: {
+  tab: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  activeTab: {
+    backgroundColor: AppColors.primary,
+    borderColor: AppColors.primary,
+  },
+  tabText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666',
+  },
+  activeTabText: {
+    color: '#fff',
+  },
+  noGroupText: { fontSize: 12, color: '#999', fontStyle: 'italic' },
+
+  filterBar: {
     backgroundColor: '#fff',
-    padding: 16,
-    borderTopRightRadius: 16,
-    borderTopLeftRadius: 16,
-    maxHeight: '80%',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
   },
-  dragHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: '#ccc',
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 12,
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  dateField: {
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 44,
+  },
+  searchInput: { flex: 1, marginLeft: 8, fontSize: 13, color: '#333' },
+
+  summaryRow: { flexDirection: 'row', gap: 12, padding: 16 },
+  summaryCard: { flex: 1, padding: 10, borderRadius: 12 },
+  summaryLabel: { fontSize: 10, fontWeight: '700', color: '#666', marginBottom: 2 },
+  summaryValue: { fontSize: 16, fontWeight: '900' },
+
+  listPadding: { paddingHorizontal: 16, paddingBottom: 40 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    gap: 6,
-    marginTop: 4,
+    borderColor: '#F0F0F0',
   },
-  dateText: { fontSize: 13, color: '#333' },
-  label: { fontSize: 12, fontWeight: '600', color: '#555', marginTop: 12 },
-  applyBtn: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 10,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  applyText: { color: '#fff', fontWeight: '600', fontSize: 14 },
+  cardHeader: { marginBottom: 10 },
+  dateText: { fontSize: 10, color: '#999', marginBottom: 2 },
+  ledgerName: { fontSize: 15, fontWeight: '700', color: '#333' },
+  cardValues: { flexDirection: 'row', gap: 24, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F5F5F5' },
+  valueBox: { flex: 1 },
+  valueLabel: { fontSize: 9, color: '#999', textTransform: 'uppercase', marginBottom: 1 },
+  valueText: { fontSize: 15, fontWeight: '800' },
+
+  positive: { color: '#2E7D32' },
+  negative: { color: '#C62828' },
+
+  emptyContainer: { alignItems: 'center', marginTop: 40 },
+  emptyText: { marginTop: 12, fontSize: 14, color: '#999' },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  modalTitle: { fontSize: 20, fontWeight: '800' },
+  label: { fontSize: 13, fontWeight: '700', color: '#666', marginTop: 24, marginBottom: 10 },
+  dateRow: { flexDirection: 'row', gap: 12 },
+  dateBtn: { flex: 1, backgroundColor: '#F3F4F6', padding: 12, borderRadius: 12 },
+  dateBtnLabel: { fontSize: 10, color: '#666', textTransform: 'uppercase' },
+  dateBtnValue: { fontSize: 14, fontWeight: '600', color: '#333' },
+  applyBtn: { backgroundColor: AppColors.primary, paddingVertical: 16, borderRadius: 16, alignItems: 'center', marginTop: 30 },
+  applyBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
 });
 
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    color: '#333',
-    marginTop: 4,
-  },
-  inputAndroid: {
-    fontSize: 14,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    color: '#333',
-    marginTop: 4,
-  },
-});
+const pickerSelectStyles = {
+  inputIOS: { fontSize: 15, paddingVertical: 12, paddingHorizontal: 12, backgroundColor: '#F3F4F6', borderRadius: 12, color: '#333', marginTop: 4 },
+  inputAndroid: { fontSize: 15, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: '#F3F4F6', borderRadius: 12, color: '#333', marginTop: 4 },
+};
+
+export default ReportByMetaCategoryScreen;

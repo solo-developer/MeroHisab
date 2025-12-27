@@ -5,213 +5,211 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import WalletRepository, {
   WalletBalanceRow,
 } from '../repositories/WalletRepository';
 import { ExportHelper } from '../helpers/ExportHelper';
-import { GlobalStyles } from '../constants/Styles';
+import { AppColors } from '../constants/Styles';
 
 const WalletBalanceReportScreen: React.FC = () => {
   const navigation = useNavigation();
   const [wallets, setWallets] = useState<WalletBalanceRow[]>([]);
+  const [filteredWallets, setFilteredWallets] = useState<WalletBalanceRow[]>([]);
   const [totalBalance, setTotalBalance] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    loadWallets();
+  }, []);
+
+  const loadWallets = () => {
+    setLoading(true);
     WalletRepository.getWalletBalances((result: WalletBalanceRow[]) => {
       setWallets(result);
-
+      setFilteredWallets(result);
       // calculate total balance
       const total = result.reduce((sum, w) => sum + w.balance, 0);
       setTotalBalance(total);
+      setLoading(false);
     });
-  }, []);
+  };
+
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredWallets(wallets);
+    } else {
+      const filtered = wallets.filter(w =>
+        w.walletName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredWallets(filtered);
+    }
+  }, [searchQuery, wallets]);
 
   const renderItem = ({ item }: { item: WalletBalanceRow }) => {
     const isNegative = item.balance < 0;
 
     return (
-      <View
-        style={[
-          styles.row,
-          isNegative && styles.negativeRow, // subtle negative highlight
-        ]}
-      >
-        <Text style={styles.walletName}>{item.walletName}</Text>
-        <Text
-          style={[
-            styles.balance,
-            { color: isNegative ? '#F44336' : '#4CAF50' },
-          ]}
-        >
-          {item.balance.toFixed(2)}
-        </Text>
+      <View style={styles.card}>
+        <View style={styles.cardRow}>
+          <View style={styles.iconCircle}>
+            <Ionicons name="wallet-outline" size={24} color={AppColors.primary} />
+          </View>
+          <View style={{ flex: 1, marginLeft: 12 }}>
+            <Text style={styles.walletName}>{item.walletName}</Text>
+            <Text style={styles.metaText}>Native Ledger</Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={styles.balanceLabel}>Account Balance</Text>
+            <Text style={[styles.balance, { color: isNegative ? '#C62828' : '#2E7D32' }]}>
+              ₹{item.balance.toFixed(0)}
+            </Text>
+          </View>
+        </View>
       </View>
     );
   };
 
-  const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>No wallets found</Text>
-      <Text style={styles.emptySubtitle}>
-        You haven't added any wallets yet.
-      </Text>
-
-
-    </View>
-  );
-
   return (
-    <View style={styles.container}>
-      {/* Header with back button */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={22} color="#333" />
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
+      {/* Custom Header */}
+      <View style={styles.headerBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Wallet Balances</Text>
-        <TouchableOpacity onPress={() => ExportHelper.exportReport('Wallet Balance', wallets)}>
-          <Ionicons name="download-outline" size={22} color="#333" />
+        <Text style={styles.headerTitle}>Asset Overview</Text>
+        <TouchableOpacity
+          onPress={() => ExportHelper.exportReport('Wallet_Balances', filteredWallets)}
+          style={styles.actionButton}
+        >
+          <Ionicons name="download-outline" size={24} color="#333" />
         </TouchableOpacity>
       </View>
 
-      {/* Total Wallet Balance Card */}
-      {wallets.length > 0 && (
-        <View style={styles.totalCard}>
-          <Text style={styles.totalLabel}>Total Balance</Text>
-          <Text
-            style={[
-              styles.totalValue,
-              { color: totalBalance < 0 ? '#F44336' : '#4CAF50' },
-            ]}
-          >
-            {totalBalance.toFixed(2)}
+      <View style={styles.filterSection}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={20} color="#666" />
+          <TextInput
+            placeholder="Search assets or wallets..."
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+      </View>
+
+      {/* Hero Summary - Lighter/Smaller */}
+      <View style={[styles.heroCard, totalBalance < 0 ? styles.heroNegative : styles.heroPositive]}>
+        <View style={styles.heroIconBox}>
+          <Ionicons
+            name={totalBalance < 0 ? "trending-down" : "trending-up"}
+            size={22}
+            color={totalBalance < 0 ? "#C62828" : "#2E7D32"}
+          />
+        </View>
+        <View style={{ flex: 1, marginLeft: 16 }}>
+          <Text style={[styles.heroLabel, totalBalance < 0 ? { color: '#B71C1C' } : { color: '#1B5E20' }]}>
+            Net Liquidity
+          </Text>
+          <Text style={[styles.heroValue, totalBalance < 0 ? { color: '#C62828' } : { color: '#2E7D32' }]}>
+            ₹{totalBalance.toFixed(0)}
           </Text>
         </View>
-      )}
+      </View>
 
       <FlatList
-        data={wallets}
+        data={filteredWallets}
         keyExtractor={item => item.walletId.toString()}
         renderItem={renderItem}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        contentContainerStyle={
-          wallets.length === 0 ? { flex: 1 } : styles.listContent
+        contentContainerStyle={styles.listPadding}
+        ListEmptyComponent={
+          loading ? (
+            <ActivityIndicator size="large" color={AppColors.primary} style={{ marginTop: 40 }} />
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="wallet-outline" size={64} color="#DDD" />
+              <Text style={styles.emptyText}>No matching accounts found.</Text>
+            </View>
+          )
         }
-        ListEmptyComponent={renderEmptyState}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  backButton: {
-    paddingRight: 12,
-    paddingVertical: 4,
-  },
-  listContent: { paddingTop: 16, paddingBottom: 24 },
-
-  /* Header */
-  header: {
-    height: 50,
-    paddingHorizontal: 16,
+  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  headerBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     backgroundColor: '#fff',
-    elevation: 2,
   },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
+  backButton: { padding: 4 },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
+  actionButton: { padding: 4 },
 
-  /* Total card */
-  totalCard: {
+  filterSection: {
     backgroundColor: '#fff',
-    margin: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    elevation: 1,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    alignItems: 'center',
-    marginBottom: 8,
+    shadowRadius: 5,
   },
-  totalLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 6,
-  },
-  totalValue: {
-    fontSize: 22,
-    fontWeight: '700',
-  },
-
-  /* List rows */
-  row: {
-    backgroundColor: '#fff',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+  searchBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    borderRadius: 8,
-    marginHorizontal: 16,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 44,
   },
-  negativeRow: {
-    backgroundColor: '#FFF1F1', // subtle negative highlight
-  },
-  walletName: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  balance: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  separator: {
-    height: 12,
-  },
+  searchInput: { flex: 1, marginLeft: 8, fontSize: 14, color: '#333' },
 
-  /* Empty state */
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  heroCard: {
+    margin: 16,
+    padding: 16,
+    borderRadius: 16,
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    borderWidth: 1,
   },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 6,
+  heroPositive: { backgroundColor: '#E8F5E9', borderColor: '#C8E6C9' },
+  heroNegative: { backgroundColor: '#FFEBEE', borderColor: '#FFCDD2' },
+  heroIconBox: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
+  heroLabel: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase' },
+  heroValue: { fontSize: 26, fontWeight: '900' },
+
+  listPadding: { paddingHorizontal: 16, paddingBottom: 40 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
-  emptySubtitle: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  addButton: {
-    backgroundColor: '#4F8EF7',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 6,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '600',
-  },
+  cardRow: { flexDirection: 'row', alignItems: 'center' },
+  iconCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center' },
+  walletName: { fontSize: 15, fontWeight: '700', color: '#333' },
+  metaText: { fontSize: 11, color: '#999', marginTop: 2 },
+  balanceLabel: { fontSize: 9, color: '#AAA', textTransform: 'uppercase', marginBottom: 1 },
+  balance: { fontSize: 17, fontWeight: '900' },
+
+  emptyContainer: { alignItems: 'center', marginTop: 60 },
+  emptyText: { marginTop: 12, fontSize: 14, color: '#999' },
 });
 
 export default WalletBalanceReportScreen;

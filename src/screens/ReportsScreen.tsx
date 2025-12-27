@@ -110,36 +110,40 @@ const ReportsScreen: React.FC = () => {
   const navigation = useNavigation();
 
   const handlePress = (key: string) => {
+    const nav = navigation as any;
     switch (key) {
       case 'wallet-balance':
-        navigation.navigate('WalletBalanceReport');
+        nav.navigate('WalletBalanceReport');
         break;
       case 'income':
-        navigation.navigate('IncomeReport');
+        nav.navigate('IncomeReport');
         break;
       case 'expense':
-        navigation.navigate('ExpenseReport');
+        nav.navigate('ExpenseReport');
         break;
       case 'transfer':
-        navigation.navigate('TransferReport');
+        nav.navigate('TransferReport');
         break;
       case 'ledger':
-        navigation.navigate('ReportByLedger');
+        nav.navigate('ReportByLedger');
         break;
       case 'meta-category':
-        navigation.navigate('ReportsByMetaCategory');
+        nav.navigate('ReportsByMetaCategory');
         break;
       case 'party':
-        navigation.navigate('PartyReport');
+        nav.navigate('PartyReport');
         break;
       case 'payment':
-        navigation.navigate('PaymentReport');
+        nav.navigate('PaymentReport');
         break;
       case 'receipt':
-        navigation.navigate('ReceiptReport');
+        nav.navigate('ReceiptReport');
         break;
       case 'trend':
-        navigation.navigate('TrendReport');
+        nav.navigate('TrendReport');
+        break;
+      case 'transactions':
+        nav.navigate('AllTransactionsReport');
         break;
       default:
         console.log('Pressed:', key);

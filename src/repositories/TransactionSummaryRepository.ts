@@ -76,29 +76,136 @@ export const TransactionSummaryRepository = {
     });
   },
 
-  getIncomeExpense: async (from: string, to: string): Promise<IncomeExpenseReport> => {
+  search: async (options: {
+    query?: string;
+    fromDate?: string;
+    toDate?: string;
+    type?: string;
+    minAmount?: number;
+    maxAmount?: number;
+    categoryId?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<TransactionSummaryRow[]> => {
     const db = getDatabase();
+    const { query, fromDate, toDate, type, minAmount, maxAmount, categoryId, limit = 50, offset = 0 } = options;
+
+    let sql = `
+      SELECT ts.id, ts.type, ts.note, ts.date, ts.amount as netAmount, c.name as categoryName
+      FROM TransactionSummary ts
+      LEFT JOIN categories c ON ts.categoryId = c.id
+      WHERE ts.deletedAt IS NULL
+    `;
+    const params: any[] = [];
+
+    if (fromDate) {
+      sql += ' AND date(ts.date) >= ?';
+      params.push(fromDate);
+    }
+    if (toDate) {
+      sql += ' AND date(ts.date) <= ?';
+      params.push(toDate);
+    }
+    if (type && type !== 'all') {
+      sql += ' AND ts.type = ?';
+      params.push(type);
+    }
+    if (categoryId) {
+      sql += ' AND ts.categoryId = ?';
+      params.push(categoryId);
+    }
+    if (minAmount !== undefined) {
+      sql += ' AND ts.amount >= ?';
+      params.push(minAmount);
+    }
+    if (maxAmount !== undefined) {
+      sql += ' AND ts.amount <= ?';
+      params.push(maxAmount);
+    }
+    if (query) {
+      sql += ' AND (ts.note LIKE ? OR ts.type LIKE ? OR c.name LIKE ?)';
+      params.push(`%${query}%`, `%${query}%`, `%${query}%`);
+    }
+
+    sql += ' ORDER BY ts.date DESC, ts.id DESC LIMIT ? OFFSET ?';
+    params.push(limit, offset);
+
+    return new Promise((resolve, reject) => {
+      db.transaction((tx: any) => {
+        tx.executeSql(sql, params, (_: any, res: any) => {
+          const result: TransactionSummaryRow[] = [];
+          for (let i = 0; i < res.rows.length; i++) {
+            result.push(res.rows.item(i));
+          }
+          resolve(result);
+        }, (_: any, err: any) => {
+          reject(err);
+          return false;
+        });
+      });
+    });
+  },
+
+  getIncomeExpense: async (options: {
+    query?: string;
+    fromDate?: string;
+    toDate?: string;
+    type?: string;
+    minAmount?: number;
+    maxAmount?: number;
+    categoryId?: number;
+  }): Promise<IncomeExpenseReport> => {
+    const db = getDatabase();
+    const { query, fromDate, toDate, type, minAmount, maxAmount, categoryId } = options;
+
+    let sql = `
+      SELECT 
+        SUM(CASE WHEN ts.type IN ('income', 'receipt') THEN ts.amount ELSE 0 END) AS income,
+        SUM(CASE WHEN ts.type IN ('expense', 'payment') THEN ts.amount ELSE 0 END) AS expense
+      FROM TransactionSummary ts
+      LEFT JOIN categories c ON ts.categoryId = c.id
+      WHERE ts.deletedAt IS NULL
+    `;
+    const params: any[] = [];
+
+    if (fromDate) {
+      sql += ' AND date(ts.date) >= ?';
+      params.push(fromDate);
+    }
+    if (toDate) {
+      sql += ' AND date(ts.date) <= ?';
+      params.push(toDate);
+    }
+    if (type && type !== 'all') {
+      sql += ' AND ts.type = ?';
+      params.push(type);
+    }
+    if (categoryId) {
+      sql += ' AND ts.categoryId = ?';
+      params.push(categoryId);
+    }
+    if (minAmount !== undefined) {
+      sql += ' AND ts.amount >= ?';
+      params.push(minAmount);
+    }
+    if (maxAmount !== undefined) {
+      sql += ' AND ts.amount <= ?';
+      params.push(maxAmount);
+    }
+    if (query) {
+      sql += ' AND (ts.note LIKE ? OR ts.type LIKE ? OR c.name LIKE ?)';
+      params.push(`%${query}%`, `%${query}%`, `%${query}%`);
+    }
 
     return new Promise<IncomeExpenseReport>((resolve, reject) => {
       db.transaction((tx: any) => {
-        tx.executeSql(
-          `
-          SELECT 
-            SUM(CASE WHEN type IN ('income', 'receipt') THEN amount ELSE 0 END) AS income,
-            SUM(CASE WHEN type IN ('expense', 'payment') THEN amount ELSE 0 END) AS expense
-          FROM TransactionSummary
-          WHERE deletedAt IS NULL AND date(date) BETWEEN ? AND ?;
-          `,
-          [from, to],
-          (_: any, res: any) => {
-            const row = res.rows.item(0);
-            resolve({ income: row.income ?? 0, expense: row.expense ?? 0 });
-          },
-          (_: any, err: any) => {
-            reject(err);
-            return false;
-          }
-        );
+        tx.executeSql(sql, params, (_: any, res: any) => {
+          const row = res.rows.item(0);
+          resolve({ income: row.income ?? 0, expense: row.expense ?? 0 });
+        }, (_: any, err: any) => {
+          reject(err);
+          return false;
+        });
       });
     });
   },

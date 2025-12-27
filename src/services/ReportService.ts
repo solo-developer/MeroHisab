@@ -36,20 +36,31 @@ export class ReportService {
   static async getPayments(
     startDate: Date,
     endDate: Date,
+    keyword?: string,
   ): Promise<PaymentReceiptRecord[]> {
     const db = getDatabase();
 
     return new Promise<PaymentReceiptRecord[]>((resolve, reject) => {
       db.transaction((tx: any) => {
-        tx.executeSql(
-          `SELECT ts.id, p.name as partyName, ts.amount, ts.date, ts.note
+        let query = `SELECT ts.id, p.name as partyName, ts.amount, ts.date, ts.note
            FROM TransactionSummary ts
            JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
            JOIN Parties p ON p.ledgerId = te.ledgerId
-           WHERE ts.type = 'payment'
-           AND date(ts.date) BETWEEN ? AND ?
-           ORDER BY ts.date DESC`,
-          [toSQLDate(startDate), toSQLDate(endDate)],
+           WHERE ts.type = 'payment' AND ts.deletedAt IS NULL
+           AND date(ts.date) BETWEEN ? AND ?`;
+        
+        const params: any[] = [toSQLDate(startDate), toSQLDate(endDate)];
+        
+        if (keyword) {
+          query += ` AND (p.name LIKE ? OR ts.note LIKE ?)`;
+          params.push(`%${keyword}%`, `%${keyword}%`);
+        }
+
+        query += ` ORDER BY ts.date DESC`;
+
+        tx.executeSql(
+          query,
+          params,
           (_: any, results: any) => {
             const data: PaymentReceiptRecord[] = [];
             for (let i = 0; i < results.rows.length; i++) {
@@ -69,20 +80,31 @@ export class ReportService {
   static async getReceipts(
     startDate: Date,
     endDate: Date,
+    keyword?: string,
   ): Promise<PaymentReceiptRecord[]> {
     const db = getDatabase();
 
     return new Promise<PaymentReceiptRecord[]>((resolve, reject) => {
       db.transaction((tx: any) => {
-        tx.executeSql(
-          `SELECT ts.id, p.name as partyName, ts.amount, ts.date, ts.note
+        let query = `SELECT ts.id, p.name as partyName, ts.amount, ts.date, ts.note
            FROM TransactionSummary ts
            JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
            JOIN Parties p ON p.ledgerId = te.ledgerId
-           WHERE ts.type = 'receipt'
-           AND date(ts.date) BETWEEN ? AND ?
-           ORDER BY ts.date DESC`,
-          [toSQLDate(startDate), toSQLDate(endDate)],
+           WHERE ts.type = 'receipt' AND ts.deletedAt IS NULL
+           AND date(ts.date) BETWEEN ? AND ?`;
+        
+        const params: any[] = [toSQLDate(startDate), toSQLDate(endDate)];
+
+        if (keyword) {
+          query += ` AND (p.name LIKE ? OR ts.note LIKE ?)`;
+          params.push(`%${keyword}%`, `%${keyword}%`);
+        }
+
+        query += ` ORDER BY ts.date DESC`;
+
+        tx.executeSql(
+          query,
+          params,
           (_: any, results: any) => {
             const data: PaymentReceiptRecord[] = [];
             for (let i = 0; i < results.rows.length; i++) {

@@ -1,241 +1,294 @@
-// src/screens/TransferReportScreen.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import {
-  TransferReportRepository,
-  TransferReportRow,
-} from '../repositories/TransferReportRepository';
-
+import { TransferReportRepository, TransferReportRow } from '../repositories/TransferReportRepository';
 import { toSQLDate } from '../helpers/DateHelper';
 import { ExportHelper } from '../helpers/ExportHelper';
-import { GlobalStyles, AppColors } from '../constants/Styles';
+import { AppColors } from '../constants/Styles';
 
 const TransferReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
+  // Search/Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [transferList, setTransferList] = useState<TransferReportRow[]>([]);
+  const [total, setTotal] = useState(0);
+
+  // Date states
   const today = new Date();
   const lastWeek = new Date();
-  lastWeek.setDate(today.getDate() - 6);
+  lastWeek.setDate(today.getDate() - 30); // Show last 30 days by default
 
   const [fromDate, setFromDate] = useState<Date>(lastWeek);
   const [toDate, setToDate] = useState<Date>(today);
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
-  const [transferList, setTransferList] = useState<TransferReportRow[]>([]);
-  const [total, setTotal] = useState(0);
-
   const loadReport = () => {
+    setLoading(true);
     TransferReportRepository.getTransferReport(
       toSQLDate(fromDate),
       toSQLDate(toDate),
+      searchQuery,
       rows => {
         setTransferList(rows);
         const sum = rows.reduce((acc, r) => acc + r.amount, 0);
         setTotal(sum);
+        setLoading(false);
       }
     );
   };
 
   useEffect(() => {
     loadReport();
-  }, []);
+  }, [fromDate, toDate]);
+
+  // Handle search with debounce
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      loadReport();
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   const renderItem = ({ item }: { item: TransferReportRow }) => (
-    <View style={styles.row}>
-      <View style={styles.left}>
-        <Text style={styles.date}>
-          {new Date(item.date).toLocaleDateString()}
-        </Text>
-        <Text style={styles.meta}>
-          {item.fromWallet || 'N/A'} → {item.toWallet || 'N/A'}
-        </Text>
-        {item.note ? <Text style={styles.note}>{item.note}</Text> : null}
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <View style={styles.transferIcon}>
+          <Ionicons name="swap-horizontal" size={20} color={AppColors.primary} />
+        </View>
+        <Text style={styles.dateText}>{new Date(item.date).toLocaleDateString()}</Text>
       </View>
 
-      <Text style={[styles.amount, { color: '#1976D2' }]}>
-        {item.amount.toFixed(2)}
-      </Text>
+      <View style={styles.cardBody}>
+        <View style={styles.pathInfo}>
+          <View style={styles.pathRow}>
+            <View style={[styles.dot, { backgroundColor: '#FF9800' }]} />
+            <Text style={styles.walletName}>{item.fromWallet || 'Unknown'}</Text>
+          </View>
+          <View style={styles.line} />
+          <View style={styles.pathRow}>
+            <View style={[styles.dot, { backgroundColor: '#4CAF50' }]} />
+            <Text style={styles.walletName}>{item.toWallet || 'Unknown'}</Text>
+          </View>
+          {item.note ? <Text style={styles.noteText}>{item.note}</Text> : null}
+        </View>
+        <Text style={styles.amountText}>₹{item.amount.toFixed(0)}</Text>
+      </View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={22} color="#333" />
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
+      {/* Header Bar */}
+      <View style={styles.headerBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>Transfer Report</Text>
-
-        <TouchableOpacity onPress={() => ExportHelper.exportReport('Transfer Report', transferList)}>
-          <Ionicons name="download-outline" size={22} color="#333" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Filters */}
-      <View style={styles.filters}>
+        <Text style={styles.headerTitle}>Transfer History</Text>
         <TouchableOpacity
-          style={styles.dateField}
-          onPress={() => setShowFromPicker(true)}
+          onPress={() => ExportHelper.exportReport('Transfers', transferList)}
+          style={styles.actionButton}
         >
-          <Ionicons name="calendar-outline" size={16} color="#666" />
-          <Text style={styles.dateText}>
-            {fromDate ? fromDate.toLocaleDateString() : 'From date'}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.dateField}
-          onPress={() => setShowToPicker(true)}
-        >
-          <Ionicons name="calendar-outline" size={16} color="#666" />
-          <Text style={styles.dateText}>
-            {toDate ? toDate.toLocaleDateString() : 'To date'}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.applyBtn} onPress={loadReport}>
-          <Text style={styles.applyText}>Apply</Text>
+          <Ionicons name="download-outline" size={24} color="#333" />
         </TouchableOpacity>
       </View>
 
-      {/* Total */}
-      <View style={styles.totalBar}>
-        <Text style={styles.totalLabel}>Total Transfers</Text>
-        <Text style={styles.totalAmount}>{total.toFixed(2)}</Text>
+      <View style={styles.heroSection}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={20} color="#666" />
+          <TextInput
+            placeholder="Search note or wallet..."
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
+        <View style={styles.dateRow}>
+          <TouchableOpacity style={styles.dateChip} onPress={() => setShowFromPicker(true)}>
+            <Ionicons name="calendar-outline" size={12} color="#666" />
+            <Text style={styles.dateChipText}>{fromDate.toLocaleDateString()}</Text>
+          </TouchableOpacity>
+          <Ionicons name="arrow-forward" size={12} color="#CCC" />
+          <TouchableOpacity style={styles.dateChip} onPress={() => setShowToPicker(true)}>
+            <Ionicons name="calendar-outline" size={12} color="#666" />
+            <Text style={styles.dateChipText}>{toDate.toLocaleDateString()}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* List */}
+      {/* Summary Chips - Lighter/Smaller */}
+      <View style={styles.summaryBox}>
+        <View style={styles.summaryItem}>
+          <Text style={styles.summaryLabel}>Total Volume</Text>
+          <Text style={styles.summaryValue}>₹{total.toFixed(0)}</Text>
+        </View>
+        <View style={[styles.verticalDivider]} />
+        <View style={styles.summaryItem}>
+          <Text style={styles.summaryLabel}>Total Count</Text>
+          <Text style={styles.summaryValue}>{transferList.length}</Text>
+        </View>
+      </View>
+
       <FlatList
         data={transferList}
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
-        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-        contentContainerStyle={{ padding: 12 }}
+        contentContainerStyle={styles.listPadding}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No transfer records found</Text>
+          loading ? (
+            <ActivityIndicator size="large" color={AppColors.primary} style={{ marginTop: 40 }} />
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="swap-horizontal-outline" size={64} color="#DDD" />
+              <Text style={styles.emptyText}>No transfers found.</Text>
+            </View>
+          )
         }
       />
 
-      {/* Date Pickers */}
       {showFromPicker && (
         <DateTimePicker
-          value={fromDate || new Date()}
+          value={fromDate}
           mode="date"
-          display="default"
-          onChange={(_, d) => {
-            setShowFromPicker(false);
-            if (d) setFromDate(d);
-          }}
+          onChange={(_, d) => { setShowFromPicker(false); if (d) setFromDate(d); }}
         />
       )}
-
       {showToPicker && (
         <DateTimePicker
-          value={toDate || new Date()}
+          value={toDate}
           mode="date"
-          display="default"
-          onChange={(_, d) => {
-            setShowToPicker(false);
-            if (d) setToDate(d);
-          }}
+          onChange={(_, d) => { setShowToPicker(false); if (d) setToDate(d); }}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-
-  header: {
-    height: 50,
-    paddingHorizontal: 16,
+  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  headerBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     backgroundColor: '#fff',
+  },
+  backButton: { padding: 4 },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
+  actionButton: { padding: 4 },
+
+  heroSection: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
     elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
   },
-  headerTitle: { fontSize: 16, fontWeight: '700' },
-
-  filters: {
-    flexDirection: 'row',
-    padding: 12,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    gap: 8,
-  },
-  dateField: {
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    flex: 1,
-    gap: 6,
-  },
-  dateText: { fontSize: 13, color: '#333' },
-
-  applyBtn: {
-    backgroundColor: '#1976D2',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 6,
+    height: 44,
+    marginBottom: 12,
   },
-  applyText: { color: '#fff', fontWeight: '600', fontSize: 13 },
-
-  totalBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#E3F2FD',
-  },
-  totalLabel: { fontSize: 14, fontWeight: '600' },
-  totalAmount: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#0D47A1',
-  },
-
-  row: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 6,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  left: { flex: 1, paddingRight: 8 },
-  date: { fontSize: 12, color: '#666' },
-  meta: { fontSize: 13, fontWeight: '500' },
-  note: { fontSize: 12, color: '#888' },
-
-  amount: {
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
     fontSize: 14,
-    fontWeight: '700',
-    color: '#1976D2',
+    color: '#333',
   },
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  dateChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
+    gap: 4,
+  },
+  dateChipText: { fontSize: 12, fontWeight: '700', color: '#333' },
 
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 40,
-    color: '#777',
+  summaryBox: {
+    flexDirection: 'row',
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 8,
+    backgroundColor: '#E3F2FD',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: '#BBDEFB',
   },
+  summaryItem: { flex: 1, alignItems: 'center' },
+  summaryLabel: { fontSize: 10, color: '#1976D2', fontWeight: '700', textTransform: 'uppercase', marginBottom: 2 },
+  summaryValue: { fontSize: 16, fontWeight: '900', color: '#0D47A1' },
+  verticalDivider: { width: 1, backgroundColor: '#BBDEFB', marginVertical: 4 },
+
+  listPadding: { padding: 16, paddingBottom: 40 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  transferIcon: {
+    padding: 6,
+    backgroundColor: '#E3F2FD',
+    borderRadius: 8,
+  },
+  dateText: { fontSize: 11, color: '#999', fontWeight: '500' },
+  cardBody: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  pathInfo: { flex: 1 },
+  pathRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  dot: { width: 6, height: 6, borderRadius: 3 },
+  walletName: { fontSize: 14, fontWeight: '700', color: '#333' },
+  line: { width: 1.5, height: 10, backgroundColor: '#EEE', marginLeft: 2, marginVertical: 1 },
+  noteText: { marginTop: 6, fontSize: 12, color: '#666', fontStyle: 'italic' },
+  amountText: { fontSize: 17, fontWeight: '900', color: '#1976D2' },
+
+  emptyContainer: { alignItems: 'center', marginTop: 60 },
+  emptyText: { marginTop: 12, fontSize: 14, color: '#999' },
 });
 
 export default TransferReportScreen;

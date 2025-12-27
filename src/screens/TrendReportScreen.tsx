@@ -8,10 +8,11 @@ import {
     ActivityIndicator,
     Dimensions,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineChart } from 'react-native-gifted-charts';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { AppColors, GlobalStyles } from '../constants/Styles';
+import { AppColors } from '../constants/Styles';
 import { ReportService, TrendDataPoint } from '../services/ReportService';
 import { ExportHelper } from '../helpers/ExportHelper';
 import { toSQLDate } from '../helpers/DateHelper';
@@ -21,6 +22,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 type RangeType = '1W' | '1M' | '3M';
 
 const TrendReportScreen: React.FC = () => {
+    const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
     const [range, setRange] = useState<RangeType>('1W');
     const [data, setData] = useState<TrendDataPoint[]>([]);
@@ -102,7 +104,7 @@ const TrendReportScreen: React.FC = () => {
 
     const totals = useMemo(() => {
         return data.reduce(
-            (acc, curr) => ({
+            (acc: any, curr: any) => ({
                 income: acc.income + curr.income,
                 expense: acc.expense + curr.expense,
             }),
@@ -111,10 +113,15 @@ const TrendReportScreen: React.FC = () => {
     }, [data]);
 
     return (
-        <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
+        <SafeAreaView style={styles.safeArea} edges={['top', 'bottom', 'left', 'right']}>
             <View style={styles.header}>
                 <View style={styles.headerTopRow}>
-                    <Text style={styles.headerTitle}>Trend Analysis</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <TouchableOpacity onPress={() => (navigation as any).goBack()} style={{ marginRight: 12 }}>
+                            <MaterialIcons name="arrow-back" size={24} color="#333" />
+                        </TouchableOpacity>
+                        <Text style={styles.headerTitle}>Trend Analysis</Text>
+                    </View>
                     <TouchableOpacity
                         onPress={() => ExportHelper.exportReport('Trend Analysis', data)}
                         style={styles.downloadIcon}
@@ -148,15 +155,15 @@ const TrendReportScreen: React.FC = () => {
             <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
                 {/* Summary Cards */}
                 <View style={styles.summaryContainer}>
-                    <View style={[styles.summaryCard, { borderLeftColor: AppColors.success }]}>
+                    <View style={[styles.summaryCard, { backgroundColor: '#E8F5E9', borderLeftColor: '#4CAF50' }]}>
                         <Text style={styles.summaryLabel}>Total Income</Text>
-                        <Text style={[styles.summaryValue, { color: AppColors.success }]}>
+                        <Text style={[styles.summaryValue, { color: '#2E7D32' }]}>
                             ₹ {totals.income.toLocaleString()}
                         </Text>
                     </View>
-                    <View style={[styles.summaryCard, { borderLeftColor: AppColors.danger }]}>
+                    <View style={[styles.summaryCard, { backgroundColor: '#FFEBEE', borderLeftColor: '#F44336' }]}>
                         <Text style={styles.summaryLabel}>Total Expense</Text>
-                        <Text style={[styles.summaryValue, { color: AppColors.danger }]}>
+                        <Text style={[styles.summaryValue, { color: '#C62828' }]}>
                             ₹ {totals.expense.toLocaleString()}
                         </Text>
                     </View>
@@ -187,11 +194,11 @@ const TrendReportScreen: React.FC = () => {
 
                     <View style={styles.legendContainer}>
                         <View style={styles.legendItem}>
-                            <View style={[styles.legendDot, { backgroundColor: AppColors.success }]} />
+                            <View style={[styles.legendDot, { backgroundColor: '#2E7D32' }]} />
                             <Text style={styles.legendText}>Income</Text>
                         </View>
                         <View style={styles.legendItem}>
-                            <View style={[styles.legendDot, { backgroundColor: AppColors.danger }]} />
+                            <View style={[styles.legendDot, { backgroundColor: '#C62828' }]} />
                             <Text style={styles.legendText}>Expense</Text>
                         </View>
                     </View>
@@ -208,11 +215,11 @@ const TrendReportScreen: React.FC = () => {
                                 height={250}
                                 initialSpacing={30}
                                 spacing={baseSpacing * spacingMultiplier}
-                                color1={AppColors.success}
-                                color2={AppColors.danger}
+                                color1={'#2E7D32'}
+                                color2={'#C62828'}
                                 thickness={4}
-                                dataPointsColor1={AppColors.success}
-                                dataPointsColor2={AppColors.danger}
+                                dataPointsColor1={'#2E7D32'}
+                                dataPointsColor2={'#C62828'}
                                 dataPointsRadius={4}
                                 showValuesAsDataPointsText={false}
                                 yAxisColor="#ccc"
@@ -224,10 +231,10 @@ const TrendReportScreen: React.FC = () => {
                                 animateOnDataChange
                                 animationDuration={1000}
                                 areaChart
-                                startFillColor1={AppColors.success}
-                                startFillColor2={AppColors.danger}
-                                startOpacity={0.4}
-                                endOpacity={0.1}
+                                startFillColor1={'#2E7D32'}
+                                startFillColor2={'#C62828'}
+                                startOpacity={0.2}
+                                endOpacity={0.05}
                                 rulesType="dashed"
                                 rulesColor="#eee"
                                 yAxisExtraHeight={20}
@@ -240,9 +247,9 @@ const TrendReportScreen: React.FC = () => {
                                         if (!items || items.length === 0) return null;
                                         return (
                                             <View style={styles.pointerLabel}>
-                                                <Text style={[styles.pointerText, { color: AppColors.success }]}>Inc: ₹{items[0]?.value || 0}</Text>
+                                                <Text style={[styles.pointerText, { color: '#2E7D32' }]}>Inc: ₹{items[0]?.value || 0}</Text>
                                                 {items.length > 1 && (
-                                                    <Text style={[styles.pointerText, { color: AppColors.danger, marginTop: 4 }]}>
+                                                    <Text style={[styles.pointerText, { color: '#C62828', marginTop: 4 }]}>
                                                         Exp: ₹{items[1]?.value || 0}
                                                     </Text>
                                                 )}
@@ -337,20 +344,19 @@ const styles = StyleSheet.create({
     },
     summaryContainer: {
         flexDirection: 'row',
-        gap: 15,
-        marginBottom: 20,
+        gap: 12,
+        marginBottom: 16,
     },
     summaryCard: {
         flex: 1,
-        backgroundColor: '#fff',
-        padding: 15,
+        padding: 12,
         borderRadius: 12,
         borderLeftWidth: 4,
-        elevation: 2,
+        elevation: 1,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
-        shadowRadius: 4,
+        shadowRadius: 2,
     },
     summaryLabel: {
         fontSize: 12,

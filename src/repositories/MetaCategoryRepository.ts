@@ -17,18 +17,18 @@ export default class MetaCategoryRepository {
   static getAll(): Promise<MetaCategory[]> {
     const db = getDatabase();
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `SELECT * FROM MetaCategory ORDER BY name;`,
           [],
-          (_, res) => {
+          (_: any, res: any) => {
             const categories: MetaCategory[] = [];
             for (let i = 0; i < res.rows.length; i++) {
               categories.push(res.rows.item(i));
             }
             resolve(categories);
           },
-          (_, err) => reject(err)
+          (_: any, err: any) => reject(err)
         );
       });
     });
@@ -37,11 +37,11 @@ export default class MetaCategoryRepository {
   static create(name: string, ledgerIds: number[] = []): Promise<number> {
     const db = getDatabase();
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `INSERT INTO MetaCategory (name) VALUES (?);`,
           [name],
-          async (_, result) => {
+          async (_: any, result: any) => {
             const metaCategoryId = result.insertId;
 
             // Assign ledgers
@@ -56,7 +56,7 @@ export default class MetaCategoryRepository {
 
             resolve(metaCategoryId);
           },
-          (_, err) => reject(err)
+          (_: any, err: any) => reject(err)
         );
       });
     });
@@ -65,7 +65,7 @@ export default class MetaCategoryRepository {
   static update(id: number, name: string, ledgerIds: number[] = []): Promise<void> {
     const db = getDatabase();
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `UPDATE MetaCategory SET name = ? WHERE id = ?;`,
           [name, id],
@@ -86,7 +86,7 @@ export default class MetaCategoryRepository {
               }
             );
           },
-          (_, err) => reject(err)
+          (_: any, err: any) => reject(err)
         );
       });
     });
@@ -95,12 +95,12 @@ export default class MetaCategoryRepository {
   static delete(id: number): Promise<void> {
     const db = getDatabase();
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `DELETE FROM MetaCategory WHERE id = ?;`,
           [id],
           () => resolve(),
-          (_, err) => reject(err)
+          (_: any, err: any) => reject(err)
         );
       });
     });
@@ -109,20 +109,20 @@ export default class MetaCategoryRepository {
   static getLedgers(metaCategoryId: number): Promise<Ledger[]> {
     const db = getDatabase();
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `SELECT l.* FROM Ledger l
            INNER JOIN MetaCategoryItems m ON l.id = m.ledgerId
            WHERE m.metaCategoryId = ?;`,
           [metaCategoryId],
-          (_, res) => {
+          (_: any, res: any) => {
             const ledgers: Ledger[] = [];
             for (let i = 0; i < res.rows.length; i++) {
               ledgers.push(res.rows.item(i));
             }
             resolve(ledgers);
           },
-          (_, err) => reject(err)
+          (_: any, err: any) => reject(err)
         );
       });
     });
@@ -131,17 +131,18 @@ export default class MetaCategoryRepository {
   static async getReportByMetaCategory(
     metaCategoryId: number,
     fromDate?: string,
-    toDate?: string
+    toDate?: string,
+    keyword?: string
   ): Promise<MetaCategoryLedgerRow[]> {
     const db = getDatabase();
-debugger;
+
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         // Fetch all ledger IDs under this meta category
         tx.executeSql(
           `SELECT ledgerId FROM MetaCategoryItems WHERE metaCategoryId = ?`,
           [metaCategoryId],
-          (_, res) => {
+          (_: any, res: any) => {
             const ledgerIds: number[] = [];
             for (let i = 0; i < res.rows.length; i++) {
               ledgerIds.push(res.rows.item(i).ledgerId);
@@ -157,12 +158,12 @@ debugger;
             let query = `
               SELECT ts.date as date,
                      l.name as ledgerName,
-                     SUM(CASE WHEN ts.type='income' THEN ts.amount ELSE 0 END) AS totalIncome,
-                     SUM(CASE WHEN ts.type='expense' THEN ts.amount ELSE 0 END) AS totalExpense
+                     SUM(CASE WHEN ts.type IN ('income', 'receipt') THEN ts.amount ELSE 0 END) AS totalIncome,
+                     SUM(CASE WHEN ts.type IN ('expense', 'payment') THEN ts.amount ELSE 0 END) AS totalExpense
               FROM TransactionSummary ts
               JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
               JOIN Ledger l ON l.id = te.ledgerId
-              WHERE te.ledgerId IN (${placeholders})
+              WHERE te.ledgerId IN (${placeholders}) AND ts.deletedAt IS NULL
             `;
             const params: any[] = [...ledgerIds];
 
@@ -174,26 +175,30 @@ debugger;
               query += ` AND date(ts.date) <= ?`;
               params.push(toDate);
             }
+            if (keyword) {
+              query += ` AND (ts.note LIKE ? OR l.name LIKE ?)`;
+              params.push(`%${keyword}%`, `%${keyword}%`);
+            }
 
             query += `
               GROUP BY ts.date, te.ledgerId
-              ORDER BY ts.date ASC
+              ORDER BY ts.date DESC
             `;
 
             tx.executeSql(
               query,
               params,
-              (_, r) => {
+              (_: any, r: any) => {
                 const rows: MetaCategoryLedgerRow[] = [];
                 for (let i = 0; i < r.rows.length; i++) {
                   rows.push(r.rows.item(i));
                 }
                 resolve(rows);
               },
-              (_, err) => reject(err)
+              (_: any, err: any) => reject(err)
             );
           },
-          (_, err) => reject(err)
+          (_: any, err: any) => reject(err)
         );
       });
     });

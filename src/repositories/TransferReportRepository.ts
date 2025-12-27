@@ -20,6 +20,7 @@ const TransferReportRepository = {
   getTransferReport: (
     fromDate?: string,
     toDate?: string,
+    keyword?: string,
     callback?: (rows: TransferReportRow[]) => void
   ) => {
     const db = getDatabase();
@@ -39,7 +40,7 @@ const TransferReportRepository = {
       WHERE ts.type = 'transfer' AND ts.deletedAt IS NULL
     `;
 
-    const params: (string | undefined)[] = [];
+    const params: any[] = [];
 
     if (fromDate) {
       query += ` AND date(ts.date) >= date(?)`;
@@ -51,20 +52,25 @@ const TransferReportRepository = {
       params.push(toDate);
     }
 
+    if (keyword) {
+        query += ` AND (ts.note LIKE ? OR wFrom.name LIKE ? OR wTo.name LIKE ?)`;
+        params.push(`%${keyword}%`, `%${keyword}%`, `%${keyword}%`);
+    }
+
     query += ` ORDER BY ts.date DESC, ts.id DESC`;
 
-    db.transaction(tx => {
+    db.transaction((tx: any) => {
       tx.executeSql(
         query,
         params,
-        (_, results) => {
+        (_: any, results: any) => {
           const rows: TransferReportRow[] = [];
           for (let i = 0; i < results.rows.length; i++) {
             rows.push(results.rows.item(i));
           }
           callback && callback(rows);
         },
-        (_, error) => {
+        (_: any, error: any) => {
           console.error('TransferReportRepository.getTransferReport error:', error);
           return false;
         }
