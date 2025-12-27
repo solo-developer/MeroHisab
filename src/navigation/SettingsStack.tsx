@@ -13,6 +13,7 @@ import TermsOfUseScreen from '../screens/TermsOfUseScreen';
 import HelpCentreScreen from '../screens/HelpCentreScreen';
 import BudgetOverviewScreen from '../screens/BudgetOverviewScreen';
 import ManageBudgetsScreen from '../screens/ManageBudgetsScreen';
+import BackupSyncScreen from '../screens/BackupSyncScreen';
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
@@ -27,6 +28,7 @@ export type SettingsStackParamList = {
   HelpCentre: undefined;
   BudgetOverview: undefined;
   ManageBudgets: { month: string };
+  BackupSync: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -92,6 +94,11 @@ const SettingsStack: React.FC = () => {
       <Stack.Screen
         name="ManageBudgets"
         component={ManageBudgetsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="BackupSync"
+        component={BackupSyncScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

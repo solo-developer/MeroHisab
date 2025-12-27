@@ -49,7 +49,7 @@ const GeneralScreen = ({ navigation }: any) => {
         <Text style={styles.itemText}>Budget Progress</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.item}>
+      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('BackupSync')}>
         <Icon name="backup" size={24} color="#333" />
         <Text style={styles.itemText}>Backup & Sync</Text>
       </TouchableOpacity>
