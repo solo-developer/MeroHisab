@@ -31,13 +31,20 @@ import { toSQLDate } from '../helpers/DateHelper';
 import { ExportHelper } from '../helpers/ExportHelper';
 import { AppColors } from '../constants/Styles';
 
+const PAGE_SIZE = 50;
+
 const LedgerReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
   // Search/Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   // Default date range: last 30 days
   const today = new Date();
@@ -76,34 +83,68 @@ const LedgerReportScreen: React.FC = () => {
     loadSecondaryOptions();
   }, [filterType]);
 
-  const loadReport = async () => {
-    setLoading(true);
+  const resetAndLoad = () => {
+    setPage(0);
+    setHasMore(true);
+    setReportList([]);
+    loadReport(0, true);
+  };
+
+  const loadReport = async (pageNum: number, isReset: boolean) => {
+    if (!isReset && (!hasMore || loadingMore)) return;
+
+    if (isReset) setLoading(true);
+    else setLoadingMore(true);
+
     try {
       const rows = await LedgerReportRepository.getReport(
         toSQLDate(fromDate) || '',
         toSQLDate(toDate) || '',
         filterType,
         filterId,
-        searchQuery
+        searchQuery,
+        PAGE_SIZE,
+        pageNum * PAGE_SIZE
       );
-      setReportList(rows);
-      setTotal(rows.reduce((acc, r) => acc + r.amount, 0));
+
+      if (isReset) {
+        setReportList(rows);
+        const totalRes = await LedgerReportRepository.getReportTotal(
+          toSQLDate(fromDate) || '',
+          toSQLDate(toDate) || '',
+          filterType,
+          filterId,
+          searchQuery
+        );
+        setTotal(totalRes.total);
+      } else {
+        setReportList(prev => [...prev, ...rows]);
+      }
+
+      setHasMore(rows.length === PAGE_SIZE);
+      setPage(pageNum);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    loadReport();
+    resetAndLoad();
   }, [fromDate, toDate, filterType, filterId]);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      loadReport();
+  const debounceSearch = useCallback(() => {
+    const timer = setTimeout(() => {
+      resetAndLoad();
     }, 500);
-    return () => clearTimeout(handler);
+    return () => clearTimeout(timer);
+  }, [searchQuery, fromDate, toDate, filterType, filterId]);
+
+  useEffect(() => {
+    const cleanup = debounceSearch();
+    return cleanup;
   }, [searchQuery]);
 
   const renderItem = ({ item }: { item: LedgerReportRow }) => (
@@ -181,6 +222,11 @@ const LedgerReportScreen: React.FC = () => {
         keyExtractor={item => `${item.date}-${item.ledgerId}`}
         renderItem={renderItem}
         contentContainerStyle={styles.listPadding}
+        onEndReached={() => loadReport(page + 1, false)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={() =>
+          loadingMore ? <ActivityIndicator size="small" color={AppColors.primary} style={{ marginVertical: 20 }} /> : null
+        }
         ListEmptyComponent={
           loading ? (
             <ActivityIndicator size="large" color={AppColors.primary} style={{ marginTop: 40 }} />
@@ -244,7 +290,7 @@ const LedgerReportScreen: React.FC = () => {
                     </>
                   )}
 
-                  <TouchableOpacity style={styles.applyBtn} onPress={() => { loadReport(); setModalVisible(false); }}>
+                  <TouchableOpacity style={styles.applyBtn} onPress={() => { resetAndLoad(); setModalVisible(false); }}>
                     <Text style={styles.applyBtnText}>Update Results</Text>
                   </TouchableOpacity>
                 </ScrollView>

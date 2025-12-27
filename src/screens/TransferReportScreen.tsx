@@ -18,14 +18,21 @@ import { toSQLDate } from '../helpers/DateHelper';
 import { ExportHelper } from '../helpers/ExportHelper';
 import { AppColors } from '../constants/Styles';
 
+const PAGE_SIZE = 50;
+
 const TransferReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
   // Search/Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [transferList, setTransferList] = useState<TransferReportRow[]>([]);
   const [total, setTotal] = useState(0);
+
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   // Date states
   const today = new Date();
@@ -37,29 +44,56 @@ const TransferReportScreen: React.FC = () => {
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
-  const loadReport = () => {
-    setLoading(true);
-    TransferReportRepository.getTransferReport(
-      toSQLDate(fromDate),
-      toSQLDate(toDate),
-      searchQuery,
-      rows => {
-        setTransferList(rows);
-        const sum = rows.reduce((acc, r) => acc + r.amount, 0);
-        setTotal(sum);
-        setLoading(false);
-      }
-    );
+  useEffect(() => {
+    resetAndLoad();
+  }, [fromDate, toDate]);
+
+  const resetAndLoad = () => {
+    setPage(0);
+    setHasMore(true);
+    setTransferList([]);
+    loadReport(0, true);
   };
 
-  useEffect(() => {
-    loadReport();
-  }, [fromDate, toDate]);
+  const loadReport = async (pageNum: number, isReset: boolean) => {
+    if (!isReset && (!hasMore || loadingMore)) return;
+
+    if (isReset) setLoading(true);
+    else setLoadingMore(true);
+
+    try {
+      const options = {
+        fromDate: toSQLDate(fromDate),
+        toDate: toSQLDate(toDate),
+        query: searchQuery,
+        limit: PAGE_SIZE,
+        offset: pageNum * PAGE_SIZE
+      };
+
+      const rows = await TransferReportRepository.search(options);
+
+      if (isReset) {
+        setTransferList(rows);
+        const totalAmount = await TransferReportRepository.getTotalAmount(options);
+        setTotal(totalAmount);
+      } else {
+        setTransferList(prev => [...prev, ...rows]);
+      }
+
+      setHasMore(rows.length === PAGE_SIZE);
+      setPage(pageNum);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
 
   // Handle search with debounce
   useEffect(() => {
     const handler = setTimeout(() => {
-      loadReport();
+      resetAndLoad();
     }, 500);
     return () => clearTimeout(handler);
   }, [searchQuery]);
@@ -149,6 +183,11 @@ const TransferReportScreen: React.FC = () => {
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.listPadding}
+        onEndReached={() => loadReport(page + 1, false)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={() =>
+          loadingMore ? <ActivityIndicator size="small" color={AppColors.primary} style={{ marginVertical: 20 }} /> : null
+        }
         ListEmptyComponent={
           loading ? (
             <ActivityIndicator size="large" color={AppColors.primary} style={{ marginTop: 40 }} />

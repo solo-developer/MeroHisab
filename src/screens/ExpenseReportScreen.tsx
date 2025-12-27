@@ -18,14 +18,21 @@ import { toSQLDate } from '../helpers/DateHelper';
 import { ExportHelper } from '../helpers/ExportHelper';
 import { AppColors } from '../constants/Styles';
 
+const PAGE_SIZE = 50;
+
 const ExpenseReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
   // Search/Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [expenseList, setExpenseList] = useState<ExpenseReportRow[]>([]);
   const [total, setTotal] = useState(0);
+
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   // Default date range: last 30 days
   const today = new Date();
@@ -37,27 +44,55 @@ const ExpenseReportScreen: React.FC = () => {
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
-  const loadReport = () => {
-    setLoading(true);
-    ExpenseReportRepository.getExpenseReport(
-      toSQLDate(fromDate) || '',
-      toSQLDate(toDate) || '',
-      searchQuery,
-      (rows, totalSum) => {
-        setExpenseList(rows);
-        setTotal(totalSum);
-        setLoading(false);
-      }
-    );
+  useEffect(() => {
+    resetAndLoad();
+  }, [fromDate, toDate]);
+
+  const resetAndLoad = () => {
+    setPage(0);
+    setHasMore(true);
+    setExpenseList([]);
+    loadReport(0, true);
   };
 
-  useEffect(() => {
-    loadReport();
-  }, [fromDate, toDate]);
+  const loadReport = async (pageNum: number, isReset: boolean) => {
+    if (!isReset && (!hasMore || loadingMore)) return;
+
+    if (isReset) setLoading(true);
+    else setLoadingMore(true);
+
+    try {
+      const options = {
+        fromDate: toSQLDate(fromDate) || '',
+        toDate: toSQLDate(toDate) || '',
+        query: searchQuery,
+        limit: PAGE_SIZE,
+        offset: pageNum * PAGE_SIZE
+      };
+
+      const rows = await ExpenseReportRepository.search(options);
+
+      if (isReset) {
+        setExpenseList(rows);
+        const totalAmount = await ExpenseReportRepository.getTotalAmount(options);
+        setTotal(totalAmount);
+      } else {
+        setExpenseList(prev => [...prev, ...rows]);
+      }
+
+      setHasMore(rows.length === PAGE_SIZE);
+      setPage(pageNum);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
 
   const debounceSearch = useCallback(() => {
     const timer = setTimeout(() => {
-      loadReport();
+      resetAndLoad();
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery, fromDate, toDate]);
@@ -144,6 +179,11 @@ const ExpenseReportScreen: React.FC = () => {
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.listPadding}
+        onEndReached={() => loadReport(page + 1, false)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={() =>
+          loadingMore ? <ActivityIndicator size="small" color="#C62828" style={{ marginVertical: 20 }} /> : null
+        }
         ListEmptyComponent={
           loading ? (
             <ActivityIndicator size="large" color="#C62828" style={{ marginTop: 40 }} />

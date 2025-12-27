@@ -1,4 +1,3 @@
-// src/services/ReportService.ts
 import { getRangeDates, ReportRange, toSQLDate } from '../helpers/DateHelper';
 import {
   IncomeExpenseReport,
@@ -27,16 +26,18 @@ export class ReportService {
     const { startDate, endDate } = getRangeDates(range);
 
     // Using date() function in SQL for robust comparison
-    return TransactionSummaryRepository.getIncomeExpense(
-      toSQLDate(startDate)!,
-      toSQLDate(endDate)!,
-    );
+    return TransactionSummaryRepository.getIncomeExpense({
+      fromDate: toSQLDate(startDate)!,
+      toDate: toSQLDate(endDate)!,
+    });
   }
 
   static async getPayments(
     startDate: Date,
     endDate: Date,
     keyword?: string,
+    limit: number = 50,
+    offset: number = 0
   ): Promise<PaymentReceiptRecord[]> {
     const db = getDatabase();
 
@@ -56,7 +57,8 @@ export class ReportService {
           params.push(`%${keyword}%`, `%${keyword}%`);
         }
 
-        query += ` ORDER BY ts.date DESC`;
+        query += ` ORDER BY ts.date DESC LIMIT ? OFFSET ?`;
+        params.push(limit, offset);
 
         tx.executeSql(
           query,
@@ -77,10 +79,50 @@ export class ReportService {
     });
   }
 
+  static async getPaymentsTotal(
+    startDate: Date,
+    endDate: Date,
+    keyword?: string,
+  ): Promise<number> {
+    const db = getDatabase();
+
+    return new Promise<number>((resolve, reject) => {
+      db.transaction((tx: any) => {
+        let query = `SELECT SUM(ts.amount) as total
+           FROM TransactionSummary ts
+           JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
+           JOIN Parties p ON p.ledgerId = te.ledgerId
+           WHERE ts.type = 'payment' AND ts.deletedAt IS NULL
+           AND date(ts.date) BETWEEN ? AND ?`;
+        
+        const params: any[] = [toSQLDate(startDate), toSQLDate(endDate)];
+        
+        if (keyword) {
+          query += ` AND (p.name LIKE ? OR ts.note LIKE ?)`;
+          params.push(`%${keyword}%`, `%${keyword}%`);
+        }
+
+        tx.executeSql(
+          query,
+          params,
+          (_: any, results: any) => {
+            resolve(results.rows.item(0).total || 0);
+          },
+          (_: any, err: any) => {
+            reject(err);
+            return false;
+          }
+        );
+      });
+    });
+  }
+
   static async getReceipts(
     startDate: Date,
     endDate: Date,
     keyword?: string,
+    limit: number = 50,
+    offset: number = 0
   ): Promise<PaymentReceiptRecord[]> {
     const db = getDatabase();
 
@@ -100,7 +142,8 @@ export class ReportService {
           params.push(`%${keyword}%`, `%${keyword}%`);
         }
 
-        query += ` ORDER BY ts.date DESC`;
+        query += ` ORDER BY ts.date DESC LIMIT ? OFFSET ?`;
+        params.push(limit, offset);
 
         tx.executeSql(
           query,
@@ -111,6 +154,44 @@ export class ReportService {
               data.push(results.rows.item(i));
             }
             resolve(data);
+          },
+          (_: any, err: any) => {
+            reject(err);
+            return false;
+          }
+        );
+      });
+    });
+  }
+
+  static async getReceiptsTotal(
+    startDate: Date,
+    endDate: Date,
+    keyword?: string,
+  ): Promise<number> {
+    const db = getDatabase();
+
+    return new Promise<number>((resolve, reject) => {
+      db.transaction((tx: any) => {
+        let query = `SELECT SUM(ts.amount) as total
+           FROM TransactionSummary ts
+           JOIN TransactionEntry te ON te.transactionSummaryId = ts.id
+           JOIN Parties p ON p.ledgerId = te.ledgerId
+           WHERE ts.type = 'receipt' AND ts.deletedAt IS NULL
+           AND date(ts.date) BETWEEN ? AND ?`;
+        
+        const params: any[] = [toSQLDate(startDate), toSQLDate(endDate)];
+
+        if (keyword) {
+          query += ` AND (p.name LIKE ? OR ts.note LIKE ?)`;
+          params.push(`%${keyword}%`, `%${keyword}%`);
+        }
+
+        tx.executeSql(
+          query,
+          params,
+          (_: any, results: any) => {
+            resolve(results.rows.item(0).total || 0);
           },
           (_: any, err: any) => {
             reject(err);

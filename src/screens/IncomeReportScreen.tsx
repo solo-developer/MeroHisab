@@ -18,14 +18,21 @@ import { toSQLDate } from '../helpers/DateHelper';
 import { ExportHelper } from '../helpers/ExportHelper';
 import { AppColors } from '../constants/Styles';
 
+const PAGE_SIZE = 50;
+
 const IncomeReportScreen: React.FC = () => {
   const navigation = useNavigation();
 
   // Search/Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [incomeList, setIncomeList] = useState<IncomeReportRow[]>([]);
   const [total, setTotal] = useState(0);
+
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   // Default date range: last 30 days
   const today = new Date();
@@ -38,29 +45,55 @@ const IncomeReportScreen: React.FC = () => {
   const [showToPicker, setShowToPicker] = useState(false);
 
   useEffect(() => {
-    loadReport();
+    resetAndLoad();
   }, [fromDate, toDate]);
 
-  const loadReport = async () => {
-    setLoading(true);
+  const resetAndLoad = () => {
+    setPage(0);
+    setHasMore(true);
+    setIncomeList([]);
+    loadReport(0, true);
+  };
+
+  const loadReport = async (pageNum: number, isReset: boolean) => {
+    if (!isReset && (!hasMore || loadingMore)) return;
+
+    if (isReset) setLoading(true);
+    else setLoadingMore(true);
+
     try {
-      const rows = await IncomeReportRepository.search(
-        toSQLDate(fromDate) || '',
-        toSQLDate(toDate) || '',
-        searchQuery
-      );
-      setIncomeList(rows);
-      setTotal(rows.reduce((acc, r) => acc + r.amount, 0));
+      const options = {
+        fromDate: toSQLDate(fromDate) || '',
+        toDate: toSQLDate(toDate) || '',
+        query: searchQuery,
+        limit: PAGE_SIZE,
+        offset: pageNum * PAGE_SIZE
+      };
+
+      const rows = await IncomeReportRepository.search(options);
+
+      if (isReset) {
+        setIncomeList(rows);
+        // Fetch total for the whole filtered range separately
+        const totalAmount = await IncomeReportRepository.getTotalAmount(options);
+        setTotal(totalAmount);
+      } else {
+        setIncomeList(prev => [...prev, ...rows]);
+      }
+
+      setHasMore(rows.length === PAGE_SIZE);
+      setPage(pageNum);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
   const debounceSearch = useCallback(() => {
     const timer = setTimeout(() => {
-      loadReport();
+      resetAndLoad();
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery, fromDate, toDate]);
@@ -148,6 +181,11 @@ const IncomeReportScreen: React.FC = () => {
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.listPadding}
+        onEndReached={() => loadReport(page + 1, false)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={() =>
+          loadingMore ? <ActivityIndicator size="small" color="#2E7D32" style={{ marginVertical: 20 }} /> : null
+        }
         ListEmptyComponent={
           loading ? (
             <ActivityIndicator size="large" color="#2E7D32" style={{ marginTop: 40 }} />

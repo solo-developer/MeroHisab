@@ -2,10 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlobalStyles, AppColors } from '../constants/Styles';
-import { getDatabase } from '../repositories/Database';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ExportHelper } from '../helpers/ExportHelper';
+import { PartyRepository } from '../repositories/PartyRepository';
 
 interface PartyBalance {
   id: number;
@@ -14,56 +14,66 @@ interface PartyBalance {
   currentBalance: number;
 }
 
+const PAGE_SIZE = 50;
+
 const PartyReportScreen = () => {
   const navigation = useNavigation();
   const [parties, setParties] = useState<PartyBalance[]>([]);
   const [filterType, setFilterType] = useState<'all' | 'debtor' | 'creditor'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    loadParties();
+    resetAndLoad();
   }, [filterType]);
+
+  const resetAndLoad = () => {
+    setPage(0);
+    setHasMore(true);
+    setParties([]);
+    loadParties(0, true);
+  };
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      loadParties();
+      resetAndLoad();
     }, 500);
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  const loadParties = async () => {
-    setLoading(true);
-    const db = getDatabase();
+  const loadParties = async (pageNum: number, isReset: boolean) => {
+    if (!isReset && (!hasMore || loadingMore)) return;
 
-    db.transaction((tx: any) => {
-      let query = `SELECT p.id, p.name, p.type, COALESCE(pb.currentBalance, 0) as currentBalance 
-                   FROM Parties p 
-                   LEFT JOIN PartyBalance pb ON p.id = pb.partyId 
-                   WHERE p.deletedAt IS NULL`;
-      const params: any[] = [];
+    if (isReset) setLoading(true);
+    else setLoadingMore(true);
 
-      if (filterType !== 'all') {
-        query += ` AND p.type = ?`;
-        params.push(filterType);
-      }
-
-      if (searchQuery) {
-        query += ` AND (p.name LIKE ?)`;
-        params.push(`%${searchQuery}%`);
-      }
-
-      query += ` ORDER BY p.name ASC`;
-
-      tx.executeSql(query, params, (_: any, results: any) => {
-        const data: PartyBalance[] = [];
-        for (let i = 0; i < results.rows.length; i++) {
-          data.push(results.rows.item(i));
-        }
-        setParties(data);
-        setLoading(false);
+    try {
+      const data = await PartyRepository.search({
+        filterType,
+        searchQuery,
+        limit: PAGE_SIZE,
+        offset: pageNum * PAGE_SIZE
       });
-    });
+
+      if (isReset) {
+        setParties(data as PartyBalance[]);
+      } else {
+        setParties(prev => [...prev, ...data as PartyBalance[]]);
+      }
+
+      setHasMore(data.length === PAGE_SIZE);
+      setPage(pageNum);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
   };
 
   const renderItem = ({ item }: { item: PartyBalance }) => {
@@ -149,6 +159,11 @@ const PartyReportScreen = () => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.listPadding}
+        onEndReached={() => loadParties(page + 1, false)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={() =>
+          loadingMore ? <ActivityIndicator size="small" color={AppColors.primary} style={{ marginVertical: 20 }} /> : null
+        }
         ListEmptyComponent={
           loading ? (
             <ActivityIndicator size="large" color={AppColors.primary} style={{ marginTop: 40 }} />

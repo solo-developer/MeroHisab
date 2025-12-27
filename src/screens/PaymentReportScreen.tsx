@@ -8,11 +8,19 @@ import { useNavigation } from '@react-navigation/native';
 import { ReportService, PaymentReceiptRecord } from '../services/ReportService';
 import { ExportHelper } from '../helpers/ExportHelper';
 
+const PAGE_SIZE = 50;
+
 const PaymentReportScreen = () => {
   const navigation = useNavigation();
   const [payments, setPayments] = useState<PaymentReceiptRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [totalPayments, setTotalPayments] = useState(0);
+
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   // Default: last 30 days
   const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)));
@@ -20,28 +28,56 @@ const PaymentReportScreen = () => {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  const loadPayments = async () => {
-    setLoading(true);
+  useEffect(() => {
+    resetAndLoad();
+  }, [startDate, endDate]);
+
+  const resetAndLoad = () => {
+    setPage(0);
+    setHasMore(true);
+    setPayments([]);
+    loadPayments(0, true);
+  };
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      resetAndLoad();
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const loadPayments = async (pageNum: number, isReset: boolean) => {
+    if (!isReset && (!hasMore || loadingMore)) return;
+
+    if (isReset) setLoading(true);
+    else setLoadingMore(true);
+
     try {
-      const data = await ReportService.getPayments(startDate, endDate, searchQuery);
-      setPayments(data);
+      const data = await ReportService.getPayments(
+        startDate,
+        endDate,
+        searchQuery,
+        PAGE_SIZE,
+        pageNum * PAGE_SIZE
+      );
+
+      if (isReset) {
+        setPayments(data);
+        const total = await ReportService.getPaymentsTotal(startDate, endDate, searchQuery);
+        setTotalPayments(total);
+      } else {
+        setPayments(prev => [...prev, ...data]);
+      }
+
+      setHasMore(data.length === PAGE_SIZE);
+      setPage(pageNum);
     } catch (error) {
       console.error('Error loading payments:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
-
-  useEffect(() => {
-    loadPayments();
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      loadPayments();
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
 
   const renderItem = ({ item }: { item: PaymentReceiptRecord }) => (
     <View style={styles.card}>
@@ -61,8 +97,6 @@ const PaymentReportScreen = () => {
       </View>
     </View>
   );
-
-  const totalPayments = payments.reduce((sum, p) => sum + p.amount, 0);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
@@ -113,6 +147,11 @@ const PaymentReportScreen = () => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.listPadding}
+        onEndReached={() => loadPayments(page + 1, false)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={() =>
+          loadingMore ? <ActivityIndicator size="small" color="#C62828" style={{ marginVertical: 20 }} /> : null
+        }
         ListEmptyComponent={
           loading ? (
             <ActivityIndicator size="large" color="#C62828" style={{ marginTop: 40 }} />

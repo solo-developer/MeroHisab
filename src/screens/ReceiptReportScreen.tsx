@@ -8,11 +8,19 @@ import { useNavigation } from '@react-navigation/native';
 import { ReportService, PaymentReceiptRecord } from '../services/ReportService';
 import { ExportHelper } from '../helpers/ExportHelper';
 
+const PAGE_SIZE = 50;
+
 const ReceiptReportScreen = () => {
   const navigation = useNavigation();
   const [receipts, setReceipts] = useState<PaymentReceiptRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [totalReceipts, setTotalReceipts] = useState(0);
+
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   // Default: last 30 days
   const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)));
@@ -20,28 +28,56 @@ const ReceiptReportScreen = () => {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  const loadReceipts = async () => {
-    setLoading(true);
+  useEffect(() => {
+    resetAndLoad();
+  }, [startDate, endDate]);
+
+  const resetAndLoad = () => {
+    setPage(0);
+    setHasMore(true);
+    setReceipts([]);
+    loadReceipts(0, true);
+  };
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      resetAndLoad();
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const loadReceipts = async (pageNum: number, isReset: boolean) => {
+    if (!isReset && (!hasMore || loadingMore)) return;
+
+    if (isReset) setLoading(true);
+    else setLoadingMore(true);
+
     try {
-      const data = await ReportService.getReceipts(startDate, endDate, searchQuery);
-      setReceipts(data);
+      const data = await ReportService.getReceipts(
+        startDate,
+        endDate,
+        searchQuery,
+        PAGE_SIZE,
+        pageNum * PAGE_SIZE
+      );
+
+      if (isReset) {
+        setReceipts(data);
+        const total = await ReportService.getReceiptsTotal(startDate, endDate, searchQuery);
+        setTotalReceipts(total);
+      } else {
+        setReceipts(prev => [...prev, ...data]);
+      }
+
+      setHasMore(data.length === PAGE_SIZE);
+      setPage(pageNum);
     } catch (error) {
       console.error('Error loading receipts:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
-
-  useEffect(() => {
-    loadReceipts();
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      loadReceipts();
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
 
   const renderItem = ({ item }: { item: PaymentReceiptRecord }) => (
     <View style={styles.card}>
@@ -61,8 +97,6 @@ const ReceiptReportScreen = () => {
       </View>
     </View>
   );
-
-  const totalReceipts = receipts.reduce((sum, r) => sum + r.amount, 0);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
@@ -113,6 +147,11 @@ const ReceiptReportScreen = () => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.listPadding}
+        onEndReached={() => loadReceipts(page + 1, false)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={() =>
+          loadingMore ? <ActivityIndicator size="small" color="#2E7D32" style={{ marginVertical: 20 }} /> : null
+        }
         ListEmptyComponent={
           loading ? (
             <ActivityIndicator size="large" color="#2E7D32" style={{ marginTop: 40 }} />
