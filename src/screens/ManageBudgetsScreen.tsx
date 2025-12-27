@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Keyboard
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SettingsStackParamList } from '../navigation/SettingsStack';
 import { GlobalStyles, AppColors } from '../constants/Styles';
 import BudgetRepository from '../repositories/BudgetRepository';
@@ -114,8 +115,15 @@ const ManageBudgetsScreen: React.FC<any> = ({ route, navigation }) => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
             >
                 <View style={[GlobalStyles.container, { backgroundColor: '#F8F9FA', paddingBottom: 0 }]}>
-                    <View style={styles.header}>
-                        <Text style={styles.headerTitle}>Budget Setup</Text>
+                    <View style={styles.headerBar}>
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                            <Ionicons name="arrow-back" size={24} color="#333" />
+                        </TouchableOpacity>
+                        <Text style={styles.headerBarTitle}>Budget Setup</Text>
+                        <View style={{ width: 40 }} />
+                    </View>
+
+                    <View style={styles.headerInfo}>
                         <Text style={styles.headerSubtitle}>Set monthly spending limits for {formattedMonth}</Text>
                     </View>
 
@@ -142,14 +150,24 @@ const ManageBudgetsScreen: React.FC<any> = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    header: {
-        marginBottom: 20,
-        marginTop: 10,
+    headerBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 0,
+        marginBottom: 8,
     },
-    headerTitle: {
-        fontSize: 22,
-        fontWeight: '800',
-        color: AppColors.text,
+    backButton: {
+        padding: 4,
+    },
+    headerBarTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#333',
+    },
+    headerInfo: {
+        marginBottom: 20,
     },
     headerSubtitle: {
         fontSize: 14,

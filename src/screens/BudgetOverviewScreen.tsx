@@ -6,6 +6,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { SettingsStackParamList } from '../navigation/SettingsStack';
 import { GlobalStyles, AppColors } from '../constants/Styles';
 import BudgetRepository, { BudgetMetric } from '../repositories/BudgetRepository';
+import { ExportHelper } from '../helpers/ExportHelper';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'BudgetOverview'>;
 
@@ -85,6 +87,16 @@ const BudgetOverviewScreen: React.FC<any> = ({ navigation }) => {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
                 {/* Month Selector */}
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Ionicons name="arrow-back" size={24} color="#333" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Budget Progress</Text>
+                    <TouchableOpacity onPress={() => ExportHelper.exportReport('Budget Report', metrics)}>
+                        <Ionicons name="download-outline" size={24} color="#333" />
+                    </TouchableOpacity>
+                </View>
+
                 <View style={styles.monthSelector}>
                     <TouchableOpacity onPress={() => changeMonth(-1)} style={styles.navButton}>
                         <MaterialIcons name="chevron-left" size={28} color={AppColors.primary} />
@@ -221,7 +233,7 @@ const BudgetOverviewScreen: React.FC<any> = ({ navigation }) => {
                     ))
                 )}
 
-                <View style={{ height: 40 }} />
+                <View style={{ height: 160 }} />
             </ScrollView>
         </SafeAreaView>
     );
@@ -358,6 +370,22 @@ const styles = StyleSheet.create({
         color: AppColors.primary,
         fontWeight: '700',
         marginLeft: 4,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 4,
+        marginBottom: 8,
+    },
+    backButton: {
+        padding: 4,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#333',
     },
     categoryCard: {
         backgroundColor: '#fff',

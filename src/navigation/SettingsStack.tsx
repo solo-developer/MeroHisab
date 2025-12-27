@@ -87,12 +87,12 @@ const SettingsStack: React.FC = () => {
       <Stack.Screen
         name="BudgetOverview"
         component={BudgetOverviewScreen}
-        options={{ title: 'Budget Progress' }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="ManageBudgets"
         component={ManageBudgetsScreen}
-        options={{ title: 'Set Budget' }}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

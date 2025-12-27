@@ -114,12 +114,10 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
     );
   };
 
-  if (isKeyboardVisible) return null;
-
   return (
     <>
       {/* FAB Overlay */}
-      {isFabOpen && (
+      {isFabOpen && !isKeyboardVisible && (
         <View style={styles.fabOverlay}>
           {/* Background touchable behind FAB items */}
           <TouchableOpacity
@@ -137,9 +135,7 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
             const xPosition = startX + (index * (buttonWidth + spacing));
 
             // Create a subtle arc - middle buttons are higher
-            // Calculate normalized position (0 to 1, where 0.5 is center)
             const normalizedPosition = index / (totalExtended - 1);
-            // Use parabola formula: height is maximum at center (0.5)
             const arcHeight = 30 * (1 - Math.pow((normalizedPosition - 0.5) * 2, 2));
 
             return (
@@ -168,26 +164,30 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
       )}
 
       {/* Bottom Tabs */}
-      <View style={styles.container}>
-        {renderTab('Dashboard', 'home-variant-outline')}
-        {renderTab('Transactions', 'swap-horizontal')}
-        <View style={{ width: 70, pointerEvents: 'none' }} />
-        {renderTab('Reports', 'chart-line')}
-        {renderTab('Settings', 'cog-outline')}
-      </View>
+      {!isKeyboardVisible && (
+        <View style={styles.container}>
+          {renderTab('Dashboard', 'home-variant-outline')}
+          {renderTab('Transactions', 'swap-horizontal')}
+          <View style={{ width: 70, pointerEvents: 'none' }} />
+          {renderTab('Reports', 'chart-line')}
+          {renderTab('Settings', 'cog-outline')}
+        </View>
+      )}
 
       {/* FAB Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => setIsFabOpen(prev => !prev)}
-        activeOpacity={0.85}
-      >
-        <MaterialCommunityIcons
-          name={isFabOpen ? 'close' : 'plus'}
-          size={32}
-          color="#fff"
-        />
-      </TouchableOpacity>
+      {!isKeyboardVisible && (
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => setIsFabOpen(prev => !prev)}
+          activeOpacity={0.85}
+        >
+          <MaterialCommunityIcons
+            name={isFabOpen ? 'close' : 'plus'}
+            size={32}
+            color="#fff"
+          />
+        </TouchableOpacity>
+      )}
 
       {/* Transfer Modal */}
       <Modal
