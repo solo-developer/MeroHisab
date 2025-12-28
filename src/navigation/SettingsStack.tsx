@@ -15,6 +15,8 @@ import BudgetOverviewScreen from '../screens/BudgetOverviewScreen';
 import ManageBudgetsScreen from '../screens/ManageBudgetsScreen';
 import BackupSyncScreen from '../screens/BackupSyncScreen';
 import CustomizeLayoutScreen from '../screens/CustomizeLayoutScreen';
+import ManageRecurringTransactionsScreen from '../screens/ManageRecurringTransactionsScreen';
+import AddRecurringTransactionScreen from '../screens/AddRecurringTransactionScreen';
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
@@ -31,6 +33,8 @@ export type SettingsStackParamList = {
   ManageBudgets: { month: string };
   BackupSync: undefined;
   CustomizeLayout: undefined;
+  ManageRecurringTransactions: undefined;
+  AddRecurringTransaction: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -106,6 +110,16 @@ const SettingsStack: React.FC = () => {
       <Stack.Screen
         name="CustomizeLayout"
         component={CustomizeLayoutScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ManageRecurringTransactions"
+        component={ManageRecurringTransactionsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AddRecurringTransaction"
+        component={AddRecurringTransactionScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

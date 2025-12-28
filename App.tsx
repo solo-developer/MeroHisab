@@ -14,6 +14,7 @@ import { Text, Provider as PaperProvider } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { SnackbarProvider } from './src/context/SnackbarContext';
 import { PreferencesProvider } from './src/context/PreferencesContext';
+import BackgroundFetch from 'react-native-background-fetch';
 
 enableScreens();
 
@@ -38,7 +39,24 @@ const App = () => {
     const init = async () => {
       try {
         await initDatabase();
+        const { RecurringTransactionService } = require('./src/services/RecurringTransactionService');
+        await RecurringTransactionService.processPending();
         setDbReady(true);
+
+        // Configure Background Fetch
+        BackgroundFetch.configure({
+          minimumFetchInterval: 15, // minutes
+          stopOnTerminate: false,
+          startOnBoot: true,
+          enableHeadless: true,
+        }, async (taskId) => {
+          console.log('[BackgroundFetch] task starting:', taskId);
+          await RecurringTransactionService.processPending();
+          BackgroundFetch.finish(taskId);
+        }, (error) => {
+          console.log('[BackgroundFetch] ERROR:', error);
+        });
+
       } catch (e) {
         console.error(e);
       }

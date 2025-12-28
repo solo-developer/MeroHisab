@@ -196,6 +196,27 @@ export const initDatabase = (): Promise<void> => {
             value TEXT NOT NULL
           );
         `);
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS RecurringTransactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT CHECK(type IN ('expense', 'income')) NOT NULL,
+            amount REAL NOT NULL,
+            categoryId INTEGER NOT NULL,
+            walletId INTEGER NOT NULL,
+            note TEXT,
+            frequency TEXT CHECK(frequency IN ('daily', 'weekly', 'monthly', 'yearly')) NOT NULL,
+            dayOfMonth INTEGER,
+            dayOfWeek INTEGER,
+            monthOfYear INTEGER,
+            startDate TEXT NOT NULL,
+            lastProcessedDate TEXT,
+            nextRunDate TEXT NOT NULL,
+            isActive INTEGER DEFAULT 1,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (categoryId) REFERENCES categories(id),
+            FOREIGN KEY (walletId) REFERENCES wallets(id)
+          );
+        `);
       },
       error => {
         console.error('DB init error:', error);

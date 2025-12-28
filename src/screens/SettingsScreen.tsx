@@ -39,6 +39,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         { label: 'Wallets', icon: 'wallet-outline', color: '#4CAF50', route: 'ManageWallets' },
         { label: 'Meta Categories', icon: 'folder-open-outline', color: '#2196F3', route: 'ManageMetaCategories' },
         { label: 'Parties', icon: 'people-outline', color: '#9C27B0', route: 'ManageParties' },
+        { label: 'Recurring Transactions', icon: 'timer-outline', color: '#EF5350', route: 'ManageRecurringTransactions' },
       ],
     },
     {

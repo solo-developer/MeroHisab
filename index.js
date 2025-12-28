@@ -20,3 +20,14 @@ notifee.onBackgroundEvent(async ({ type, detail }) => {
 });
 
 AppRegistry.registerComponent(appName, () => App);
+
+const HeadlessTask = async (event) => {
+    let taskId = event.taskId;
+    console.log('[BackgroundFetch HeadlessTask] start: ', taskId);
+    const { RecurringTransactionService } = require('./src/services/RecurringTransactionService');
+    await RecurringTransactionService.processPending();
+    BackgroundFetch.finish(taskId);
+}
+
+const BackgroundFetch = require('react-native-background-fetch').default;
+BackgroundFetch.registerHeadlessTask(HeadlessTask);
