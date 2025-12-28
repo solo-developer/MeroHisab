@@ -55,6 +55,8 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
       title: 'About',
       data: [
         { label: 'Help Center', icon: 'help-buoy-outline', color: '#00BCD4', route: 'HelpCentre' },
+        { label: 'Star on GitHub', icon: 'star-outline', color: '#FFD700', route: 'https://github.com/solo-developer/MeroHisab' },
+        { label: 'Contribute', icon: 'git-branch-outline', color: '#24292e', route: 'https://github.com/solo-developer/MeroHisab/fork' },
         { label: 'About Us', icon: 'information-circle-outline', color: '#795548', route: 'AboutUs' },
         { label: 'Terms of Use', icon: 'document-text-outline', color: '#607D8B', route: 'TermsOfUse' },
         { label: 'Buy me a Coffee', icon: 'heart-outline', color: '#FF4081', route: 'https://www.buymeacoffee.com/solo_developer' },
