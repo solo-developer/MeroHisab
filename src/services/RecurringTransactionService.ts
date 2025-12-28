@@ -1,12 +1,13 @@
 import { RecurringTransactionRepository, RecurringTransaction } from '../repositories/RecurringTransactionRepository';
 import { ExpenseService } from './ExpenseService';
 import { IncomeService } from './IncomeService';
+import { toSQLDate } from '../helpers/DateHelper';
 
 export class RecurringTransactionService {
 
     static async processPending() {
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+        const todayStr = toSQLDate(today)!;
 
         const pending = await RecurringTransactionRepository.getPending(todayStr);
 
@@ -22,7 +23,7 @@ export class RecurringTransactionService {
 
         // Process all occurrences from nextRunDate up to today
         while (currentProcessDate <= today) {
-            const dateStr = currentProcessDate.toISOString().split('T')[0];
+            const dateStr = toSQLDate(currentProcessDate)!;
 
             try {
                 if (item.type === 'expense') {
@@ -49,7 +50,7 @@ export class RecurringTransactionService {
 
                 // Calculate next run date
                 const nextDate = this.calculateNextDate(currentProcessDate, item.frequency);
-                await RecurringTransactionRepository.updateLastProcessed(item.id, dateStr, nextDate.toISOString().split('T')[0]);
+                await RecurringTransactionRepository.updateLastProcessed(item.id, dateStr, toSQLDate(nextDate)!);
 
                 currentProcessDate = nextDate;
             } catch (error) {

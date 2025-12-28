@@ -1,11 +1,11 @@
 import SQLite from 'react-native-sqlite-2';
 
-let db: SQLite.Database | null = null;
+let db: any = null;
 
 /**
  * Returns singleton database instance
  */
-export const getDatabase = (): SQLite.Database => {
+export const getDatabase = (): any => {
   if (!db) {
     db = SQLite.openDatabase(
       'MeroHisab.db',
@@ -25,7 +25,10 @@ export const initDatabase = (): Promise<void> => {
 
   return new Promise((resolve, reject) => {
     database.transaction(
-      tx => {
+      (tx: any) => {
+        // Enable Foreign Keys for this connection
+        tx.executeSql('PRAGMA foreign_keys = ON;');
+
         tx.executeSql(`
           CREATE TABLE IF NOT EXISTS Ledger (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,6 +40,7 @@ export const initDatabase = (): Promise<void> => {
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
           );
         `);
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_ledger_deletedAt ON Ledger(deletedAt);');
 
         tx.executeSql(`
           CREATE TABLE IF NOT EXISTS LedgerDailyBalance (
@@ -62,6 +66,7 @@ export const initDatabase = (): Promise<void> => {
             FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
           );
         `);
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_categories_deletedAt ON categories(deletedAt);');
 
         tx.executeSql(`
           CREATE TABLE IF NOT EXISTS CategoryBudgets (
@@ -86,6 +91,8 @@ export const initDatabase = (): Promise<void> => {
             FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
           );
         `);
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_wallets_deletedAt ON wallets(deletedAt);');
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_wallets_ledgerId ON wallets(ledgerId);');
 
         tx.executeSql(`
           CREATE TABLE IF NOT EXISTS TransactionSummary (
@@ -100,6 +107,9 @@ export const initDatabase = (): Promise<void> => {
             FOREIGN KEY(categoryId) REFERENCES categories(id)
           );
         `);
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_ts_date ON TransactionSummary(date);');
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_ts_type ON TransactionSummary(type);');
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_ts_deletedAt ON TransactionSummary(deletedAt);');
 
         tx.executeSql(`
           CREATE TABLE IF NOT EXISTS TransactionEntry (
@@ -113,6 +123,8 @@ export const initDatabase = (): Promise<void> => {
             FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
           );
         `);
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_te_summary_id ON TransactionEntry(transactionSummaryId);');
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_te_ledger_id ON TransactionEntry(ledgerId);');
 
         tx.executeSql(`
           CREATE TABLE IF NOT EXISTS Transfer (
@@ -175,6 +187,7 @@ export const initDatabase = (): Promise<void> => {
             FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
           );
         `);
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_parties_deletedAt ON Parties(deletedAt);');
 
         tx.executeSql(`
           CREATE TABLE IF NOT EXISTS PartyBalance (
@@ -217,8 +230,10 @@ export const initDatabase = (): Promise<void> => {
             FOREIGN KEY (walletId) REFERENCES wallets(id)
           );
         `);
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_rt_next_run ON RecurringTransactions(nextRunDate);');
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_rt_active ON RecurringTransactions(isActive);');
       },
-      error => {
+      (error: any) => {
         console.error('DB init error:', error);
         reject(error);
       },

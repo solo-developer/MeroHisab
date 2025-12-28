@@ -96,7 +96,10 @@ export class ExpenseService {
                         entryType: "debit",
                         amount: request.grossAmount,
                       },
-                      () => {},
+                      () => {
+                        const { LedgerDailyBalanceRepository } = require('../repositories/LedgerDailyBalanceRepository');
+                        LedgerDailyBalanceRepository.updateBalance(tx, expenseLedgerId, request.date, 0, 0, () => { }, () => { });
+                      },
                       err => reject(new Error("Failed to add expense ledger entry: " + err.message))
                     );
 
@@ -109,7 +112,10 @@ export class ExpenseService {
                         entryType: "credit",
                         amount: netAmount,
                       },
-                      () => {},
+                      () => {
+                        const { LedgerDailyBalanceRepository } = require('../repositories/LedgerDailyBalanceRepository');
+                        LedgerDailyBalanceRepository.updateBalance(tx, walletLedgerId, request.date, 0, 0, () => { }, () => { });
+                      },
                       err => reject(new Error("Failed to add wallet entry: " + err.message))
                     );
 
@@ -129,7 +135,10 @@ export class ExpenseService {
                                 entryType: "credit",
                                 amount: request.discount,
                               },
-                              () => {},
+                              () => {
+                                const { LedgerDailyBalanceRepository } = require('../repositories/LedgerDailyBalanceRepository');
+                                LedgerDailyBalanceRepository.updateBalance(tx, discountLedger.id, request.date, 0, 0, () => { }, () => { });
+                              },
                               err => reject(new Error("Failed to add discount entry: " + err.message))
                             );
                           }
@@ -139,15 +148,15 @@ export class ExpenseService {
 
                     // 7. Update Wallet Balance
                     const newWalletBalance = currentWalletBalance - netAmount;
-                      tx.executeSql(
-                        `UPDATE wallets SET balance = ? WHERE id = ?`,
-                        [newWalletBalance, wallet.id],
-                        () => resolve(),
-                        (_: any, err: any) => {
-                          reject(err);
-                          return false;
-                        }
-                      );
+                    tx.executeSql(
+                      `UPDATE wallets SET balance = ? WHERE id = ?`,
+                      [newWalletBalance, wallet.id],
+                      () => resolve(),
+                      (_: any, err: any) => {
+                        reject(err);
+                        return false;
+                      }
+                    );
                   },
                   err => reject(new Error("Failed to create transaction summary: " + err.message))
                 );

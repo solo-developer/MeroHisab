@@ -19,7 +19,7 @@ import RNPickerSelect from 'react-native-picker-select';
 
 import { TransactionSummaryRepository, TransactionSummaryRow } from '../repositories/TransactionSummaryRepository';
 import CategoryRepository from '../repositories/CategoryRepository';
-import { toSQLDate } from '../helpers/DateHelper';
+import { toSQLDate, formatDisplayDate } from '../helpers/DateHelper';
 import { ExportHelper } from '../helpers/ExportHelper';
 import { AppColors } from '../constants/Styles';
 
@@ -120,28 +120,31 @@ const AllTransactionsReportScreen: React.FC = () => {
 
     const renderItem = ({ item }: { item: any }) => {
         const isIncome = ['income', 'receipt'].includes(item.type);
-        const color = isIncome ? '#2E7D32' : (['transfer'].includes(item.type) ? '#1565C0' : '#C62828');
+        const isTransfer = item.type === 'transfer';
+        const color = isIncome ? '#2E7D32' : (isTransfer ? '#1565C0' : '#C62828');
+        const iconName = isIncome ? 'arrow-down-circle-outline' : (isTransfer ? 'swap-horizontal-outline' : 'arrow-up-circle-outline');
 
         return (
             <View style={styles.card}>
                 <View style={styles.cardHeader}>
-                    <View style={[styles.typeTag, { backgroundColor: color + '15' }]}>
+                    <View style={[styles.typeTag, { backgroundColor: color + '15', flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
+                        <Ionicons name={iconName} size={12} color={color} />
                         <Text style={[styles.typeText, { color }]}>{item.type.toUpperCase()}</Text>
                     </View>
-                    <Text style={styles.dateText}>{new Date(item.date).toLocaleDateString()}</Text>
+                    <Text style={styles.dateText}>{formatDisplayDate(item.date)}</Text>
                 </View>
                 <View style={styles.cardBody}>
                     <View style={styles.mainInfo}>
-                        <Text style={styles.noteText} numberOfLines={1}>{item.note || 'No description'}</Text>
+                        <Text style={styles.noteText} numberOfLines={1}>{item.note || (isTransfer ? 'Fund Transfer' : 'No description')}</Text>
                         {item.categoryName && (
                             <View style={styles.categoryTag}>
-                                <Ionicons name="folder-outline" size={12} color="#666" />
+                                <Ionicons name="pricetag-outline" size={12} color="#888" />
                                 <Text style={styles.categoryText}>{item.categoryName}</Text>
                             </View>
                         )}
                     </View>
                     <Text style={[styles.amountText, { color }]}>
-                        {isIncome ? '+' : (['transfer'].includes(item.type) ? '' : '-')} ₹{item.netAmount.toFixed(0)}
+                        {isIncome ? '+' : (isTransfer ? '' : '-')} ₹{item.netAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </Text>
                 </View>
             </View>
@@ -188,11 +191,11 @@ const AllTransactionsReportScreen: React.FC = () => {
             <View style={styles.summaryContainer}>
                 <View style={[styles.summaryChip, { backgroundColor: '#E8F5E9', borderLeftWidth: 3, borderLeftColor: '#2E7D32' }]}>
                     <Text style={styles.summaryLabel}>Total Income</Text>
-                    <Text style={[styles.summaryValue, { color: '#1B5E20' }]}>+₹{totalIncome.toFixed(0)}</Text>
+                    <Text style={[styles.summaryValue, { color: '#1B5E20' }]}>+₹{totalIncome.toLocaleString()}</Text>
                 </View>
                 <View style={[styles.summaryChip, { backgroundColor: '#FFEBEE', borderLeftWidth: 3, borderLeftColor: '#C62828' }]}>
                     <Text style={styles.summaryLabel}>Total Expense</Text>
-                    <Text style={[styles.summaryValue, { color: '#B71C1C' }]}>-₹{totalExpense.toFixed(0)}</Text>
+                    <Text style={[styles.summaryValue, { color: '#B71C1C' }]}>-₹{totalExpense.toLocaleString()}</Text>
                 </View>
             </View>
 

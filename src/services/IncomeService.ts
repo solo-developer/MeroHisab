@@ -74,6 +74,7 @@ export class IncomeService {
                 }
 
                 const incomeLedgerId = category.ledgerId;
+                const grossVal = (request.grossAmount && request.grossAmount > 0) ? request.grossAmount : (netAmount + (request.discount || 0));
 
                 // 3. Create Transaction Summary
                 TransactionSummaryRepository.create(
@@ -87,20 +88,23 @@ export class IncomeService {
                   } as TransactionSummaryCreate,
                   (summaryId: number) => {
 
-                    // 4. CREDIT income ledger (Increase Income)
+                    // 4. CREDIT income ledger (Increase Income) - USE GROSS
                     TransactionEntryRepository.create(
                       tx,
                       {
                         transactionSummaryId: summaryId,
                         ledgerId: incomeLedgerId,
                         entryType: "credit",
-                        amount: netAmount,
+                        amount: grossVal,
                       },
-                      () => {},
+                      () => {
+                        const { LedgerDailyBalanceRepository } = require('../repositories/LedgerDailyBalanceRepository');
+                        LedgerDailyBalanceRepository.updateBalance(tx, incomeLedgerId, request.date, 0, 0, () => { }, () => { });
+                      },
                       err => reject(new Error("Failed to add income ledger entry: " + err.message))
                     );
 
-                    // 5. DEBIT wallet ledger (Increase Asset)
+                    // 5. DEBIT wallet ledger (Increase Asset) - USE NET
                     TransactionEntryRepository.create(
                       tx,
                       {
@@ -109,7 +113,10 @@ export class IncomeService {
                         entryType: "debit",
                         amount: netAmount,
                       },
-                      () => {},
+                      () => {
+                        const { LedgerDailyBalanceRepository } = require('../repositories/LedgerDailyBalanceRepository');
+                        LedgerDailyBalanceRepository.updateBalance(tx, walletLedgerId, request.date, 0, 0, () => { }, () => { });
+                      },
                       err => reject(new Error("Failed to add wallet entry: " + err.message))
                     );
 
@@ -129,7 +136,10 @@ export class IncomeService {
                                 entryType: "debit",
                                 amount: request.discount,
                               },
-                              () => {},
+                              () => {
+                                const { LedgerDailyBalanceRepository } = require('../repositories/LedgerDailyBalanceRepository');
+                                LedgerDailyBalanceRepository.updateBalance(tx, discountLedger.id, request.date, 0, 0, () => { }, () => { });
+                              },
                               err => reject(new Error("Failed to add discount entry: " + err.message))
                             );
                           }
@@ -139,15 +149,15 @@ export class IncomeService {
 
                     // 7. Update Wallet Balance
                     const newWalletBalance = currentWalletBalance + netAmount;
-                      tx.executeSql(
-                        `UPDATE wallets SET balance = ? WHERE id = ?`,
-                        [newWalletBalance, wallet.id],
-                        () => resolve(),
-                        (_: any, err: any) => {
-                          reject(err);
-                          return false;
-                        }
-                      );
+                    tx.executeSql(
+                      `UPDATE wallets SET balance = ? WHERE id = ?`,
+                      [newWalletBalance, wallet.id],
+                      () => resolve(),
+                      (_: any, err: any) => {
+                        reject(err);
+                        return false;
+                      }
+                    );
                   },
                   err => reject(new Error("Failed to create transaction summary: " + err.message))
                 );

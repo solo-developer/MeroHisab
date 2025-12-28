@@ -3,6 +3,7 @@ import { TransactionSummaryRepository } from '../repositories/TransactionSummary
 import { TransactionEntryRepository } from '../repositories/TransactionEntryRepository';
 import { LedgerDailyBalanceRepository } from '../repositories/LedgerDailyBalanceRepository';
 import { LedgerRepository } from '../repositories/LedgerRepository';
+import { toSQLDate } from '../helpers/DateHelper';
 
 export interface TransferRequest {
   fromLedgerId?: number; // optional for external → wallet
@@ -19,7 +20,7 @@ export const TransferService = {
       db.transaction((tx: any) => {
 
         const transactionDate =
-          request.date || new Date().toISOString().split('T')[0];
+          request.date || toSQLDate(new Date())!;
 
         // 1️⃣ Get / create system External ledger
         LedgerRepository.ensureExternalLedger(
@@ -39,7 +40,7 @@ export const TransferService = {
                 type: 'transfer',
                 date: transactionDate,
                 note: request.note,
-                amount : request.amount
+                amount: request.amount
               },
               (summaryId) => {
                 // 2.5️⃣ Record in Transfer table for reports
@@ -95,12 +96,12 @@ export const TransferService = {
                 };
 
                 const updateWalletBalances = () => {
-                 // 4️⃣ Update Wallets (Live Snapshot)
-                 // Decrease 'From' Wallet (Credit Ledger)
-                 tx.executeSql(
-                   `UPDATE wallets SET balance = balance - ? WHERE ledgerId = ?`,
-                   [request.amount, fromLedgerId],
-                   () => {
+                  // 4️⃣ Update Wallets (Live Snapshot)
+                  // Decrease 'From' Wallet (Credit Ledger)
+                  tx.executeSql(
+                    `UPDATE wallets SET balance = balance - ? WHERE ledgerId = ?`,
+                    [request.amount, fromLedgerId],
+                    () => {
                       // Increase 'To' Wallet (Debit Ledger)
                       tx.executeSql(
                         `UPDATE wallets SET balance = balance + ? WHERE ledgerId = ?`,
@@ -108,9 +109,9 @@ export const TransferService = {
                         () => resolve(),
                         (_: any, err: any) => reject(err)
                       );
-                   },
-                   (_: any, err: any) => reject(err)
-                 );
+                    },
+                    (_: any, err: any) => reject(err)
+                  );
                 };
 
                 insertNext(0);

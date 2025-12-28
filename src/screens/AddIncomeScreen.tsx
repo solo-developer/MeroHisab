@@ -20,6 +20,7 @@ import CategoryRepository from '../repositories/CategoryRepository';
 import WalletRepository from '../repositories/WalletRepository';
 import { AddIncomeRequest, IncomeService } from '../services/IncomeService';
 import { useSnackbar } from '../context/SnackbarContext';
+import { toSQLDate } from '../helpers/DateHelper';
 
 export const AddIncomeScreen = ({ navigation }: any) => {
   const { showSnackbar } = useSnackbar();
@@ -65,7 +66,7 @@ export const AddIncomeScreen = ({ navigation }: any) => {
       discount: discountVal,
       walletId: selectedWallet,
       categoryId: selectedCategory,
-      date: date.toISOString(),
+      date: toSQLDate(date)!,
       note,
     };
 
