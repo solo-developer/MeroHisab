@@ -1,121 +1,171 @@
-// SettingsScreen.js
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, SectionList } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { SettingsStackParamList } from '../navigation/SettingsStack';
+import { AppColors } from '../constants/Styles';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'SettingsMain'>;
 
-const Tab = createMaterialTopTabNavigator();
+interface SettingItemProps {
+  label: string;
+  icon: string;
+  iconColor: string;
+  onPress: () => void;
+  isLast?: boolean;
+}
 
-// --- Manage Tab ---
-const ManageScreen = ({ navigation }: any) => {
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageCategories')}>
-        <Icon name="category" size={24} color="#333" />
-        <Text style={styles.itemText}>Manage Categories</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageWallets')}>
-        <Icon name="wallet" size={24} color="#333" />
-        <Text style={styles.itemText}>Manage Wallets</Text>
-      </TouchableOpacity>
-
-
-      {/* --- New Meta Categories Option --- */}
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageMetaCategories')}>
-        <Icon name="folder" size={24} color="#333" />
-        <Text style={styles.itemText}>Manage Meta Categories</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ManageParties')}>
-        <Icon name="people" size={24} color="#333" />
-        <Text style={styles.itemText}>Manage Parties</Text>
-      </TouchableOpacity>
+const SettingItem: React.FC<SettingItemProps> = ({ label, icon, iconColor, onPress, isLast }) => (
+  <TouchableOpacity
+    style={[styles.item, isLast && styles.itemLast]}
+    onPress={onPress}
+    activeOpacity={0.7}
+  >
+    <View style={[styles.iconContainer, { backgroundColor: iconColor + '20' }]}>
+      <Ionicons name={icon} size={20} color={iconColor} />
     </View>
-  );
+    <Text style={styles.itemText}>{label}</Text>
+    <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+  </TouchableOpacity>
+);
 
-};
+const SettingsScreen: React.FC<Props> = ({ navigation }) => {
+  const sections = [
+    {
+      title: 'Manage',
+      data: [
+        { label: 'Categories', icon: 'grid-outline', color: '#FF9800', route: 'ManageCategories' },
+        { label: 'Wallets', icon: 'wallet-outline', color: '#4CAF50', route: 'ManageWallets' },
+        { label: 'Meta Categories', icon: 'folder-open-outline', color: '#2196F3', route: 'ManageMetaCategories' },
+        { label: 'Parties', icon: 'people-outline', color: '#9C27B0', route: 'ManageParties' },
+      ],
+    },
+    {
+      title: 'General',
+      data: [
+        { label: 'Budget Progress', icon: 'pie-chart-outline', color: '#E91E63', route: 'BudgetOverview' },
+        { label: 'Reminders', icon: 'alarm-outline', color: '#607D8B', route: 'ReminderList' },
+        { label: 'Backup & Sync', icon: 'cloud-upload-outline', color: '#3F51B5', route: 'BackupSync' },
+      ],
+    },
+    {
+      title: 'About',
+      data: [
+        { label: 'Help Center', icon: 'help-buoy-outline', color: '#00BCD4', route: 'HelpCentre' },
+        { label: 'About Us', icon: 'information-circle-outline', color: '#795548', route: 'AboutUs' },
+        { label: 'Terms of Use', icon: 'document-text-outline', color: '#607D8B', route: 'TermsOfUse' },
+      ],
+    },
+  ];
 
-// --- General Tab ---
-const GeneralScreen = ({ navigation }: any) => {
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('BudgetOverview')}>
-        <Icon name="bar-chart" size={24} color="#333" />
-        <Text style={styles.itemText}>Budget Progress</Text>
-      </TouchableOpacity>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F2F2F7" />
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Settings</Text>
+      </View>
 
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('BackupSync')}>
-        <Icon name="backup" size={24} color="#333" />
-        <Text style={styles.itemText}>Backup & Sync</Text>
-      </TouchableOpacity>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {sections.map((section, sectionIndex) => (
+          <View key={section.title} style={styles.section}>
+            <Text style={styles.sectionHeader}>{section.title.toUpperCase()}</Text>
+            <View style={styles.sectionBody}>
+              {section.data.map((item, index) => (
+                <SettingItem
+                  key={item.label}
+                  label={item.label}
+                  icon={item.icon}
+                  iconColor={item.color}
+                  onPress={() => navigation.navigate(item.route as any)}
+                  isLast={index === section.data.length - 1}
+                />
+              ))}
+            </View>
+          </View>
+        ))}
 
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('ReminderList')}>
-        <Icon name="alarm" size={24} color="#333" />
-        <Text style={styles.itemText}>Reminders</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-// --- About Tab ---
-const AboutScreen = ({ navigation }: any) => {
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('AboutUs')}>
-        <Icon name="info" size={24} color="#333" />
-        <Text style={styles.itemText}>About Us</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('HelpCentre')}>
-        <Icon name="help-outline" size={24} color="#333" />
-        <Text style={styles.itemText}>Help Center</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('TermsOfUse')}>
-        <Icon name="description" size={24} color="#333" />
-        <Text style={styles.itemText}>Terms of Use</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-// --- Main Settings Top Tabs ---
-const SettingsScreen = () => {
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold' },
-        tabBarIndicatorStyle: { backgroundColor: '#4CAF50' },
-      }}
-    >
-      <Tab.Screen name="Manage" component={ManageScreen} />
-      <Tab.Screen name="General" component={GeneralScreen} />
-      <Tab.Screen name="About" component={AboutScreen} />
-    </Tab.Navigator>
+        <View style={styles.footer}>
+          <Text style={styles.versionText}>Version 1.0.0</Text>
+          <Text style={styles.copyrightText}>© 2025 MeroHisab</Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  safeArea: { flex: 1, backgroundColor: '#F2F2F7' },
+  header: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#F2F2F7',
+  },
+  headerTitle: {
+    fontSize: 34,
+    fontWeight: '800',
+    color: '#000',
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6e6e73',
+    marginBottom: 8,
+    marginLeft: 12,
+    letterSpacing: 0.5,
+  },
+  sectionBody: {
     backgroundColor: '#fff',
-    padding: 10,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderCurve: 'continuous', // iOS 13+ style
   },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E5E5EA',
+  },
+  itemLast: {
+    borderBottomWidth: 0,
+  },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
   },
   itemText: {
+    flex: 1,
     fontSize: 16,
-    marginLeft: 15,
+    color: '#000',
+    fontWeight: '500',
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  versionText: {
+    fontSize: 14,
+    color: '#8E8E93',
+    fontWeight: '500',
+  },
+  copyrightText: {
+    fontSize: 12,
+    color: '#AEAEB2',
+    marginTop: 4,
   },
 });
 
