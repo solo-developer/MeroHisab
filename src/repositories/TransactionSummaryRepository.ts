@@ -13,6 +13,7 @@ export interface TransactionSummaryRow {
   note?: string;
   date: string;
   netAmount: number;
+  walletImpact?: number;
 }
 
 export interface IncomeExpenseReport {
@@ -91,7 +92,14 @@ export const TransactionSummaryRepository = {
     const { query, fromDate, toDate, type, minAmount, maxAmount, categoryId, limit = 50, offset = 0 } = options;
 
     let sql = `
-      SELECT ts.id, ts.type, ts.note, ts.date, ts.amount as netAmount, c.name as categoryName
+      SELECT 
+        ts.id, ts.type, ts.note, ts.date, ts.amount as netAmount, c.name as categoryName,
+        (
+          SELECT SUM(CASE WHEN te.entryType = 'debit' THEN te.amount ELSE -te.amount END)
+          FROM TransactionEntry te
+          WHERE te.transactionSummaryId = ts.id
+            AND te.ledgerId IN (SELECT ledgerId FROM wallets WHERE deletedAt IS NULL)
+        ) as walletImpact
       FROM TransactionSummary ts
       LEFT JOIN categories c ON ts.categoryId = c.id
       WHERE ts.deletedAt IS NULL
@@ -209,4 +217,36 @@ export const TransactionSummaryRepository = {
       });
     });
   },
+
+  getWalletImpactSum: async (fromDate?: string, toDate?: string): Promise<number> => {
+    const db = getDatabase();
+    let sql = `
+      SELECT 
+        SUM(CASE WHEN te.entryType = 'debit' THEN te.amount ELSE -te.amount END) as impact
+      FROM TransactionEntry te
+      JOIN TransactionSummary ts ON te.transactionSummaryId = ts.id
+      WHERE ts.deletedAt IS NULL 
+        AND te.ledgerId IN (SELECT ledgerId FROM wallets WHERE deletedAt IS NULL)
+    `;
+    const params: any[] = [];
+    if (fromDate) {
+      sql += ' AND date(ts.date) >= ?';
+      params.push(fromDate);
+    }
+    if (toDate) {
+      sql += ' AND date(ts.date) <= ?';
+      params.push(toDate);
+    }
+
+    return new Promise((resolve, reject) => {
+      db.transaction((tx: any) => {
+        tx.executeSql(sql, params, (_: any, res: any) => {
+          resolve(res.rows.item(0).impact || 0);
+        }, (_: any, err: any) => {
+          reject(err);
+          return false;
+        });
+      });
+    });
+  }
 };

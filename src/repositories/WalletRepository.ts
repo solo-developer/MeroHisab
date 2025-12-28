@@ -14,7 +14,7 @@ export default class WalletRepository {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `
           SELECT id, name, balance, ledgerId
@@ -33,7 +33,7 @@ export default class WalletRepository {
             }
             resolve(wallets);
           },
-          (_, err) => reject(err),
+          (_: any, err: any) => reject(err),
         );
       });
     });
@@ -46,7 +46,7 @@ export default class WalletRepository {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `
           INSERT INTO wallets (name, balance, ledgerId)
@@ -54,7 +54,7 @@ export default class WalletRepository {
           `,
           [wallet.name, wallet.balance, wallet.ledgerId],
           () => resolve(),
-          (_, err) => reject(err),
+          (_: any, err: any) => reject(err),
         );
       });
     });
@@ -68,7 +68,7 @@ export default class WalletRepository {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `
           UPDATE wallets
@@ -77,7 +77,7 @@ export default class WalletRepository {
           `,
           [wallet.name, wallet.id],
           () => resolve(),
-          (_, err) => reject(err),
+          (_: any, err: any) => reject(err),
         );
       });
     });
@@ -91,7 +91,7 @@ export default class WalletRepository {
     const db = getDatabase();
 
     return new Promise((resolve, reject) => {
-      db.transaction(tx => {
+      db.transaction((tx: any) => {
         tx.executeSql(
           `
           UPDATE wallets
@@ -100,7 +100,7 @@ export default class WalletRepository {
           `,
           [id],
           () => resolve(),
-          (_, err) => reject(err),
+          (_: any, err: any) => reject(err),
         );
       });
     });
@@ -131,22 +131,35 @@ export default class WalletRepository {
       ORDER BY w.name ASC
     `;
 
-    db.transaction(tx => {
+    db.transaction((tx: any) => {
       tx.executeSql(
         query,
         [],
-        (_, result) => {
+        (_: any, result: any) => {
           const rows: WalletBalanceRow[] = [];
           for (let i = 0; i < result.rows.length; i++) {
             rows.push(result.rows.item(i));
           }
           callback(rows);
         },
-        (_, error) => {
+        (_: any, error: any) => {
           errorCallback?.(error);
           return false;
         }
       );
+    });
+  }
+  static getTotalCurrentBalance(): Promise<number> {
+    const db = getDatabase();
+    return new Promise((resolve, reject) => {
+      db.transaction((tx: any) => {
+        tx.executeSql(
+          'SELECT SUM(balance) as total FROM wallets WHERE deletedAt IS NULL;',
+          [],
+          (_: any, res: any) => resolve(res.rows.item(0).total || 0),
+          (_: any, err: any) => reject(err)
+        );
+      });
     });
   }
 }

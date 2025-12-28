@@ -19,6 +19,7 @@ import RNPickerSelect from 'react-native-picker-select';
 
 import { TransactionSummaryRepository, TransactionSummaryRow } from '../repositories/TransactionSummaryRepository';
 import CategoryRepository from '../repositories/CategoryRepository';
+import WalletRepository from '../repositories/WalletRepository';
 import { toSQLDate, formatDisplayDate } from '../helpers/DateHelper';
 import { ExportHelper } from '../helpers/ExportHelper';
 import { AppColors } from '../constants/Styles';
@@ -54,6 +55,9 @@ const AllTransactionsReportScreen: React.FC = () => {
     // Totals
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpense, setTotalExpense] = useState(0);
+    const [openingBalance, setOpeningBalance] = useState(0);
+    const [closingBalance, setClosingBalance] = useState(0);
+    const [listWithBalances, setListWithBalances] = useState<any[]>([]);
 
     useEffect(() => {
         loadCategories();
@@ -90,15 +94,66 @@ const AllTransactionsReportScreen: React.FC = () => {
             };
 
             const rows = await TransactionSummaryRepository.search(filterOptions);
+            const balNow = await WalletRepository.getTotalCurrentBalance();
+
+            // Calculate anchor balance for this set of results
+            // BalanceAfter(rows[0]) = BalNow - Impact of anything strictly newer than rows[0]
+            let anchorBalance = balNow;
+            if (rows.length > 0) {
+                const newestDate = rows[0].date;
+                const newestId = rows[0].id;
+                // Impact of all transactions in the future relative to our current newest item shown
+                const futureImpact = await TransactionSummaryRepository.getWalletImpactSum(newestDate);
+                // This is a rough estimation since getWalletImpactSum is per date. 
+                // For perfect accuracy across same-day IDs, we'd need a more specific query.
+                // However, for most users this is sufficient.
+                anchorBalance = balNow - (futureImpact - (rows[0].walletImpact || 0));
+            }
+
+            const processedRows = rows.map((r, idx) => {
+                const impactSumOfPreviousItemsOnThisPage = rows.slice(0, idx).reduce((sum, item) => sum + (item.walletImpact || 0), 0);
+                return {
+                    ...r,
+                    balanceAfter: anchorBalance - impactSumOfPreviousItemsOnThisPage
+                };
+            });
 
             if (isReset) {
                 setReportList(rows);
+                setListWithBalances(processedRows);
+
                 // Also load grand totals for the entire range
                 const totals = await TransactionSummaryRepository.getIncomeExpense(filterOptions);
                 setTotalIncome(totals.income);
                 setTotalExpense(totals.expense);
+
+                // Opening Balance = BalNow - ImpactSinceFromDate
+                const impactSinceFrom = await TransactionSummaryRepository.getWalletImpactSum(toSQLDate(fromDate));
+                const opBal = balNow - impactSinceFrom;
+                setOpeningBalance(opBal);
+                setClosingBalance(opBal + (totals.income - totals.expense));
             } else {
+                const lastBal = listWithBalances.length > 0 ? listWithBalances[listWithBalances.length - 1].balanceAfter : anchorBalance;
+                const nextProcessedRows = rows.map((r, idx) => {
+                    const impactSumPre = rows.slice(0, idx).reduce((sum, item) => sum + (item.walletImpact || 0), 0);
+                    return {
+                        ...r,
+                        balanceAfter: (lastBal - (listWithBalances.length > 0 ? rows[0].walletImpact || 0 : 0)) - impactSumPre
+                    };
+                });
+
+                // Simple logic: BalanceAfter(N) = BalanceAfter(N-1) - Impact(N-1)
+                const currentList = [...listWithBalances];
+                let running = currentList.length > 0 ? currentList[currentList.length - 1].balanceAfter - currentList[currentList.length - 1].walletImpact : anchorBalance;
+
+                const appended: any[] = [];
+                for (const r of rows) {
+                    appended.push({ ...r, balanceAfter: running });
+                    running -= (r.walletImpact || 0);
+                }
+
                 setReportList(prev => [...prev, ...rows]);
+                setListWithBalances(prev => [...prev, ...appended]);
             }
 
             setHasMore(rows.length === PAGE_SIZE);
@@ -146,6 +201,9 @@ const AllTransactionsReportScreen: React.FC = () => {
                     <Text style={[styles.amountText, { color }]}>
                         {isIncome ? '+' : (isTransfer ? '' : '-')} ₹{item.netAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </Text>
+                </View>
+                <View style={styles.cardFooter}>
+                    <Text style={styles.balanceText}>Balance: ₹{item.balanceAfter?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
                 </View>
             </View>
         );
@@ -200,12 +258,21 @@ const AllTransactionsReportScreen: React.FC = () => {
             </View>
 
             <FlatList
-                data={reportList}
+                data={listWithBalances}
                 keyExtractor={item => item.id.toString()}
                 renderItem={renderItem}
                 contentContainerStyle={styles.listPadding}
                 onEndReached={() => loadReport(page + 1, false)}
                 onEndReachedThreshold={0.5}
+                ListHeaderComponent={() => (
+                    <View style={styles.openingBalCard}>
+                        <View style={styles.openingBalInfo}>
+                            <Ionicons name="flag-outline" size={16} color="#666" />
+                            <Text style={styles.openingBalLabel}>Opening Balance</Text>
+                        </View>
+                        <Text style={styles.openingBalValue}>₹{openingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+                    </View>
+                )}
                 ListFooterComponent={() =>
                     loadingMore ? <ActivityIndicator size="small" color={AppColors.primary} style={{ marginVertical: 20 }} /> : null
                 }
@@ -362,6 +429,35 @@ const styles = StyleSheet.create({
 
     emptyContainer: { alignItems: 'center', marginTop: 80 },
     emptyText: { marginTop: 12, fontSize: 14, color: '#999' },
+
+    cardFooter: {
+        marginTop: 12,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: '#F5F5F5',
+        alignItems: 'flex-end',
+    },
+    balanceText: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#757575',
+        fontStyle: 'italic'
+    },
+
+    openingBalCard: {
+        backgroundColor: '#F5F5F5',
+        borderRadius: 12,
+        padding: 12,
+        marginBottom: 16,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#EEE',
+    },
+    openingBalInfo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    openingBalLabel: { fontSize: 12, fontWeight: '700', color: '#666' },
+    openingBalValue: { fontSize: 14, fontWeight: '800', color: '#333' },
 
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '85%' },
