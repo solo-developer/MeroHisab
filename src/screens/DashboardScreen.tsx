@@ -12,9 +12,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { ReportService } from '../services/ReportService';
 import { ReportRange } from '../helpers/DateHelper';
 import { AppColors } from '../constants/Styles';
+import { usePreferences } from '../context/PreferencesContext';
 
 const { width } = Dimensions.get('window');
 
@@ -22,6 +24,7 @@ const DashboardScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [range, setRange] = useState<ReportRange>('this_month');
   const [summary, setSummary] = useState({ income: 0, expense: 0 });
+  const { quickAddActions } = usePreferences();
 
   // Quick Links Configuration
   const quickLinks = [
@@ -30,6 +33,16 @@ const DashboardScreen: React.FC = () => {
     { label: 'Trends', icon: 'trending-up-outline', screen: 'TrendReport', color: '#FFA726' }, // Orange
     { label: 'Transactions', icon: 'receipt-outline', screen: 'Transactions', color: '#5C6BC0' }, // Indigo
   ];
+
+  const allQuickAddActions = [
+    { key: 'income', label: 'Income', icon: 'add-circle', iconType: 'Ionicons', color: '#2E7D32', bgColor: '#E8F5E9', screen: 'AddIncome' },
+    { key: 'expense', label: 'Expense', icon: 'remove-circle', iconType: 'Ionicons', color: '#C62828', bgColor: '#FFEBEE', screen: 'AddExpense' },
+    { key: 'transfer', label: 'Transfer', icon: 'swap-horizontal', iconType: 'Ionicons', color: '#1565C0', bgColor: '#E3F2FD', screen: 'AddTransferScreen' },
+    { key: 'receipt', label: 'Receipt', icon: 'cash-plus', iconType: 'MaterialCommunityIcons', color: '#00BCD4', bgColor: '#E0F7FA', screen: 'AddPartyTransaction', params: { type: 'receipt' } },
+    { key: 'payment', label: 'Payment', icon: 'cash-minus', iconType: 'MaterialCommunityIcons', color: '#E91E63', bgColor: '#FCE4EC', screen: 'AddPartyTransaction', params: { type: 'payment' } },
+  ];
+
+  const visibleQuickAdd = allQuickAddActions.filter(a => quickAddActions.includes(a.key));
 
   const loadData = async () => {
     try {
@@ -142,29 +155,29 @@ const DashboardScreen: React.FC = () => {
         {/* Add Actions */}
         <Text style={styles.sectionTitle}>Quick Add</Text>
         <View style={styles.actionRow}>
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: '#E8F5E9' }]}
-            onPress={() => navigation.navigate('AddIncome')}
-          >
-            <Ionicons name="add-circle" size={24} color="#2E7D32" />
-            <Text style={[styles.actionBtnText, { color: '#1B5E20' }]}>Income</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: '#FFEBEE' }]}
-            onPress={() => navigation.navigate('AddExpense')}
-          >
-            <Ionicons name="remove-circle" size={24} color="#C62828" />
-            <Text style={[styles.actionBtnText, { color: '#B71C1C' }]}>Expense</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: '#E3F2FD' }]}
-            onPress={() => navigation.navigate('AddTransferScreen')}
-          >
-            <Ionicons name="swap-horizontal" size={24} color="#1565C0" />
-            <Text style={[styles.actionBtnText, { color: '#0D47A1' }]}>Transfer</Text>
-          </TouchableOpacity>
+          {visibleQuickAdd.length > 0 ? (
+            visibleQuickAdd.map((action) => (
+              <TouchableOpacity
+                key={action.key}
+                style={[styles.actionBtn, { backgroundColor: action.bgColor }]}
+                onPress={() => navigation.navigate(action.screen, action.params)}
+              >
+                {action.iconType === 'MaterialCommunityIcons' ? (
+                  <MaterialCommunityIcons name={action.icon as any} size={24} color={action.color} />
+                ) : (
+                  <Ionicons name={action.icon as any} size={24} color={action.color} />
+                )}
+                <Text style={[styles.actionBtnText, { color: action.color }]}>{action.label}</Text>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.emptyActionRow}>
+              <Text style={styles.emptyActionText}>No quick add actions enabled</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('SettingsStack', { screen: 'CustomizeLayout' })}>
+                <Text style={styles.customizeLink}>Customize</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -233,9 +246,12 @@ const styles = StyleSheet.create({
   iconCircle: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   quickLinkText: { fontSize: 14, fontWeight: '600', color: '#333' },
 
-  actionRow: { flexDirection: 'row', gap: 12 },
-  actionBtn: { flex: 1, paddingVertical: 16, borderRadius: 16, alignItems: 'center', gap: 8 },
+  actionRow: { flexDirection: 'row', gap: 12, flexWrap: 'wrap' },
+  actionBtn: { width: (width - 40 - 24) / 3, paddingVertical: 16, borderRadius: 16, alignItems: 'center', gap: 8, marginBottom: 12 },
   actionBtnText: { fontSize: 13, fontWeight: '700' },
+  emptyActionRow: { flex: 1, alignItems: 'center', paddingVertical: 20 },
+  emptyActionText: { fontSize: 14, color: '#999', marginBottom: 8 },
+  customizeLink: { color: AppColors.primary, fontWeight: '700' },
 });
 
 export default DashboardScreen;

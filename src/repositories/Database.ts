@@ -190,6 +190,12 @@ export const initDatabase = (): Promise<void> => {
         `, [], () => { }, () => {
           // Ignore error if column already exists
         });
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS UserPreferences (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+          );
+        `);
       },
       error => {
         console.error('DB init error:', error);

@@ -44,10 +44,15 @@ const analysisItems: AnalysisItem[] = [
     },
 ];
 
+import { usePreferences } from '../context/PreferencesContext';
+
 const { width } = Dimensions.get('window');
 
 const AnalysisScreen: React.FC = () => {
     const navigation = useNavigation();
+    const { visibleAnalysis } = usePreferences();
+
+    const filteredItems = analysisItems.filter(item => visibleAnalysis.includes(item.key));
 
     const handlePress = (key: string) => {
         const nav = navigation as any;
@@ -92,7 +97,20 @@ const AnalysisScreen: React.FC = () => {
                     Visual insights into your financial health.
                 </Text>
                 <View style={styles.list}>
-                    {analysisItems.map(item => renderItem(item))}
+                    {filteredItems.length > 0 ? (
+                        filteredItems.map(item => renderItem(item))
+                    ) : (
+                        <View style={styles.emptyContainer}>
+                            <Ionicons name="bar-chart-outline" size={64} color="#ddd" />
+                            <Text style={styles.emptyText}>No analysis reports enabled</Text>
+                            <TouchableOpacity
+                                style={styles.customizeBtn}
+                                onPress={() => (navigation as any).navigate('SettingsStack', { screen: 'CustomizeLayout' })}
+                            >
+                                <Text style={styles.customizeBtnText}>Customize Layout</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -159,6 +177,31 @@ const styles = StyleSheet.create({
     cardDesc: {
         fontSize: 12,
         color: '#888',
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 60,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: '#999',
+        marginTop: 16,
+        marginBottom: 24,
+        fontWeight: '500',
+    },
+    customizeBtn: {
+        backgroundColor: '#fff',
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    customizeBtnText: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#333',
     },
 });
 

@@ -13,6 +13,7 @@ import {
 import { Text, Provider as PaperProvider } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { SnackbarProvider } from './src/context/SnackbarContext';
+import { PreferencesProvider } from './src/context/PreferencesContext';
 
 enableScreens();
 
@@ -53,12 +54,14 @@ const App = () => {
   return (
     <PaperProvider>
       <SnackbarProvider>
-        <StatusBar
-          backgroundColor={APP_COLOR}
-          barStyle="light-content"
-        />
-        <MainContainer />
-        <Toast />
+        <PreferencesProvider>
+          <StatusBar
+            backgroundColor={APP_COLOR}
+            barStyle="light-content"
+          />
+          <MainContainer />
+          <Toast />
+        </PreferencesProvider>
       </SnackbarProvider>
     </PaperProvider>
   );

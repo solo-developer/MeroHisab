@@ -11,6 +11,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePreferences } from '../context/PreferencesContext';
 
 type ReportItem = {
   key: string;
@@ -60,6 +61,12 @@ const ITEM_WIDTH = (width - (PADDING * 2) - GAP) / 2;
 
 const ReportsScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { visibleReports } = usePreferences();
+
+  const filteredSections = reportSections.map(section => ({
+    ...section,
+    data: section.data.filter(item => visibleReports.includes(item.key))
+  })).filter(section => section.data.length > 0);
 
   const handlePress = (key: string) => {
     const nav = navigation as any;
@@ -106,14 +113,27 @@ const ReportsScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {reportSections.map(section => (
-          <View key={section.title} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title.toUpperCase()}</Text>
-            <View style={styles.grid}>
-              {section.data.map(item => renderItem(item))}
+        {filteredSections.length > 0 ? (
+          filteredSections.map(section => (
+            <View key={section.title} style={styles.section}>
+              <Text style={styles.sectionTitle}>{section.title.toUpperCase()}</Text>
+              <View style={styles.grid}>
+                {section.data.map(item => renderItem(item))}
+              </View>
             </View>
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="document-text-outline" size={64} color="#ddd" />
+            <Text style={styles.emptyText}>No reports enabled</Text>
+            <TouchableOpacity
+              style={styles.customizeBtn}
+              onPress={() => (navigation as any).navigate('SettingsStack', { screen: 'CustomizeLayout' })}
+            >
+              <Text style={styles.customizeBtnText}>Customize Layout</Text>
+            </TouchableOpacity>
           </View>
-        ))}
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -186,7 +206,32 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 16,
     right: 16,
-  }
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#999',
+    marginTop: 16,
+    marginBottom: 24,
+    fontWeight: '500',
+  },
+  customizeBtn: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  customizeBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#333',
+  },
 });
 
 export default ReportsScreen;

@@ -14,6 +14,7 @@ import HelpCentreScreen from '../screens/HelpCentreScreen';
 import BudgetOverviewScreen from '../screens/BudgetOverviewScreen';
 import ManageBudgetsScreen from '../screens/ManageBudgetsScreen';
 import BackupSyncScreen from '../screens/BackupSyncScreen';
+import CustomizeLayoutScreen from '../screens/CustomizeLayoutScreen';
 
 export type SettingsStackParamList = {
   SettingsMain: undefined;
@@ -29,6 +30,7 @@ export type SettingsStackParamList = {
   BudgetOverview: undefined;
   ManageBudgets: { month: string };
   BackupSync: undefined;
+  CustomizeLayout: undefined;
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -99,6 +101,11 @@ const SettingsStack: React.FC = () => {
       <Stack.Screen
         name="BackupSync"
         component={BackupSyncScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CustomizeLayout"
+        component={CustomizeLayoutScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

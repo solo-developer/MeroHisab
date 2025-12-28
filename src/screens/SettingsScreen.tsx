@@ -47,6 +47,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         { label: 'Budget Progress', icon: 'pie-chart-outline', color: '#E91E63', route: 'BudgetOverview' },
         { label: 'Reminders', icon: 'alarm-outline', color: '#607D8B', route: 'ReminderList' },
         { label: 'Backup & Sync', icon: 'cloud-upload-outline', color: '#3F51B5', route: 'BackupSync' },
+        { label: 'Customize Layout', icon: 'color-palette-outline', color: '#607D8B', route: 'CustomizeLayout' },
       ],
     },
     {

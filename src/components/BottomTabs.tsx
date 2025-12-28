@@ -13,6 +13,7 @@ import {
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { navigationRef, SwipeTabRoutes } from '../navigation/navigationRef';
 import TransferModalContent from '../screens/TransferModalContent';
+import { usePreferences } from '../context/PreferencesContext';
 
 type Props = {
   activeTab: SwipeTabRoutes;
@@ -41,6 +42,7 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
   const [isFabOpen, setIsFabOpen] = useState(false);
   const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const { quickAddActions } = usePreferences();
 
   React.useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -61,25 +63,17 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
   const { width } = Dimensions.get('window');
   const fabBottom = 32;
 
-  const fabItems: FabItemProps[] = [
-    {
-      label: 'Income',
-      icon: 'plus-circle-outline',
-      onPress: () => console.log('Income'),
-    },
-    {
-      label: 'Expense',
-      icon: 'minus-circle-outline',
-      onPress: () => console.log('Expense'),
-    },
+  const allFabItems: FabItemProps[] = [
+    { label: 'Income', icon: 'plus-circle-outline', onPress: () => { } },
+    { label: 'Expense', icon: 'minus-circle-outline', onPress: () => { } },
     { label: 'Transfer', icon: 'swap-horizontal-bold', onPress: () => { } },
-  ];
-
-  const fabItemsExtended: FabItemProps[] = [
-    ...fabItems,
     { label: 'Receipt', icon: 'cash-plus', onPress: () => { } },
     { label: 'Payment', icon: 'cash-minus', onPress: () => { } },
   ];
+
+  const visibleFabItems = allFabItems.filter(item =>
+    quickAddActions.includes(item.label.toLowerCase())
+  );
 
   const onFabItemPress = (item: FabItemProps) => {
     setIsFabOpen(false);
@@ -126,8 +120,8 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
           />
 
           {/* FAB Items */}
-          {fabItemsExtended.map((item, index) => {
-            const totalExtended = fabItemsExtended.length;
+          {visibleFabItems.length > 0 ? visibleFabItems.map((item, index) => {
+            const totalExtended = visibleFabItems.length;
             const buttonWidth = 56; // Width of each circular button
             const spacing = 16; // Space between buttons
             const totalWidth = (buttonWidth * totalExtended) + (spacing * (totalExtended - 1));
@@ -135,7 +129,7 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
             const xPosition = startX + (index * (buttonWidth + spacing));
 
             // Create a subtle arc - middle buttons are higher
-            const normalizedPosition = index / (totalExtended - 1);
+            const normalizedPosition = totalExtended > 1 ? index / (totalExtended - 1) : 0.5;
             const arcHeight = 30 * (1 - Math.pow((normalizedPosition - 0.5) * 2, 2));
 
             return (
@@ -159,7 +153,11 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
                 <Text style={styles.fabItemLabel}>{item.label}</Text>
               </View>
             );
-          })}
+          }) : (
+            <View style={{ position: 'absolute', bottom: 120, width: '100%', alignItems: 'center' }}>
+              <Text style={{ color: '#fff', backgroundColor: 'rgba(0,0,0,0.5)', padding: 10, borderRadius: 10 }}>No actions enabled</Text>
+            </View>
+          )}
         </View>
       )}
 
@@ -242,6 +240,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.2)', // Added a slight dim to highlight FAB items
     zIndex: 99,
   },
   fabOverlayTouchable: {
@@ -274,7 +273,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
   },
   fabItemLabel: {
-    color: '#000',
+    color: '#333',
     fontSize: 11,
     marginTop: 4,
     fontWeight: '600',
