@@ -15,7 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { AppColors, GlobalStyles } from '../constants/Styles';
 import { BackupService, BackupData } from '../services/BackupService';
 import Share from 'react-native-share';
-import DocumentPicker from 'react-native-document-picker';
+import { pick, types, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
 import ReactNativeRestart from 'react-native-restart';
 
@@ -90,8 +90,8 @@ const BackupSyncScreen = ({ navigation }: any) => {
 
     const executeLocalRestore = async () => {
         try {
-            const res = await DocumentPicker.pick({
-                type: [DocumentPicker.types.allFiles],
+            const res = await pick({
+                type: [types.allFiles],
             });
 
             const pickedFile = res[0];
@@ -133,7 +133,7 @@ const BackupSyncScreen = ({ navigation }: any) => {
             );
 
         } catch (err) {
-            if (DocumentPicker.isCancel(err)) {
+            if (isErrorWithCode(err) && err.code === errorCodes.OPERATION_CANCELED) {
                 // Ignore
             } else {
                 console.error('Picker error:', err);
