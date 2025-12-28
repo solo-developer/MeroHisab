@@ -98,7 +98,7 @@ const HelpCentreScreen: React.FC = () => {
                 <Text style={styles.contactSubtitle}>We're here to help you get the most out of MeroHisab.</Text>
                 <TouchableOpacity
                     style={styles.contactButton}
-                    onPress={() => Linking.openURL('mailto:support@merohisab.com')}
+                    onPress={() => Linking.openURL('mailto:developer.niroj@gmail.com')}
                 >
                     <Icon name="email" size={20} color="#fff" style={{ marginRight: 8 }} />
                     <Text style={styles.contactButtonText}>Email Support</Text>

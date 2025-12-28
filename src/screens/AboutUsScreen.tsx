@@ -38,7 +38,7 @@ const AboutUsScreen: React.FC = () => {
         <Text style={styles.sectionTitle}>Contact & Social</Text>
         <View style={styles.contactItem}>
           <Icon name="email" size={20} color={AppColors.primary} />
-          <Text style={styles.contactText}>support@merohisab.com</Text>
+          <Text style={styles.contactText}>developer.niroj@gmail.com</Text>
         </View>
         <View style={styles.contactItem}>
           <Icon name="language" size={20} color={AppColors.primary} />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, SectionList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, Linking } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -55,6 +55,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         { label: 'Help Center', icon: 'help-buoy-outline', color: '#00BCD4', route: 'HelpCentre' },
         { label: 'About Us', icon: 'information-circle-outline', color: '#795548', route: 'AboutUs' },
         { label: 'Terms of Use', icon: 'document-text-outline', color: '#607D8B', route: 'TermsOfUse' },
+        { label: 'Buy me a Coffee', icon: 'heart-outline', color: '#FF4081', route: 'https://www.buymeacoffee.com/solo_developer' },
       ],
     },
   ];
@@ -77,7 +78,13 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
                   label={item.label}
                   icon={item.icon}
                   iconColor={item.color}
-                  onPress={() => navigation.navigate(item.route as any)}
+                  onPress={() => {
+                    if (item.route.startsWith('http')) {
+                      Linking.openURL(item.route);
+                    } else {
+                      navigation.navigate(item.route as any);
+                    }
+                  }}
                   isLast={index === section.data.length - 1}
                 />
               ))}
