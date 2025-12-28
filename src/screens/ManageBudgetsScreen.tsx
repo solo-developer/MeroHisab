@@ -8,6 +8,7 @@ import { SettingsStackParamList } from '../navigation/SettingsStack';
 import { GlobalStyles, AppColors } from '../constants/Styles';
 import BudgetRepository from '../repositories/BudgetRepository';
 import CategoryRepository from '../repositories/CategoryRepository';
+import { usePreferences } from '../context/PreferencesContext';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'ManageBudgets'>;
 
@@ -24,6 +25,7 @@ const ManageBudgetsScreen: React.FC<any> = ({ route, navigation }) => {
     const { month } = route.params;
     const [categories, setCategories] = useState<CategoryBudgetConfig[]>([]);
     const [loading, setLoading] = useState(true);
+    const { currency } = usePreferences();
     const [monthBudgets, setMonthBudgets] = useState<Record<number, number>>({});
 
     const formattedMonth = new Date(month + '-01').toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -94,7 +96,7 @@ const ManageBudgetsScreen: React.FC<any> = ({ route, navigation }) => {
                 <Text style={styles.itemName}>{item.name}</Text>
             </View>
             <View style={styles.inputCol}>
-                <Text style={styles.rsLabel}>Rs.</Text>
+                <Text style={styles.rsLabel}>{currency.symbol}</Text>
                 <TextInput
                     style={styles.limitInput}
                     keyboardType="numeric"

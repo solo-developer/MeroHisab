@@ -18,11 +18,13 @@ import Wallet from '../models/Wallet';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Toast from 'react-native-toast-message';
 import { useSnackbar } from '../context/SnackbarContext';
+import { usePreferences } from '../context/PreferencesContext';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'ManageWallets'>;
 
 const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
   const { showSnackbar } = useSnackbar();
+  const { currency } = usePreferences();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editing, setEditing] = useState<Wallet | null>(null);
@@ -126,7 +128,7 @@ const ManageWalletsScreen: React.FC<Props> = ({ navigation }) => {
           <View style={styles.row}>
             <View>
               <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.balance}>₹ {item.balance}</Text>
+              <Text style={styles.balance}>{currency.symbol} {item.balance}</Text>
             </View>
             <View style={styles.actions}>
               <TouchableOpacity onPress={() => openEdit(item)}>

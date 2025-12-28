@@ -2,12 +2,14 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { SettingsStackParamList } from '../navigation/SettingsStack';
 import { GlobalStyles, AppColors } from '../constants/Styles';
 import BudgetRepository, { BudgetMetric } from '../repositories/BudgetRepository';
 import { ExportHelper } from '../helpers/ExportHelper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { usePreferences } from '../context/PreferencesContext';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'BudgetOverview'>;
 
@@ -15,6 +17,7 @@ const BudgetOverviewScreen: React.FC<any> = ({ navigation }) => {
     const [metrics, setMetrics] = useState<BudgetMetric[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const { currency } = usePreferences();
 
     const monthLabel = useMemo(() => {
         return selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -35,9 +38,11 @@ const BudgetOverviewScreen: React.FC<any> = ({ navigation }) => {
         }
     }, [monthKey]);
 
-    useEffect(() => {
-        loadData();
-    }, [loadData]);
+    useFocusEffect(
+        useCallback(() => {
+            loadData();
+        }, [loadData])
+    );
 
     const totals = useMemo(() => {
         const budgeted = metrics.reduce((sum, m) => sum + m.monthlyLimit, 0);
@@ -114,12 +119,12 @@ const BudgetOverviewScreen: React.FC<any> = ({ navigation }) => {
                 <View style={styles.summaryCard}>
                     <View style={styles.summaryRow}>
                         <View style={styles.summaryItem}>
-                            <Text style={styles.summaryValue}>Rs. {totals.spent.toFixed(0)}</Text>
+                            <Text style={styles.summaryValue}>{currency.symbol} {totals.spent.toFixed(0)}</Text>
                             <Text style={styles.summaryLabel}>Total Spent</Text>
                         </View>
                         <View style={[styles.summaryItem, { borderLeftWidth: 1, borderLeftColor: '#E9ECEF' }]}>
                             <Text style={[styles.summaryValue, totals.remaining < 0 && { color: '#F44336' }]}>
-                                Rs. {totals.remaining.toFixed(0)}
+                                {currency.symbol} {totals.remaining.toFixed(0)}
                             </Text>
                             <Text style={styles.summaryLabel}>{totals.remaining < 0 ? 'Exceeded By' : 'Remaining'}</Text>
                         </View>
@@ -136,7 +141,7 @@ const BudgetOverviewScreen: React.FC<any> = ({ navigation }) => {
                         />
                     </View>
                     <Text style={styles.progressText}>
-                        Budget: Rs. {totals.budgeted.toFixed(0)} • {((totals.spent / (totals.budgeted || 1)) * 100).toFixed(1)}% Used
+                        Budget: {currency.symbol} {totals.budgeted.toFixed(0)} • {((totals.spent / (totals.budgeted || 1)) * 100).toFixed(1)}% Used
                     </Text>
                 </View>
 
@@ -152,7 +157,7 @@ const BudgetOverviewScreen: React.FC<any> = ({ navigation }) => {
                         <View style={styles.miniStatCard}>
                             <MaterialIcons name="trending-up" size={20} color={AppColors.warning} />
                             <View style={{ marginLeft: 8 }}>
-                                <Text style={styles.miniStatValue}>Rs. {(totals.spent / (daysInfo.spent || 1)).toFixed(0)}</Text>
+                                <Text style={styles.miniStatValue}>{currency.symbol} {(totals.spent / (daysInfo.spent || 1)).toFixed(0)}</Text>
                                 <Text style={styles.miniStatLabel}>Daily Average</Text>
                             </View>
                         </View>
@@ -196,12 +201,12 @@ const BudgetOverviewScreen: React.FC<any> = ({ navigation }) => {
 
                             <View style={styles.categoryStatsRow}>
                                 <View>
-                                    <Text style={styles.statValue}>Rs. {item.spent.toFixed(0)}</Text>
+                                    <Text style={styles.statValue}>{currency.symbol} {item.spent.toFixed(0)}</Text>
                                     <Text style={styles.statLabel}>Spent</Text>
                                 </View>
                                 <View style={{ alignItems: 'flex-end' }}>
                                     <Text style={[styles.statValue, { color: item.remaining < 0 ? '#F44336' : AppColors.text }]}>
-                                        Rs. {item.remaining.toFixed(0)}
+                                        {currency.symbol} {item.remaining.toFixed(0)}
                                     </Text>
                                     <Text style={styles.statLabel}>Remaining</Text>
                                 </View>
@@ -225,7 +230,7 @@ const BudgetOverviewScreen: React.FC<any> = ({ navigation }) => {
                                 </Text>
                                 {isCurrentMonth && item.remaining > 0 && (
                                     <Text style={styles.detailText}>
-                                        Allowance: Rs. {(item.remaining / (daysInfo.left || 1)).toFixed(0)} / day
+                                        Allowance: {currency.symbol} {(item.remaining / (daysInfo.left || 1)).toFixed(0)} / day
                                     </Text>
                                 )}
                             </View>
