@@ -19,35 +19,48 @@ MeroHisab is a simple, friendly, and offline-first personal finance app that hel
 
 ---
 
+
 ## 📱 Screenshots
 
+<table>
+<tr>
+  <td><img src="screenshots/Analysis.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/BackupAndRestore.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Budget Progress.jfif" width="200" height="150"/></td>
+</tr>
+<tr>
+  <td><img src="screenshots/Customize Layout.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Dashboard.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Expense List.jfif" width="200" height="150"/></td>
+</tr>
+<tr>
+  <td><img src="screenshots/Manage Parties.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Manage Wallets.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Manage_Categories.jfif" width="200" height="150"/></td>
+</tr>
+<tr>
+  <td><img src="screenshots/Meta Category.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/MetaCategoryBreakdown.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/New Expense.jfif" width="200" height="150"/></td>
+</tr>
+<tr>
+  <td><img src="screenshots/New Income.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Party Balance.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Reminders.jfif" width="200" height="150"/></td>
+</tr>
+<tr>
+  <td><img src="screenshots/Reports.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Settings.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Spending Breakdown.jfif" width="200" height="150"/></td>
+</tr>
+<tr>
+  <td><img src="screenshots/Transactions.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Trend Analysis.jfif" width="200" height="150"/></td>
+  <td><img src="screenshots/Wallet Balance.jfif" width="200" height="150"/></td>
+</tr>
+</table>
 
-![Analysis.jfif](screenshots/Analysis.jfif)
-![BackupAndRestore.jfif](screenshots/BackupAndRestore.jfif)
-![Budget Progress.jfif](screenshots/Budget Progress.jfif)
-![Customize Layout.jfif](screenshots/Customize Layout.jfif)
-![Dashboard.jfif](screenshots/Dashboard.jfif)
-![Expense List.jfif](screenshots/Expense List.jfif)
-![Manage Parties.jfif](screenshots/Manage Parties.jfif)
-![Manage Wallets.jfif](screenshots/Manage Wallets.jfif)
-![Manage_Categories.jfif](screenshots/Manage_Categories.jfif)
-![Meta Category.jfif](screenshots/Meta Category.jfif)
-![MetaCategoryBreakdown.jfif](screenshots/MetaCategoryBreakdown.jfif)
-![New Expense.jfif](screenshots/New Expense.jfif)
-![New Income.jfif](screenshots/New Income.jfif)
-![Party Balance.jfif](screenshots/Party Balance.jfif)
-![Reminders.jfif](screenshots/Reminders.jfif)
-![Reports.jfif](screenshots/Reports.jfif)
-![Settings.jfif](screenshots/Settings.jfif)
-![Spending Breakdown.jfif](screenshots/Spending Breakdown.jfif)
-![Transactions.jfif](screenshots/Transactions.jfif)
-![Trend Analysis.jfif](screenshots/Trend Analysis.jfif)
-![Wallet Balance.jfif](screenshots/Wallet Balance.jfif)
-
----
 
 ## 🎯 Purpose
 
 PocketTracker is built for anyone who wants a **clear overview of their finances**, without the complexity of traditional accounting tools. Perfect for daily tracking, budgeting, and staying in control of your money.
-
-
