@@ -25,16 +25,16 @@ const DashboardScreen: React.FC = () => {
 
   // Quick Links Configuration
   const quickLinks = [
-    { label: 'All Activity', icon: 'receipt-outline', screen: 'Transactions', color: '#5C6BC0' }, // Indigo
     { label: 'Wallets', icon: 'wallet-outline', screen: 'WalletBalanceReport', color: '#26A69A' }, // Teal
     { label: 'Parties', icon: 'people-outline', screen: 'PartyReport', color: '#AB47BC' }, // Purple
     { label: 'Trends', icon: 'trending-up-outline', screen: 'TrendReport', color: '#FFA726' }, // Orange
+    { label: 'Transactions', icon: 'receipt-outline', screen: 'Transactions', color: '#5C6BC0' }, // Indigo
   ];
 
   const loadData = async () => {
     try {
-      const data = await ReportService.getIncomeExpense(range);
-      setSummary(data);
+      const summaryData = await ReportService.getIncomeExpense(range);
+      setSummary(summaryData);
     } catch (error) {
       console.error('Dashboard loadData error:', error);
     }
@@ -133,7 +133,7 @@ const DashboardScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Quick Actions Grid */}
+        {/* Shortcuts Grid */}
         <Text style={styles.sectionTitle}>Overview</Text>
         <View style={styles.gridContainer}>
           {quickLinks.map(renderQuickLink)}

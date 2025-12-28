@@ -49,9 +49,9 @@ export class ReportService {
            JOIN Parties p ON p.ledgerId = te.ledgerId
            WHERE ts.type = 'payment' AND ts.deletedAt IS NULL
            AND date(ts.date) BETWEEN ? AND ?`;
-        
+
         const params: any[] = [toSQLDate(startDate), toSQLDate(endDate)];
-        
+
         if (keyword) {
           query += ` AND (p.name LIKE ? OR ts.note LIKE ?)`;
           params.push(`%${keyword}%`, `%${keyword}%`);
@@ -94,9 +94,9 @@ export class ReportService {
            JOIN Parties p ON p.ledgerId = te.ledgerId
            WHERE ts.type = 'payment' AND ts.deletedAt IS NULL
            AND date(ts.date) BETWEEN ? AND ?`;
-        
+
         const params: any[] = [toSQLDate(startDate), toSQLDate(endDate)];
-        
+
         if (keyword) {
           query += ` AND (p.name LIKE ? OR ts.note LIKE ?)`;
           params.push(`%${keyword}%`, `%${keyword}%`);
@@ -134,7 +134,7 @@ export class ReportService {
            JOIN Parties p ON p.ledgerId = te.ledgerId
            WHERE ts.type = 'receipt' AND ts.deletedAt IS NULL
            AND date(ts.date) BETWEEN ? AND ?`;
-        
+
         const params: any[] = [toSQLDate(startDate), toSQLDate(endDate)];
 
         if (keyword) {
@@ -179,7 +179,7 @@ export class ReportService {
            JOIN Parties p ON p.ledgerId = te.ledgerId
            WHERE ts.type = 'receipt' AND ts.deletedAt IS NULL
            AND date(ts.date) BETWEEN ? AND ?`;
-        
+
         const params: any[] = [toSQLDate(startDate), toSQLDate(endDate)];
 
         if (keyword) {
@@ -241,4 +241,46 @@ export class ReportService {
       });
     });
   }
+
+  static async getCategoryWiseExpense(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<CategoryExpenseData[]> {
+    const db = getDatabase();
+    return new Promise<CategoryExpenseData[]>((resolve, reject) => {
+      db.transaction((tx: any) => {
+        tx.executeSql(
+          `SELECT 
+             c.name as categoryName,
+             c.color as categoryColor,
+             SUM(ts.amount) as total
+           FROM TransactionSummary ts
+           JOIN categories c ON ts.categoryId = c.id
+           WHERE ts.type = 'expense' 
+           AND ts.deletedAt IS NULL
+           AND date(ts.date) BETWEEN ? AND ?
+           GROUP BY c.id
+           ORDER BY total DESC`,
+          [toSQLDate(startDate), toSQLDate(endDate)],
+          (_: any, results: any) => {
+            const data: CategoryExpenseData[] = [];
+            for (let i = 0; i < results.rows.length; i++) {
+              data.push(results.rows.item(i));
+            }
+            resolve(data);
+          },
+          (_: any, err: any) => {
+            reject(err);
+            return false;
+          }
+        );
+      });
+    });
+  }
+}
+
+export interface CategoryExpenseData {
+  categoryName: string;
+  categoryColor: string;
+  total: number;
 }
