@@ -24,7 +24,7 @@ for file in $SCREENSHOT_FOLDER/*.{png,jpg,jpeg,jfif}; do
     fi
 
     # Add image with explicit width & height
-    echo "  <td><img src=\"$file\" width=\"200\" height=\"150\"/></td>" >> $TEMP_FILE
+    echo "  <td><img src=\"$file\" width=\"200\" height=\"250\"/></td>" >> $TEMP_FILE
 
     count=$((count + 1))
 
