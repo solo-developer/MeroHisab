@@ -24,7 +24,7 @@ const DashboardScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [range, setRange] = useState<ReportRange>('this_month');
   const [summary, setSummary] = useState({ income: 0, expense: 0 });
-  const { quickAddActions } = usePreferences();
+  const { quickAddActions, currency } = usePreferences();
 
   // Quick Links Configuration
   const quickLinks = [
@@ -121,7 +121,7 @@ const DashboardScreen: React.FC = () => {
         <View style={styles.heroCard}>
           <Text style={styles.heroLabel}>Net Balance ({range.replace('_', ' ')})</Text>
           <Text style={styles.heroAmount}>
-            ₹ {netBalance.toLocaleString()}
+            {currency.symbol} {netBalance.toLocaleString()}
           </Text>
           <View style={styles.heroRow}>
             <View style={styles.heroItem}>
@@ -130,7 +130,7 @@ const DashboardScreen: React.FC = () => {
               </View>
               <View>
                 <Text style={styles.heroItemLabel}>Income</Text>
-                <Text style={styles.heroItemValueIncome}>₹{summary.income.toLocaleString()}</Text>
+                <Text style={styles.heroItemValueIncome}>{currency.symbol}{summary.income.toLocaleString()}</Text>
               </View>
             </View>
             <View style={styles.divider} />
@@ -140,7 +140,7 @@ const DashboardScreen: React.FC = () => {
               </View>
               <View>
                 <Text style={styles.heroItemLabel}>Expense</Text>
-                <Text style={styles.heroItemValueExpense}>₹{summary.expense.toLocaleString()}</Text>
+                <Text style={styles.heroItemValueExpense}>{currency.symbol}{summary.expense.toLocaleString()}</Text>
               </View>
             </View>
           </View>

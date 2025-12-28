@@ -16,6 +16,7 @@ import WalletRepository, {
 } from '../repositories/WalletRepository';
 import { ExportHelper } from '../helpers/ExportHelper';
 import { AppColors } from '../constants/Styles';
+import { usePreferences } from '../context/PreferencesContext';
 
 const WalletBalanceReportScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -23,6 +24,7 @@ const WalletBalanceReportScreen: React.FC = () => {
   const [filteredWallets, setFilteredWallets] = useState<WalletBalanceRow[]>([]);
   const [totalBalance, setTotalBalance] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const { currency } = usePreferences();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -68,7 +70,7 @@ const WalletBalanceReportScreen: React.FC = () => {
           <View style={{ alignItems: 'flex-end' }}>
             <Text style={styles.balanceLabel}>Account Balance</Text>
             <Text style={[styles.balance, { color: isNegative ? '#C62828' : '#2E7D32' }]}>
-              ₹{item.balance.toFixed(0)}
+              {currency.symbol}{item.balance.toLocaleString()}
             </Text>
           </View>
         </View>
@@ -118,7 +120,7 @@ const WalletBalanceReportScreen: React.FC = () => {
             Net Liquidity
           </Text>
           <Text style={[styles.heroValue, totalBalance < 0 ? { color: '#C62828' } : { color: '#2E7D32' }]}>
-            ₹{totalBalance.toFixed(0)}
+            {currency.symbol}{totalBalance.toLocaleString()}
           </Text>
         </View>
       </View>

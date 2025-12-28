@@ -23,6 +23,7 @@ import WalletRepository from '../repositories/WalletRepository';
 import { toSQLDate, formatDisplayDate } from '../helpers/DateHelper';
 import { ExportHelper } from '../helpers/ExportHelper';
 import { AppColors } from '../constants/Styles';
+import { usePreferences } from '../context/PreferencesContext';
 
 const PAGE_SIZE = 50;
 
@@ -37,6 +38,7 @@ const AllTransactionsReportScreen: React.FC = () => {
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
+    const { currency } = usePreferences();
 
     // Filter states
     const today = new Date();
@@ -199,11 +201,11 @@ const AllTransactionsReportScreen: React.FC = () => {
                         )}
                     </View>
                     <Text style={[styles.amountText, { color }]}>
-                        {isIncome ? '+' : (isTransfer ? '' : '-')} ₹{item.netAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {isIncome ? '+' : (isTransfer ? '' : '-')} {currency.symbol}{item.netAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </Text>
                 </View>
                 <View style={styles.cardFooter}>
-                    <Text style={styles.balanceText}>Balance: ₹{item.balanceAfter?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+                    <Text style={styles.balanceText}>Balance: {currency.symbol}{item.balanceAfter?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
                 </View>
             </View>
         );
@@ -249,11 +251,11 @@ const AllTransactionsReportScreen: React.FC = () => {
             <View style={styles.summaryContainer}>
                 <View style={[styles.summaryChip, { backgroundColor: '#E8F5E9', borderLeftWidth: 3, borderLeftColor: '#2E7D32' }]}>
                     <Text style={styles.summaryLabel}>Total Income</Text>
-                    <Text style={[styles.summaryValue, { color: '#1B5E20' }]}>+₹{totalIncome.toLocaleString()}</Text>
+                    <Text style={[styles.summaryValue, { color: '#1B5E20' }]}>+{currency.symbol}{totalIncome.toLocaleString()}</Text>
                 </View>
                 <View style={[styles.summaryChip, { backgroundColor: '#FFEBEE', borderLeftWidth: 3, borderLeftColor: '#C62828' }]}>
                     <Text style={styles.summaryLabel}>Total Expense</Text>
-                    <Text style={[styles.summaryValue, { color: '#B71C1C' }]}>-₹{totalExpense.toLocaleString()}</Text>
+                    <Text style={[styles.summaryValue, { color: '#B71C1C' }]}>-{currency.symbol}{totalExpense.toLocaleString()}</Text>
                 </View>
             </View>
 
@@ -270,7 +272,7 @@ const AllTransactionsReportScreen: React.FC = () => {
                             <Ionicons name="flag-outline" size={16} color="#666" />
                             <Text style={styles.openingBalLabel}>Opening Balance</Text>
                         </View>
-                        <Text style={styles.openingBalValue}>₹{openingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+                        <Text style={styles.openingBalValue}>{currency.symbol}{openingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
                     </View>
                 )}
                 ListFooterComponent={() =>

@@ -21,9 +21,11 @@ import WalletRepository from '../repositories/WalletRepository';
 import { AddIncomeRequest, IncomeService } from '../services/IncomeService';
 import { useSnackbar } from '../context/SnackbarContext';
 import { toSQLDate } from '../helpers/DateHelper';
+import { usePreferences } from '../context/PreferencesContext';
 
 export const AddIncomeScreen = ({ navigation }: any) => {
   const { showSnackbar } = useSnackbar();
+  const { currency } = usePreferences();
   const [amount, setAmount] = useState('');
   const [discount, setDiscount] = useState('');
   const [wallets, setWallets] = useState<any[]>([]);
@@ -100,7 +102,7 @@ export const AddIncomeScreen = ({ navigation }: any) => {
 
         {/* Amount Input */}
         <View style={styles.amountContainer}>
-          <Text style={styles.currencySymbol}>₹</Text>
+          <Text style={styles.currencySymbol}>{currency.symbol}</Text>
           <TextInput
             style={styles.amountInput}
             placeholder="0"

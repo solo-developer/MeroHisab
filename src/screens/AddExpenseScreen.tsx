@@ -22,9 +22,11 @@ import { AddExpenseRequest, ExpenseService } from '../services/ExpenseService';
 import { AppColors } from '../constants/Styles';
 import { useSnackbar } from '../context/SnackbarContext';
 import { toSQLDate } from '../helpers/DateHelper';
+import { usePreferences } from '../context/PreferencesContext';
 
 export const AddExpenseScreen = ({ navigation }: any) => {
   const { showSnackbar } = useSnackbar();
+  const { currency } = usePreferences();
   const [amount, setAmount] = useState('');
   const [discount, setDiscount] = useState('');
   const [wallets, setWallets] = useState<any[]>([]);
@@ -104,7 +106,7 @@ export const AddExpenseScreen = ({ navigation }: any) => {
 
         {/* Amount Input */}
         <View style={styles.amountContainer}>
-          <Text style={styles.currencySymbol}>₹</Text>
+          <Text style={styles.currencySymbol}>{currency.symbol}</Text>
           <TextInput
             style={styles.amountInput}
             placeholder="0"

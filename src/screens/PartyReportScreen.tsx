@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { ExportHelper } from '../helpers/ExportHelper';
 import { PartyRepository } from '../repositories/PartyRepository';
+import { usePreferences } from '../context/PreferencesContext';
 
 interface PartyBalance {
   id: number;
@@ -21,6 +22,7 @@ const PartyReportScreen = () => {
   const [parties, setParties] = useState<PartyBalance[]>([]);
   const [filterType, setFilterType] = useState<'all' | 'debtor' | 'creditor'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const { currency } = usePreferences();
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -97,7 +99,7 @@ const PartyReportScreen = () => {
           <View style={{ alignItems: 'flex-end' }}>
             <Text style={styles.balanceLabel}>Current Balance</Text>
             <Text style={[styles.balance, { color: isReceivable ? '#2E7D32' : '#C62828' }]}>
-              ₹{absBalance.toFixed(0)}
+              {currency.symbol}{absBalance.toLocaleString()}
             </Text>
           </View>
         </View>
@@ -137,8 +139,7 @@ const PartyReportScreen = () => {
             <TouchableOpacity
               key={seg.value}
               style={[
-                styles.tabItem,
-                filterType === seg.value && styles.tabItemActive
+                styles.tabItem
               ]}
               onPress={() => setFilterType(seg.value as any)}
             >
