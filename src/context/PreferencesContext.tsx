@@ -6,8 +6,10 @@ interface PreferencesContextType {
     visibleReports: string[];
     quickAddActions: string[];
     currency: { code: string; symbol: string };
+    isAuthEnabled: boolean;
     togglePreference: (type: 'analysis' | 'reports' | 'quickAdd', key: string) => Promise<void>;
     updateCurrency: (code: string, symbol: string) => Promise<void>;
+    setIsAuthEnabled: (enabled: boolean) => Promise<void>;
     loading: boolean;
 }
 
@@ -16,8 +18,10 @@ const PreferencesContext = createContext<PreferencesContextType>({
     visibleReports: [],
     quickAddActions: [],
     currency: { code: 'NPR', symbol: 'Rs.' },
+    isAuthEnabled: false,
     togglePreference: async () => { },
     updateCurrency: async () => { },
+    setIsAuthEnabled: async () => { },
     loading: true,
 });
 
@@ -31,6 +35,7 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const [visibleReports, setVisibleReports] = useState<string[]>(DEFAULT_REPORTS);
     const [quickAddActions, setQuickAddActions] = useState<string[]>(DEFAULT_QUICK_ADD);
     const [currency, setCurrency] = useState({ code: 'NPR', symbol: 'Rs.' });
+    const [isAuthEnabled, setAuthEnabledState] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -50,6 +55,9 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
             const savedCurrency = await UserPreferencesRepository.get('currency');
             if (savedCurrency) setCurrency(JSON.parse(savedCurrency));
+
+            const authEnabled = await UserPreferencesRepository.get('is_auth_enabled');
+            if (authEnabled) setAuthEnabledState(authEnabled === 'true');
         } catch (e) {
             console.error('Failed to load preferences', e);
         } finally {
@@ -90,14 +98,21 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
         await UserPreferencesRepository.set('currency', JSON.stringify(newCurrency));
     };
 
+    const setIsAuthEnabled = async (enabled: boolean) => {
+        setAuthEnabledState(enabled);
+        await UserPreferencesRepository.set('is_auth_enabled', enabled ? 'true' : 'false');
+    };
+
     return (
         <PreferencesContext.Provider value={{
             visibleAnalysis,
             visibleReports,
             quickAddActions,
             currency,
+            isAuthEnabled,
             togglePreference,
             updateCurrency,
+            setIsAuthEnabled,
             loading
         }}>
             {children}

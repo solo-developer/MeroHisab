@@ -15,6 +15,7 @@ import Toast from 'react-native-toast-message';
 import { SnackbarProvider } from './src/context/SnackbarContext';
 import { PreferencesProvider } from './src/context/PreferencesContext';
 import BackgroundFetch from 'react-native-background-fetch';
+import AuthGate from './src/components/AuthGate';
 
 enableScreens();
 
@@ -77,7 +78,9 @@ const App = () => {
             backgroundColor={APP_COLOR}
             barStyle="light-content"
           />
-          <MainContainer />
+          <AuthGate>
+            <MainContainer />
+          </AuthGate>
           <Toast />
         </PreferencesProvider>
       </SnackbarProvider>

@@ -50,6 +50,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
         { label: 'Backup & Sync', icon: 'cloud-upload-outline', color: '#3F51B5', route: 'BackupSync' },
         { label: 'Customize Layout', icon: 'color-palette-outline', color: '#607D8B', route: 'CustomizeLayout' },
         { label: 'Currency', icon: 'cash-outline', color: '#009688', route: 'CurrencySettings' },
+        { label: 'Security', icon: 'shield-lock-outline', color: '#673AB7', route: 'SecuritySettings' },
       ],
     },
     {
