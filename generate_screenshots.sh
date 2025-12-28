@@ -10,7 +10,7 @@ TEMP_FILE=$(mktemp)
 echo "## 📱 Screenshots" > $TEMP_FILE
 echo "" >> $TEMP_FILE
 
-for file in $SCREENSHOT_FOLDER/*.{png,jpg,jpeg}; do
+for file in $SCREENSHOT_FOLDER/*.{png,jpg,jpeg,jfif}; do
     [ -e "$file" ] || continue
     alt_text=$(basename "$file")
     echo "![${alt_text}]($file)" >> $TEMP_FILE
