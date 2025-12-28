@@ -25,6 +25,8 @@ import BudgetOverviewScreen from '../screens/BudgetOverviewScreen';
 import ManageBudgetsScreen from '../screens/ManageBudgetsScreen';
 import AllTransactionsReportScreen from '../screens/AllTransactionsReportScreen';
 import CategoryExpenseReportScreen from '../screens/CategoryExpenseReportScreen';
+import MetaCategoryExpenseReportScreen from '../screens/MetaCategoryExpenseReportScreen';
+import SettingsStack from './SettingsStack';
 
 const MainContainer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SwipeTabRoutes>('Dashboard');
@@ -35,7 +37,7 @@ const MainContainer: React.FC = () => {
       const route = navigationRef.getCurrentRoute();
       if (route?.name) {
         setCurrentRoute(route.name);
-        if (['Dashboard', 'Transactions', 'Reports', 'Settings'].includes(route.name)) {
+        if (['Dashboard', 'Transactions', 'Analysis', 'Reports'].includes(route.name)) {
           setActiveTab(route.name as SwipeTabRoutes);
         }
       }
@@ -43,7 +45,7 @@ const MainContainer: React.FC = () => {
     return unsubscribe;
   }, []);
 
-  const showTabs = ['Dashboard', 'Transactions', 'Reports', 'Settings'].includes(currentRoute);
+  const showTabs = ['Dashboard', 'Transactions', 'Analysis', 'Reports'].includes(currentRoute);
 
   return (
     <NavigationContainer ref={navigationRef}>
@@ -105,6 +107,14 @@ const MainContainer: React.FC = () => {
         <RootStack.Screen
           name="CategoryExpenseReport"
           component={CategoryExpenseReportScreen}
+        />
+        <RootStack.Screen
+          name="MetaCategoryExpenseReport"
+          component={MetaCategoryExpenseReportScreen}
+        />
+        <RootStack.Screen
+          name="SettingsStack"
+          component={SettingsStack}
         />
       </RootStack.Navigator>
 

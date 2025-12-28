@@ -2,14 +2,14 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import DashboardScreen from '../screens/DashboardScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
+import AnalysisScreen from '../screens/AnalysisScreen';
 import ReportsScreen from '../screens/ReportsScreen';
-import SettingsStack from './SettingsStack';
 
 export type TopTabParamList = {
   Dashboard: undefined;
   Transactions: undefined;
+  Analysis: undefined;
   Reports: undefined;
-  Settings: undefined;
 };
 
 const Tab = createMaterialTopTabNavigator<TopTabParamList>();
@@ -27,8 +27,8 @@ const SwipeTabs: React.FC = () => {
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Transactions" component={TransactionsScreen} />
+      <Tab.Screen name="Analysis" component={AnalysisScreen} />
       <Tab.Screen name="Reports" component={ReportsScreen} />
-      <Tab.Screen name="Settings" component={SettingsStack} />
     </Tab.Navigator>
   );
 };

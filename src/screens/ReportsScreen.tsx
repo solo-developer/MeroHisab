@@ -31,8 +31,6 @@ const reportSections: ReportSection[] = [
       { key: 'wallet-balance', title: 'Wallet Balance', icon: 'wallet-outline', color: '#009688' }, // Teal
       { key: 'income', title: 'Income Analysis', icon: 'arrow-down-circle-outline', color: '#4CAF50' }, // Green
       { key: 'expense', title: 'Expense Analysis', icon: 'arrow-up-circle-outline', color: '#F44336' }, // Red
-      { key: 'trend', title: 'Trend Analysis', icon: 'trending-up-outline', color: '#2196F3' }, // Blue
-      { key: 'category-breakdown', title: 'Spending Breakdown', icon: 'pie-chart-outline', color: '#8E24AA' }, // Purple
     ],
   },
   {
@@ -75,9 +73,7 @@ const ReportsScreen: React.FC = () => {
       case 'party': nav.navigate('PartyReport'); break;
       case 'payment': nav.navigate('PaymentReport'); break;
       case 'receipt': nav.navigate('ReceiptReport'); break;
-      case 'trend': nav.navigate('TrendReport'); break;
       case 'transactions': nav.navigate('AllTransactionsReport'); break;
-      case 'category-breakdown': nav.navigate('CategoryExpenseReport'); break;
       default: console.log('Pressed:', key);
     }
   };

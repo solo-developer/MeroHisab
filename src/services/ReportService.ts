@@ -277,6 +277,45 @@ export class ReportService {
       });
     });
   }
+
+  static async getMetaCategoryWiseExpense(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<CategoryExpenseData[]> {
+    const db = getDatabase();
+    return new Promise<CategoryExpenseData[]>((resolve, reject) => {
+      db.transaction((tx: any) => {
+        tx.executeSql(
+          `SELECT 
+             COALESCE(mc.name, 'Uncategorized') as categoryName,
+             '#78909C' as categoryColor,
+             SUM(te.amount) as total
+           FROM TransactionEntry te
+           JOIN TransactionSummary ts ON te.transactionSummaryId = ts.id
+           LEFT JOIN MetaCategoryItems mci ON mci.ledgerId = te.ledgerId
+           LEFT JOIN MetaCategory mc ON mc.id = mci.metaCategoryId
+           WHERE ts.type = 'expense' 
+           AND ts.deletedAt IS NULL
+           AND te.entryType = 'debit'
+           AND date(ts.date) BETWEEN ? AND ?
+           GROUP BY mc.name
+           ORDER BY total DESC`,
+          [toSQLDate(startDate), toSQLDate(endDate)],
+          (_: any, results: any) => {
+            const data: CategoryExpenseData[] = [];
+            for (let i = 0; i < results.rows.length; i++) {
+              data.push(results.rows.item(i));
+            }
+            resolve(data);
+          },
+          (_: any, err: any) => {
+            reject(err);
+            return false;
+          }
+        );
+      });
+    });
+  }
 }
 
 export interface CategoryExpenseData {

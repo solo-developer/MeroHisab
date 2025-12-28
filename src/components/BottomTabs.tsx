@@ -169,8 +169,8 @@ const BottomTabs: React.FC<Props> = ({ activeTab, onTabPress }) => {
           {renderTab('Dashboard', 'home-variant-outline')}
           {renderTab('Transactions', 'swap-horizontal')}
           <View style={{ width: 70, pointerEvents: 'none' }} />
-          {renderTab('Reports', 'chart-line')}
-          {renderTab('Settings', 'cog-outline')}
+          {renderTab('Analysis', 'chart-pie')}
+          {renderTab('Reports', 'text-box-outline')}
         </View>
       )}
 
