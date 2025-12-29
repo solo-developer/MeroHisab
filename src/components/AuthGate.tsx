@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, StatusBar } from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -14,9 +14,12 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-    const authenticate = useCallback(async () => {
-        if (isAuthenticating) return;
+    const isAuthenticatingRef = useRef(false);
 
+    const authenticate = useCallback(async () => {
+        if (isAuthenticatingRef.current) return;
+
+        isAuthenticatingRef.current = true;
         setIsAuthenticating(true);
         try {
             const rnBiometrics = new ReactNativeBiometrics();
@@ -31,17 +34,18 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
         } catch (error) {
             console.error('Auth error:', error);
         } finally {
+            isAuthenticatingRef.current = false;
             setIsAuthenticating(false);
         }
-    }, [isAuthenticating]);
+    }, []);
 
     useEffect(() => {
-        if (!loading && isAuthEnabled) {
+        if (!loading && isAuthEnabled && !isAuthenticated) {
             authenticate();
         } else if (!loading && !isAuthEnabled) {
             setIsAuthenticated(true);
         }
-    }, [loading, isAuthEnabled, authenticate]);
+    }, [loading, isAuthEnabled, authenticate, isAuthenticated]);
 
     if (loading) return null;
 
