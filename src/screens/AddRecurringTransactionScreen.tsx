@@ -45,8 +45,7 @@ const AddRecurringTransactionScreen = () => {
 
             const categoriesList = await CategoryRepository.getAll();
             // Filter categories based on type
-            const targetType = type === 'expense' ? 'Expense' : 'Income';
-            const filtered = categoriesList.filter(c => c.type === targetType);
+            const filtered = categoriesList.filter(c => c.type.toLowerCase() === type.toLowerCase());
             setCategories(filtered);
             if (filtered.length > 0) setSelectedCategory(filtered[0].id || null);
             else setSelectedCategory(null);
@@ -83,12 +82,8 @@ const AddRecurringTransactionScreen = () => {
         }
     };
 
-    const frequencies = [
-        { label: 'Daily', value: 'daily' },
-        { label: 'Weekly', value: 'weekly' },
-        { label: 'Monthly', value: 'monthly' },
-        { label: 'Yearly', value: 'yearly' },
-    ];
+    // frequencies constant moved outside
+
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: type === 'expense' ? '#FFEBEE' : '#E8F5E9' }]} edges={['top', 'bottom', 'left', 'right']}>
@@ -102,7 +97,7 @@ const AddRecurringTransactionScreen = () => {
                 <View style={{ width: 40 }} />
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
                 {/* Type Selector */}
                 <View style={styles.typeSelector}>
@@ -135,15 +130,17 @@ const AddRecurringTransactionScreen = () => {
 
                 <View style={styles.formContainer}>
 
-                    <View style={styles.inputGroup}>
+                    <View style={[styles.inputGroup, { zIndex: 10 }]}>
                         <Text style={styles.label}>Frequency</Text>
                         <RNPickerSelect
                             onValueChange={(val) => setFrequency(val)}
                             items={frequencies}
                             value={frequency}
                             style={pickerStyles}
+                            useNativeAndroidPickerStyle={false}
+                            fixAndroidTouchableBug={true}
                             placeholder={{}}
-                            Icon={() => <Ionicons name="repeat-outline" size={20} color="#999" style={{ marginTop: 12, marginRight: 10 }} />}
+                            Icon={() => <Ionicons name="repeat-outline" size={20} color="#999" style={{ marginRight: 10 }} />}
                         />
                     </View>
 
@@ -155,27 +152,31 @@ const AddRecurringTransactionScreen = () => {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.inputGroup}>
+                    <View style={[styles.inputGroup, { zIndex: 9 }]}>
                         <Text style={styles.label}>Category</Text>
                         <RNPickerSelect
                             onValueChange={setSelectedCategory}
                             items={categories.map(c => ({ label: c.name, value: c.id }))}
                             value={selectedCategory}
                             style={pickerStyles}
-                            placeholder={{ label: 'Select Category', value: null }}
-                            Icon={() => <Ionicons name="grid-outline" size={20} color="#999" style={{ marginTop: 12, marginRight: 10 }} />}
+                            useNativeAndroidPickerStyle={false}
+                            fixAndroidTouchableBug={true}
+                            placeholder={{}}
+                            Icon={() => <Ionicons name="grid-outline" size={20} color="#999" style={{ marginRight: 10 }} />}
                         />
                     </View>
 
-                    <View style={styles.inputGroup}>
+                    <View style={[styles.inputGroup, { zIndex: 8 }]}>
                         <Text style={styles.label}>Wallet</Text>
                         <RNPickerSelect
                             onValueChange={setSelectedWallet}
                             items={wallets.map(w => ({ label: w.name, value: w.id }))}
                             value={selectedWallet}
                             style={pickerStyles}
-                            placeholder={{ label: 'Select Wallet', value: null }}
-                            Icon={() => <Ionicons name="wallet-outline" size={20} color="#999" style={{ marginTop: 12, marginRight: 10 }} />}
+                            useNativeAndroidPickerStyle={false}
+                            fixAndroidTouchableBug={true}
+                            placeholder={{}}
+                            Icon={() => <Ionicons name="wallet-outline" size={20} color="#999" style={{ marginRight: 10 }} />}
                         />
                     </View>
 
@@ -256,64 +257,94 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         padding: 24,
+        minHeight: 500,
     },
     inputGroup: { marginBottom: 20 },
     label: { fontSize: 12, fontWeight: '700', color: '#888', marginBottom: 8, textTransform: 'uppercase' },
     dateSelector: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F9F9F9',
+        backgroundColor: '#FFFFFF',
         padding: 14,
         borderRadius: 12,
         gap: 10,
         borderWidth: 1,
-        borderColor: '#EEE',
+        borderColor: '#E0E0E0',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
     },
-    dateText: { fontSize: 16, fontWeight: '600', color: '#333' },
+    dateText: { fontSize: 15, fontWeight: '600', color: '#333' },
     textAreaWrapper: {
-        backgroundColor: '#F9F9F9',
+        backgroundColor: '#FFFFFF',
         borderRadius: 12,
         padding: 12,
         borderWidth: 1,
-        borderColor: '#EEE',
+        borderColor: '#E0E0E0',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
     },
     textArea: { fontSize: 15, color: '#333', height: 80, textAlignVertical: 'top' },
     saveButton: {
         borderRadius: 16,
         paddingVertical: 18,
         alignItems: 'center',
-        marginTop: 20,
+        marginTop: 24,
         elevation: 4,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 4 },
+        shadowRadius: 8,
     },
     saveButtonText: { color: '#fff', fontSize: 18, fontWeight: '800' },
 });
 
 const pickerStyles = {
     inputIOS: {
-        fontSize: 16,
-        paddingVertical: 14,
-        paddingHorizontal: 14,
-        backgroundColor: '#F9F9F9',
+        fontSize: 14,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        backgroundColor: '#FFFFFF',
         borderRadius: 12,
-        color: '#333',
+        color: '#1A1A1A',
         paddingRight: 30,
-        fontWeight: '600' as any,
+        fontWeight: '500' as any,
         borderWidth: 1,
-        borderColor: '#EEE',
+        borderColor: '#E0E0E0',
+        marginBottom: 0,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
     },
     inputAndroid: {
-        fontSize: 16,
+        fontSize: 14,
         paddingVertical: 10,
-        paddingHorizontal: 14,
-        backgroundColor: '#F9F9F9',
+        paddingHorizontal: 16,
+        backgroundColor: '#FFFFFF',
         borderRadius: 12,
-        color: '#333',
+        color: '#1A1A1A',
         paddingRight: 30,
-        fontWeight: '600' as any,
+        fontWeight: '500' as any,
         borderWidth: 1,
-        borderColor: '#EEE',
+        borderColor: '#E0E0E0',
+        marginBottom: 0,
+        // Removed elevation to prevent z-index issues
     },
-    iconContainer: { top: 0, right: 0 },
+    iconContainer: { top: 12, right: 0 },
 };
 
 export default AddRecurringTransactionScreen;
+
+const frequencies = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Monthly', value: 'monthly' },
+    { label: 'Yearly', value: 'yearly' },
+];

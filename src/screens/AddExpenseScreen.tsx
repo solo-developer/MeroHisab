@@ -144,8 +144,9 @@ export const AddExpenseScreen = ({ navigation }: any) => {
               items={wallets.map(w => ({ label: w.name, value: w.id }))}
               value={selectedWallet}
               style={pickerStyles}
+              useNativeAndroidPickerStyle={false}
               placeholder={{}}
-              Icon={() => <Ionicons name="wallet-outline" size={20} color="#C62828" style={{ marginTop: 12, marginRight: 10 }} />}
+              Icon={() => <Ionicons name="wallet-outline" size={20} color="#C62828" style={{ marginRight: 10 }} />}
             />
           </View>
 
@@ -157,8 +158,9 @@ export const AddExpenseScreen = ({ navigation }: any) => {
               items={categories.map(c => ({ label: c.name, value: c.id }))}
               value={selectedCategory}
               style={pickerStyles}
+              useNativeAndroidPickerStyle={false}
               placeholder={{}}
-              Icon={() => <Ionicons name="grid-outline" size={20} color="#C62828" style={{ marginTop: 12, marginRight: 10 }} />}
+              Icon={() => <Ionicons name="grid-outline" size={20} color="#C62828" style={{ marginRight: 10 }} />}
             />
           </View>
 
@@ -264,21 +266,31 @@ const styles = StyleSheet.create({
   dateSelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#FFFFFF',
     padding: 14,
     borderRadius: 12,
     gap: 10,
     borderWidth: 1,
-    borderColor: '#EEE',
+    borderColor: '#E0E0E0',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
-  dateText: { fontSize: 16, fontWeight: '600', color: '#333' },
+  dateText: { fontSize: 15, fontWeight: '600', color: '#333' },
 
   textAreaWrapper: {
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#EEE',
+    borderColor: '#E0E0E0',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   textArea: { fontSize: 15, color: '#333', height: 80, textAlignVertical: 'top' },
 
@@ -290,41 +302,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 20,
+    marginTop: 24,
     elevation: 4,
     shadowColor: '#C62828',
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
   },
   saveButtonText: { color: '#fff', fontSize: 18, fontWeight: '800' },
 });
 
 const pickerStyles = {
   inputIOS: {
-    fontSize: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    backgroundColor: '#F9F9F9',
+    fontSize: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    color: '#333',
+    color: '#1A1A1A',
     paddingRight: 30,
-    fontWeight: '600' as any,
+    fontWeight: '500' as any,
     borderWidth: 1,
-    borderColor: '#EEE',
+    borderColor: '#E0E0E0',
+    marginBottom: 0,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   inputAndroid: {
-    fontSize: 16,
+    fontSize: 14,
     paddingVertical: 10,
-    paddingHorizontal: 14,
-    backgroundColor: '#F9F9F9',
+    paddingHorizontal: 16,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    color: '#333',
+    color: '#1A1A1A',
     paddingRight: 30,
-    fontWeight: '600' as any,
+    fontWeight: '500' as any,
     borderWidth: 1,
-    borderColor: '#EEE',
+    borderColor: '#E0E0E0',
+    marginBottom: 0,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
-  iconContainer: { top: 0, right: 0 },
+  iconContainer: { top: 12, right: 0 },
 };
 
 export default AddExpenseScreen;

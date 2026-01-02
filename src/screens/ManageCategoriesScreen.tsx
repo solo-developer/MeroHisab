@@ -35,7 +35,7 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const [name, setName] = useState('');
   const [icon, setIcon] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);
-  const [type] = useState<'expense' | 'income'>('expense');
+  const [type, setType] = useState<'expense' | 'income'>('expense');
 
   const [showIcons, setShowIcons] = useState(false);
   const [showColors, setShowColors] = useState(false);
@@ -67,6 +67,7 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const openAdd = () => {
     setEditing(null);
     setName('');
+    setType('expense');
     setIcon(null);
     setColor(null);
     setShowIcons(false);
@@ -197,9 +198,28 @@ const ManageCategoriesScreen: React.FC<Props> = ({ navigation }) => {
         >
           <View style={styles.modal}>
             <ScrollView keyboardShouldPersistTaps="handled">
+
               <Text style={styles.title}>
                 {editing ? 'Edit Category' : 'Add Category'}
               </Text>
+
+              {/* TYPE SWITCHER - Only for new categories */}
+              {!editing && (
+                <View style={styles.typeSwitchContainer}>
+                  <TouchableOpacity
+                    style={[styles.typeSwitchBtn, type === 'expense' && styles.typeSwitchActiveExpense]}
+                    onPress={() => setType('expense')}
+                  >
+                    <Text style={[styles.typeSwitchText, type === 'expense' && styles.typeSwitchTextActive]}>Expense</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.typeSwitchBtn, type === 'income' && styles.typeSwitchActiveIncome]}
+                    onPress={() => setType('income')}
+                  >
+                    <Text style={[styles.typeSwitchText, type === 'income' && styles.typeSwitchTextActive]}>Income</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
 
               <TextInput
                 placeholder="Category name"
@@ -485,5 +505,43 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 15,
     fontWeight: '600',
+  },
+
+  typeSwitchContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    padding: 4,
+  },
+  typeSwitchBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 6,
+  },
+  typeSwitchActiveExpense: {
+    backgroundColor: '#fff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
+  },
+  typeSwitchActiveIncome: {
+    backgroundColor: '#fff',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
+  },
+  typeSwitchText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  typeSwitchTextActive: {
+    color: '#000',
   },
 });
