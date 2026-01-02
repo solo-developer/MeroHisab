@@ -12,15 +12,20 @@ export interface BackupData {
 
 export class BackupService {
     private static TABLES = [
-        'Ledger',
-        'LedgerDailyBalance',
-        'categories',
-        'CategoryBudgets',
+        'Parties',
+        'PartyBalance',
+        'RecurringTransactions',
+        'UserPreferences',
+        'Goals',
         'wallets',
         'TransactionSummary',
         'TransactionEntry',
         'Transfer',
         'MetaCategory',
+        'Ledger', // Assuming these are still needed and were just omitted from the snippet
+        'LedgerDailyBalance',
+        'categories',
+        'CategoryBudgets',
         'MetaCategoryItems',
         'Reminders',
         'Parties',

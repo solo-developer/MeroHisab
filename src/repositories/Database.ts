@@ -232,6 +232,23 @@ export const initDatabase = (): Promise<void> => {
         `);
         tx.executeSql('CREATE INDEX IF NOT EXISTS idx_rt_next_run ON RecurringTransactions(nextRunDate);');
         tx.executeSql('CREATE INDEX IF NOT EXISTS idx_rt_active ON RecurringTransactions(isActive);');
+        
+        tx.executeSql(`
+          CREATE TABLE IF NOT EXISTS Goals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            targetAmount REAL NOT NULL,
+            currentAmount REAL DEFAULT 0,
+            deadline TEXT,
+            color TEXT,
+            icon TEXT,
+            isCompleted INTEGER DEFAULT 0,
+            ledgerId INTEGER,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ledgerId) REFERENCES Ledger(id)
+          );
+        `);
+        tx.executeSql('CREATE INDEX IF NOT EXISTS idx_goals_ledgerId ON Goals(ledgerId);');
       },
       (error: any) => {
         console.error('DB init error:', error);

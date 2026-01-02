@@ -25,7 +25,11 @@ import BudgetOverviewScreen from '../screens/BudgetOverviewScreen';
 import ManageBudgetsScreen from '../screens/ManageBudgetsScreen';
 import AllTransactionsReportScreen from '../screens/AllTransactionsReportScreen';
 import CategoryExpenseReportScreen from '../screens/CategoryExpenseReportScreen';
+import CalendarReportScreen from '../screens/CalendarReportScreen';
 import MetaCategoryExpenseReportScreen from '../screens/MetaCategoryExpenseReportScreen';
+import GoalsListScreen from '../screens/GoalsListScreen';
+import AddGoalScreen from '../screens/AddGoalScreen';
+import GoalDetailScreen from '../screens/GoalDetailScreen';
 import SettingsStack from './SettingsStack';
 
 const MainContainer: React.FC = () => {
@@ -105,6 +109,10 @@ const MainContainer: React.FC = () => {
           component={AllTransactionsReportScreen}
         />
         <RootStack.Screen
+          name="CalendarReport"
+          component={CalendarReportScreen}
+        />
+        <RootStack.Screen
           name="CategoryExpenseReport"
           component={CategoryExpenseReportScreen}
         />
@@ -112,6 +120,9 @@ const MainContainer: React.FC = () => {
           name="MetaCategoryExpenseReport"
           component={MetaCategoryExpenseReportScreen}
         />
+        <RootStack.Screen name="GoalsList" component={GoalsListScreen} />
+        <RootStack.Screen name="AddGoal" component={AddGoalScreen} />
+        <RootStack.Screen name="GoalDetail" component={GoalDetailScreen} />
         <RootStack.Screen
           name="SettingsStack"
           component={SettingsStack}

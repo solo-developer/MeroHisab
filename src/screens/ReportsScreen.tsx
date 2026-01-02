@@ -27,8 +27,16 @@ type ReportSection = {
 
 const reportSections: ReportSection[] = [
   {
+    title: 'Smart Planning',
+    data: [
+      { key: 'goals', title: 'Saving Goals', icon: 'flag-outline', color: '#FF9800' }, // Orange
+      { key: 'budget-overview', title: 'Budget Overview', icon: 'pie-chart-outline', color: '#E91E63' }, // Pink
+    ],
+  },
+  {
     title: 'Financial Overview',
     data: [
+      { key: 'calendar', title: 'Calendar View', icon: 'calendar-outline', color: '#607D8B' }, // Blue Grey
       { key: 'wallet-balance', title: 'Wallet Balance', icon: 'wallet-outline', color: '#009688' }, // Teal
       { key: 'income', title: 'Income Analysis', icon: 'arrow-down-circle-outline', color: '#4CAF50' }, // Green
       { key: 'expense', title: 'Expense Analysis', icon: 'arrow-up-circle-outline', color: '#F44336' }, // Red
@@ -65,12 +73,16 @@ const ReportsScreen: React.FC = () => {
 
   const filteredSections = reportSections.map(section => ({
     ...section,
-    data: section.data.filter(item => visibleReports.includes(item.key))
+    // Add 'goals' and 'budget-overview' to always visible for now, along with 'calendar'
+    data: section.data.filter(item => visibleReports.includes(item.key) || ['calendar', 'goals', 'budget-overview'].includes(item.key))
   })).filter(section => section.data.length > 0);
 
   const handlePress = (key: string) => {
     const nav = navigation as any;
     switch (key) {
+      case 'goals': nav.navigate('GoalsList'); break;
+      case 'budget-overview': nav.navigate('BudgetOverview'); break;
+      case 'calendar': nav.navigate('CalendarReport'); break;
       case 'wallet-balance': nav.navigate('WalletBalanceReport'); break;
       case 'income': nav.navigate('IncomeReport'); break;
       case 'expense': nav.navigate('ExpenseReport'); break;
