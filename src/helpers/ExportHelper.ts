@@ -152,36 +152,60 @@ export class ExportHelper {
         return data.map(item => {
             const flat: any = {};
             for (const key in item) {
-                let val = item[key];
+                const val = item[key];
                 
-                // Skip internal metadata
+                // 1. Skip internal metadata and specific useless keys
                 if (key.startsWith('_')) continue;
                 
-                // Exclude IDs (Primary keys or integer ID values)
                 const lowerKey = key.toLowerCase();
-                const isIdField = lowerKey === 'id' || lowerKey.endsWith('id') || lowerKey.endsWith('_id') || lowerKey === 'pk';
                 
-                if (isIdField) {
-                    // Skip if it's an integer or a string that looks like an integer ID
-                    if (typeof val === 'number' && Number.isInteger(val)) continue;
-                    if (typeof val === 'string' && /^\d+$/.test(val)) continue;
-                }
-                
-                // Format dates
-                if (typeof val === 'string' && val.includes('T') && !isNaN(Date.parse(val))) {
-                    val = new Date(val).toLocaleDateString() + ' ' + new Date(val).toLocaleTimeString();
+                // Explicitly exclude 'entries' array and 'id' columns
+                if (lowerKey === 'entries') continue;
+                if (lowerKey === 'id') continue;
+                if (lowerKey.endsWith('id') || lowerKey.endsWith('_id') || lowerKey === 'pk') continue;
+
+                // 2. Skip complex arrays/objects (unless we want to flatten specific ones, but typically arrays like 'entries' are not useful in a flat row)
+                if (Array.isArray(val)) {
+                    // If it's a simple array of strings/numbers, join them. If it's objects, skip.
+                     if (val.length > 0 && typeof val[0] === 'object') continue;
+                     if (val.length === 0) continue; // Skip empty arrays
                 }
 
-                // Extract readable names from objects
-                if (val && typeof val === 'object') {
-                    if (val.name) val = val.name;
-                    else if (val.label) val = val.label;
-                    else val = JSON.stringify(val);
+                // 3. Helper to format value
+                let formattedVal = val;
+
+                // Format dates
+                if (typeof val === 'string' && val.includes('T') && !isNaN(Date.parse(val)) && val.length > 10) {
+                     // Check if it looks like an ISO date
+                     try {
+                        const date = new Date(val);
+                        formattedVal = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                     } catch (e) {
+                         // Keep original if parse fails
+                     }
+                }
+
+                // Extract readable names from objects (if column wasn't flattened/expanded upstream)
+                if (formattedVal && typeof formattedVal === 'object' && !Array.isArray(formattedVal)) {
+                    if (formattedVal.name) formattedVal = formattedVal.name;
+                    else if (formattedVal.label) formattedVal = formattedVal.label;
+                    else {
+                        // If it's just an object without a clear name/label, it's typically metadata we don't want in the export
+                        // unless we stringify it.
+                        // For a clean report, let's skip unrecognized objects or stringify them if strictly needed.
+                        // But user asked for irrelevant cols to be removed.
+                        try {
+                            const str = JSON.stringify(formattedVal);
+                             // If it's too long/complex, maybe skip? Let's keep it simple for now.
+                            if (str.length > 50) continue; 
+                            formattedVal = str;
+                        } catch (e) { continue; }
+                    }
                 }
 
                 // Friendly column name
                 const friendlyKey = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
-                flat[friendlyKey] = val;
+                flat[friendlyKey] = formattedVal;
             }
             return flat;
         });
