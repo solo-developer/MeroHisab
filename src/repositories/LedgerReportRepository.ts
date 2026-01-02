@@ -69,7 +69,7 @@ export class LedgerReportRepository {
 
     sql += `
       GROUP BY DATE(ts.date), l.id, l.name
-      ORDER BY DATE(ts.date) DESC, l.name ASC
+      ORDER BY DATE(ts.date) ASC, l.name ASC
       LIMIT ? OFFSET ?
     `;
     params.push(limit, offset);
@@ -154,6 +154,70 @@ export class LedgerReportRepository {
                 params,
                 (_: any, result: any) => {
                     resolve({ total: result.rows.item(0).total || 0 });
+                },
+                (_: any, error: any) => reject(error)
+            );
+        });
+      });
+  }
+
+  static getOpeningBalance(
+    fromDate: string,
+    filterType: LedgerFilterType,
+    filterId?: number,
+    keyword?: string
+  ): Promise<number> {
+      return new Promise((resolve, reject) => {
+        const db = getDatabase();
+        let filterJoin = '';
+        let filterWhere = '';
+        const params: any[] = [fromDate];
+
+        if (filterType === 'LEDGER') {
+        filterWhere = 'AND l.id = ?';
+        params.push(filterId);
+        }
+
+        if (filterType === 'CATEGORY') {
+        filterJoin = `INNER JOIN categories c ON (c.ledgerId = l.id OR ts.categoryId = c.id)`;
+        filterWhere = 'AND c.id = ?';
+        params.push(filterId);
+        }
+
+        if (filterType === 'WALLET') {
+        filterJoin = `INNER JOIN wallets w ON w.ledgerId = l.id`;
+        filterWhere = 'AND w.id = ?';
+        params.push(filterId);
+        }
+
+        let sql = `
+        SELECT
+            SUM(
+            CASE
+                WHEN te.entryType = 'debit' THEN te.amount
+                ELSE -te.amount
+            END
+            ) as total
+        FROM TransactionEntry te
+        INNER JOIN TransactionSummary ts ON ts.id = te.transactionSummaryId
+        INNER JOIN Ledger l ON l.id = te.ledgerId
+        ${filterJoin}
+        WHERE ts.deletedAt IS NULL
+            AND DATE(ts.date) < DATE(?)
+            ${filterWhere}
+        `;
+
+        if (keyword) {
+            sql += ` AND (ts.note LIKE ? OR l.name LIKE ?)`;
+            params.push(`%${keyword}%`, `%${keyword}%`);
+        }
+
+        db.transaction((tx: any) => {
+            tx.executeSql(
+                sql,
+                params,
+                (_: any, result: any) => {
+                    resolve(result.rows.item(0).total || 0);
                 },
                 (_: any, error: any) => reject(error)
             );

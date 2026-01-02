@@ -62,6 +62,8 @@ const LedgerReportScreen: React.FC = () => {
 
   const [reportList, setReportList] = useState<LedgerReportRow[]>([]);
   const [total, setTotal] = useState(0);
+  const [openingBalance, setOpeningBalance] = useState(0);
+  const [closingBalance, setClosingBalance] = useState(0);
 
   const loadSecondaryOptions = async () => {
     setFilterId(undefined);
@@ -117,6 +119,15 @@ const LedgerReportScreen: React.FC = () => {
           searchQuery
         );
         setTotal(totalRes.total);
+
+        const opBal = await LedgerReportRepository.getOpeningBalance(
+          toSQLDate(fromDate) || '',
+          filterType,
+          filterId,
+          searchQuery
+        );
+        setOpeningBalance(opBal);
+        setClosingBalance(opBal + totalRes.total);
       } else {
         setReportList(prev => [...prev, ...rows]);
       }
@@ -199,22 +210,30 @@ const LedgerReportScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Total Card - Compact & Light */}
-      <View style={[styles.totalCard, total >= 0 ? styles.positiveBg : styles.negativeBg]}>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.totalLabel, total >= 0 ? { color: '#1B5E20' } : { color: '#B71C1C' }]}>
-            Current Net Balance
-          </Text>
-          <Text style={[styles.totalValue, total >= 0 ? styles.positiveColor : styles.negativeColor]}>
-            ₹{total.toFixed(0)}
-          </Text>
+      {/* Summary Card */}
+      <View style={styles.summaryCard}>
+        <View style={styles.summaryRow}>
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryLabel}>Opening Balance</Text>
+            <Text style={[styles.summaryValue, openingBalance >= 0 ? styles.posText : styles.negText]}>
+              ₹{openingBalance.toFixed(2)}
+            </Text>
+          </View>
+          <View style={styles.summaryDivider} />
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryLabel}>Net Change</Text>
+            <Text style={[styles.summaryValue, total >= 0 ? styles.posText : styles.negText]}>
+              {total >= 0 ? '+' : ''}₹{total.toFixed(2)}
+            </Text>
+          </View>
+          <View style={styles.summaryDivider} />
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryLabel}>Closing Balance</Text>
+            <Text style={[styles.summaryValue, closingBalance >= 0 ? styles.posText : styles.negText]}>
+              ₹{closingBalance.toFixed(2)}
+            </Text>
+          </View>
         </View>
-        <Ionicons
-          name={total >= 0 ? "checkmark-circle" : "alert-circle"}
-          size={28}
-          color={total >= 0 ? "#2E7D32" : "#C62828"}
-          style={{ opacity: 0.6 }}
-        />
       </View>
 
       <FlatList
@@ -348,22 +367,27 @@ const styles = StyleSheet.create({
   rangeIndicator: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, justifyContent: 'center' },
   rangeText: { fontSize: 11, color: '#888', fontWeight: '600' },
 
-  totalCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  summaryCard: {
     margin: 16,
-    padding: 16,
+    backgroundColor: '#fff',
     borderRadius: 16,
+    padding: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
+    borderColor: '#F0F0F0',
   },
-  totalLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
-  totalValue: { fontSize: 24, fontWeight: '900', marginTop: 2 },
-  positiveBg: { backgroundColor: '#E8F5E9', borderColor: '#C8E6C9' },
-  negativeBg: { backgroundColor: '#FFEBEE', borderColor: '#FFCDD2' },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  summaryItem: { flex: 1, alignItems: 'center' },
+  summaryLabel: { fontSize: 11, color: '#666', marginBottom: 4, fontWeight: '600', textTransform: 'uppercase' },
+  summaryValue: { fontSize: 15, fontWeight: '800' },
+  posText: { color: '#2E7D32' },
+  negText: { color: '#C62828' },
   positiveColor: { color: '#2E7D32' },
   negativeColor: { color: '#C62828' },
+  summaryDivider: { width: 1, height: '100%', backgroundColor: '#EEE' },
 
   listPadding: { paddingHorizontal: 16, paddingBottom: 40 },
   card: {
