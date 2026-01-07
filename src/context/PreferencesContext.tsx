@@ -7,9 +7,11 @@ interface PreferencesContextType {
     quickAddActions: string[];
     currency: { code: string; symbol: string };
     isAuthEnabled: boolean;
+    wizardCompleted: boolean;
     togglePreference: (type: 'analysis' | 'reports' | 'quickAdd', key: string) => Promise<void>;
     updateCurrency: (code: string, symbol: string) => Promise<void>;
     setIsAuthEnabled: (enabled: boolean) => Promise<void>;
+    finishWizard: () => Promise<void>;
     loading: boolean;
 }
 
@@ -19,9 +21,11 @@ const PreferencesContext = createContext<PreferencesContextType>({
     quickAddActions: [],
     currency: { code: 'NPR', symbol: 'Rs.' },
     isAuthEnabled: false,
+    wizardCompleted: false,
     togglePreference: async () => { },
     updateCurrency: async () => { },
     setIsAuthEnabled: async () => { },
+    finishWizard: async () => { },
     loading: true,
 });
 
@@ -36,6 +40,7 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const [quickAddActions, setQuickAddActions] = useState<string[]>(DEFAULT_QUICK_ADD);
     const [currency, setCurrency] = useState({ code: 'NPR', symbol: 'Rs.' });
     const [isAuthEnabled, setAuthEnabledState] = useState(false);
+    const [wizardCompleted, setWizardCompleted] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -58,6 +63,23 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
             const authEnabled = await UserPreferencesRepository.get('is_auth_enabled');
             if (authEnabled) setAuthEnabledState(authEnabled === 'true');
+
+            const wizard = await UserPreferencesRepository.get('wizard_completed');
+            if (wizard) {
+                setWizardCompleted(wizard === 'true');
+            } else {
+                // If it's a new install or upgrade, check if user has data.
+                // If they have wallets, we assume they are already set up (migration/existing user)
+                // and skip the wizard to avoid annoyance.
+                const { default: WalletRepository } = await import('../repositories/WalletRepository');
+                const wallets = await WalletRepository.getAll();
+                if (wallets.length > 0) {
+                    setWizardCompleted(true);
+                    await UserPreferencesRepository.set('wizard_completed', 'true');
+                } else {
+                    setWizardCompleted(false);
+                }
+            }
         } catch (e) {
             console.error('Failed to load preferences', e);
         } finally {
@@ -103,6 +125,11 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
         await UserPreferencesRepository.set('is_auth_enabled', enabled ? 'true' : 'false');
     };
 
+    const finishWizard = async () => {
+        setWizardCompleted(true);
+        await UserPreferencesRepository.set('wizard_completed', 'true');
+    };
+
     return (
         <PreferencesContext.Provider value={{
             visibleAnalysis,
@@ -110,9 +137,11 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
             quickAddActions,
             currency,
             isAuthEnabled,
+            wizardCompleted,
             togglePreference,
             updateCurrency,
             setIsAuthEnabled,
+            finishWizard,
             loading
         }}>
             {children}

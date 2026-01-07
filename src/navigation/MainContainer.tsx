@@ -31,8 +31,11 @@ import GoalsListScreen from '../screens/GoalsListScreen';
 import AddGoalScreen from '../screens/AddGoalScreen';
 import GoalDetailScreen from '../screens/GoalDetailScreen';
 import SettingsStack from './SettingsStack';
+import WizardScreen from '../screens/WizardScreen';
+import { usePreferences } from '../context/PreferencesContext';
 
 const MainContainer: React.FC = () => {
+  const { wizardCompleted, loading } = usePreferences();
   const [activeTab, setActiveTab] = useState<SwipeTabRoutes>('Dashboard');
   const [currentRoute, setCurrentRoute] = useState<string>('Dashboard');
 
@@ -49,84 +52,92 @@ const MainContainer: React.FC = () => {
     return unsubscribe;
   }, []);
 
-  const showTabs = ['Dashboard', 'Transactions', 'Analysis', 'Reports'].includes(currentRoute);
+  if (loading) return null; // Or a splash screen
+
+  const showTabs = ['Dashboard', 'Transactions', 'Analysis', 'Reports'].includes(currentRoute) && wizardCompleted;
 
   return (
     <NavigationContainer ref={navigationRef}>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        <RootStack.Screen name="MainTabs" component={SwipeTabs} />
-        <RootStack.Screen name="AddIncome" component={AddIncomeScreen} />
-        <RootStack.Screen name="AddExpense" component={AddExpenseScreen} />
-        <RootStack.Screen name="AddPartyTransaction" component={AddPartyTransactionScreen} />
-        <RootStack.Screen name="AddTransferScreen" component={AddTransferScreen} />
-        <RootStack.Screen
-          name="WalletBalanceReport"
-          component={WalletBalanceReportScreen}
-        />
-        <RootStack.Screen name="IncomeReport" component={IncomeReportScreen} />
-        <RootStack.Screen
-          name="ExpenseReport"
-          component={ExpenseReportScreen}
-        />
-        <RootStack.Screen
-          name="TransferReport"
-          component={TransferReportScreen}
-        />
-        <RootStack.Screen
-          name="ReportByLedger"
-          component={LedgerReportScreen}
-        />
-        <RootStack.Screen
-          name="ReportsByMetaCategory"
-          component={ReportByMetaCategoryScreen}
-        />
-        <RootStack.Screen
-          name="PartyReport"
-          component={PartyReportScreen}
-        />
-        <RootStack.Screen
-          name="PaymentReport"
-          component={PaymentReportScreen}
-        />
-        <RootStack.Screen
-          name="ReceiptReport"
-          component={ReceiptReportScreen}
-        />
-        <RootStack.Screen
-          name="TrendReport"
-          component={TrendReportScreen}
-        />
-        <RootStack.Screen
-          name="BudgetOverview"
-          component={BudgetOverviewScreen}
-        />
-        <RootStack.Screen
-          name="ManageBudgets"
-          component={ManageBudgetsScreen}
-        />
-        <RootStack.Screen
-          name="AllTransactionsReport"
-          component={AllTransactionsReportScreen}
-        />
-        <RootStack.Screen
-          name="CalendarReport"
-          component={CalendarReportScreen}
-        />
-        <RootStack.Screen
-          name="CategoryExpenseReport"
-          component={CategoryExpenseReportScreen}
-        />
-        <RootStack.Screen
-          name="MetaCategoryExpenseReport"
-          component={MetaCategoryExpenseReportScreen}
-        />
-        <RootStack.Screen name="GoalsList" component={GoalsListScreen} />
-        <RootStack.Screen name="AddGoal" component={AddGoalScreen} />
-        <RootStack.Screen name="GoalDetail" component={GoalDetailScreen} />
-        <RootStack.Screen
-          name="SettingsStack"
-          component={SettingsStack}
-        />
+        {!wizardCompleted ? (
+          <RootStack.Screen name="Wizard" component={WizardScreen} />
+        ) : (
+          <>
+            <RootStack.Screen name="MainTabs" component={SwipeTabs} />
+            <RootStack.Screen name="AddIncome" component={AddIncomeScreen} />
+            <RootStack.Screen name="AddExpense" component={AddExpenseScreen} />
+            <RootStack.Screen name="AddPartyTransaction" component={AddPartyTransactionScreen} />
+            <RootStack.Screen name="AddTransferScreen" component={AddTransferScreen} />
+            <RootStack.Screen
+              name="WalletBalanceReport"
+              component={WalletBalanceReportScreen}
+            />
+            <RootStack.Screen name="IncomeReport" component={IncomeReportScreen} />
+            <RootStack.Screen
+              name="ExpenseReport"
+              component={ExpenseReportScreen}
+            />
+            <RootStack.Screen
+              name="TransferReport"
+              component={TransferReportScreen}
+            />
+            <RootStack.Screen
+              name="ReportByLedger"
+              component={LedgerReportScreen}
+            />
+            <RootStack.Screen
+              name="ReportsByMetaCategory"
+              component={ReportByMetaCategoryScreen}
+            />
+            <RootStack.Screen
+              name="PartyReport"
+              component={PartyReportScreen}
+            />
+            <RootStack.Screen
+              name="PaymentReport"
+              component={PaymentReportScreen}
+            />
+            <RootStack.Screen
+              name="ReceiptReport"
+              component={ReceiptReportScreen}
+            />
+            <RootStack.Screen
+              name="TrendReport"
+              component={TrendReportScreen}
+            />
+            <RootStack.Screen
+              name="BudgetOverview"
+              component={BudgetOverviewScreen}
+            />
+            <RootStack.Screen
+              name="ManageBudgets"
+              component={ManageBudgetsScreen}
+            />
+            <RootStack.Screen
+              name="AllTransactionsReport"
+              component={AllTransactionsReportScreen}
+            />
+            <RootStack.Screen
+              name="CalendarReport"
+              component={CalendarReportScreen}
+            />
+            <RootStack.Screen
+              name="CategoryExpenseReport"
+              component={CategoryExpenseReportScreen}
+            />
+            <RootStack.Screen
+              name="MetaCategoryExpenseReport"
+              component={MetaCategoryExpenseReportScreen}
+            />
+            <RootStack.Screen name="GoalsList" component={GoalsListScreen} />
+            <RootStack.Screen name="AddGoal" component={AddGoalScreen} />
+            <RootStack.Screen name="GoalDetail" component={GoalDetailScreen} />
+            <RootStack.Screen
+              name="SettingsStack"
+              component={SettingsStack}
+            />
+          </>
+        )}
       </RootStack.Navigator>
 
       {showTabs && (
