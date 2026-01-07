@@ -12,16 +12,16 @@ const AboutUsScreen: React.FC = () => {
             <Text style={styles.logoText}>MH</Text>
           </View>
         </View>
-        <Text style={styles.appName}>MeroHisab</Text>
+        <Text style={styles.appName}>PocketTracker</Text>
         <View style={styles.versionBadge}>
           <Text style={styles.versionText}>v1.0.0</Text>
         </View>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>What is MeroHisab?</Text>
+        <Text style={styles.sectionTitle}>What is PocketTracker?</Text>
         <Text style={styles.description}>
-          MeroHisab is a comprehensive financial management tool designed for individuals and small businesses.
+          PocketTracker is a comprehensive financial management tool designed for individuals and small businesses.
           It simplifies how you track expenses, manage income, and monitor your cash flow across multiple wallets and accounts.
         </Text>
       </View>
@@ -42,13 +42,13 @@ const AboutUsScreen: React.FC = () => {
         </View>
         <View style={styles.contactItem}>
           <Icon name="language" size={20} color={AppColors.primary} />
-          <Text style={styles.contactText}>www.merohisab.com</Text>
+          <Text style={styles.contactText}>www.pockettracker.com</Text>
         </View>
       </View>
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Made with ❤️ for financial freedom</Text>
-        <Text style={styles.copyrightText}>© 2025 MeroHisab. All rights reserved.</Text>
+        <Text style={styles.copyrightText}>© 2025 PocketTracker. All rights reserved.</Text>
       </View>
       <View style={{ height: 40 }} />
     </ScrollView>

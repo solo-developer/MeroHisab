@@ -100,7 +100,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 
         <View style={styles.footer}>
           <Text style={styles.versionText}>Version 1.0.0</Text>
-          <Text style={styles.copyrightText}>© 2025 MeroHisab</Text>
+          <Text style={styles.copyrightText}>© 2025 PocketTracker</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

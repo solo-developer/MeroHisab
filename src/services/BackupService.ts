@@ -117,7 +117,7 @@ export class BackupService {
      * Saves backup to a local temporary file and returns the path
      */
     static async saveToTempFile(data: BackupData): Promise<string> {
-        const fileName = `MeroHisab_Backup_${Date.now()}.mhb`; // .mhb for Mero Hisab Backup
+        const fileName = `PocketTracker_Backup_${Date.now()}.ptb`; // .ptb for Pocket Tracker Backup
         const path = `${RNFS.CachesDirectoryPath}/${fileName}`;
         const json = JSON.stringify(data);
         await RNFS.writeFile(path, json, 'utf8');

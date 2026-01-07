@@ -88,7 +88,7 @@ const DashboardScreen: React.FC = () => {
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Welcome Back,</Text>
-          <Text style={styles.appName}>MeroHisab</Text>
+          <Text style={styles.appName}>PocketTracker</Text>
         </View>
         <TouchableOpacity
           style={styles.settingsBtn}

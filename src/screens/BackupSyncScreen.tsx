@@ -66,10 +66,10 @@ const BackupSyncScreen = ({ navigation }: any) => {
             const path = await BackupService.saveToTempFile(data);
 
             const shareOptions = {
-                title: 'Mero Hisab Backup',
+                title: 'PocketTracker Backup',
                 url: Platform.OS === 'android' ? `file://${path}` : path,
                 type: 'application/octet-stream',
-                filename: `MeroHisab_Backup_${new Date().toISOString().split('T')[0]}.mhb`,
+                filename: `PocketTracker_Backup_${new Date().toISOString().split('T')[0]}.ptb`,
                 saveToFiles: true,
             };
 
@@ -97,8 +97,8 @@ const BackupSyncScreen = ({ navigation }: any) => {
             const pickedFile = res[0];
 
             // Basic validation
-            if (!pickedFile.name?.endsWith('.mhb') && !pickedFile.name?.endsWith('.json')) {
-                Alert.alert('Invalid File', 'Please select a valid .mhb backup file.');
+            if (!pickedFile.name?.endsWith('.ptb') && !pickedFile.name?.endsWith('.json')) {
+                Alert.alert('Invalid File', 'Please select a valid .ptb backup file.');
                 return;
             }
 

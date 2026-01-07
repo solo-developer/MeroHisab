@@ -10,7 +10,7 @@ export const getDatabase = (): any => {
     db = SQLite.openDatabase(
       'MeroHisab.db',
       '1.0',
-      'Mero Hisab Database',
+      'PocketTracker Database',
       20000000,
     );
   }

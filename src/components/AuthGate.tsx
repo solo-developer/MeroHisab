@@ -24,7 +24,7 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
         try {
             const rnBiometrics = new ReactNativeBiometrics();
             const { success } = await rnBiometrics.simplePrompt({
-                promptMessage: 'Unlock MeroHisab',
+                promptMessage: 'Unlock PocketTracker',
                 cancelButtonText: 'Cancel',
             });
 
@@ -58,7 +58,7 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
                         <View style={styles.logoCircle}>
                             <Ionicons name="lock-closed" size={50} color={AppColors.primary} />
                         </View>
-                        <Text style={styles.title}>MeroHisab Locked</Text>
+                        <Text style={styles.title}>PocketTracker Locked</Text>
                         <Text style={styles.subtitle}>Please authenticate to continue</Text>
                     </View>
 

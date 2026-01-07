@@ -7,11 +7,11 @@ const TermsOfUseScreen: React.FC = () => {
     const sections = [
         {
             title: "1. Acceptance of Terms",
-            content: "By downloading, installing, or using the MeroHisab application, you agree to be bound by these Terms of Use. If you do not agree to these terms, you must not use the application."
+            content: "By downloading, installing, or using the PocketTracker application, you agree to be bound by these Terms of Use. If you do not agree to these terms, you must not use the application."
         },
         {
             title: "2. License & Usage",
-            content: "MeroHisab grants you a personal, non-exclusive, non-transferable license to use the app for personal financial tracking. You agree not to misuse the app or help anyone else do so."
+            content: "PocketTracker grants you a personal, non-exclusive, non-transferable license to use the app for personal financial tracking. You agree not to misuse the app or help anyone else do so."
         },
         {
             title: "3. Privacy & Data Storage",
@@ -19,7 +19,7 @@ const TermsOfUseScreen: React.FC = () => {
         },
         {
             title: "4. Disclaimers",
-            content: "MeroHisab is provided 'as is' without any warranties. While we strive for accuracy, we are not responsible for any financial decisions made based on the data within the app. Always consult with a financial professional for critical matters."
+            content: "PocketTracker is provided 'as is' without any warranties. While we strive for accuracy, we are not responsible for any financial decisions made based on the data within the app. Always consult with a financial professional for critical matters."
         },
         {
             title: "5. Modifications",
@@ -39,7 +39,7 @@ const TermsOfUseScreen: React.FC = () => {
 
             <View style={styles.card}>
                 <Text style={styles.introText}>
-                    Please read these terms carefully before using MeroHisab. These terms govern your access to and use of our services.
+                    Please read these terms carefully before using PocketTracker. These terms govern your access to and use of our services.
                 </Text>
             </View>
 
@@ -51,7 +51,7 @@ const TermsOfUseScreen: React.FC = () => {
             ))}
 
             <View style={styles.footer}>
-                <Text style={styles.footerText}>For legal inquiries, contact legal@merohisab.com</Text>
+                <Text style={styles.footerText}>For legal inquiries, contact legal@pockettracker.com</Text>
             </View>
             <View style={{ height: 40 }} />
         </ScrollView>

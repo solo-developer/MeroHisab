@@ -51,7 +51,7 @@ const HelpCentreScreen: React.FC = () => {
                 },
                 {
                     question: "Is my data secure?",
-                    answer: "MeroHisab prioritizes your privacy. Your data is stored locally on your device by default. Cloud backups are encrypted and stored in your private cloud account."
+                    answer: "PocketTracker prioritizes your privacy. Your data is stored locally on your device by default. Cloud backups are encrypted and stored in your private cloud account."
                 }
             ]
         },
@@ -95,7 +95,7 @@ const HelpCentreScreen: React.FC = () => {
                     <Icon name="support-agent" size={32} color="#fff" />
                 </View>
                 <Text style={styles.contactTitle}>Still have questions?</Text>
-                <Text style={styles.contactSubtitle}>We're here to help you get the most out of MeroHisab.</Text>
+                <Text style={styles.contactSubtitle}>We're here to help you get the most out of PocketTracker.</Text>
                 <TouchableOpacity
                     style={styles.contactButton}
                     onPress={() => Linking.openURL('mailto:developer.niroj@gmail.com')}

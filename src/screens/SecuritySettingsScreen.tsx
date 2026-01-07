@@ -95,8 +95,8 @@ const SecuritySettingsScreen: React.FC<any> = ({ navigation }) => {
                             <Ionicons name="shield-checkmark-outline" size={20} color="#666" />
                             <Text style={styles.infoText}>
                                 {biometryType
-                                    ? `When enabled, MeroHisab will use ${biometryType} or your device PIN to protect your data.`
-                                    : 'When enabled, MeroHisab will use your device PIN/Pattern to protect your data.'
+                                    ? `When enabled, PocketTracker will use ${biometryType} or your device PIN to protect your data.`
+                                    : 'When enabled, PocketTracker will use your device PIN/Pattern to protect your data.'
                                 }
                             </Text>
                         </View>
@@ -106,7 +106,7 @@ const SecuritySettingsScreen: React.FC<any> = ({ navigation }) => {
                 <View style={styles.noteContainer}>
                     <Text style={styles.noteTitle}>Note:</Text>
                     <Text style={styles.noteText}>
-                        This feature uses your device's built-in security. MeroHisab does not store your biometric data or PIN.
+                        This feature uses your device's built-in security. PocketTracker does not store your biometric data or PIN.
                     </Text>
                 </View>
             </View>
