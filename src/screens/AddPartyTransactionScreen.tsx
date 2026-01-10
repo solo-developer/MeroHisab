@@ -94,7 +94,7 @@ export const AddPartyTransactionScreen = ({ navigation }: any) => {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
         {/* Amount */}
         <View style={styles.amountContainer}>
@@ -114,28 +114,32 @@ export const AddPartyTransactionScreen = ({ navigation }: any) => {
         <View style={styles.formContainer}>
 
           {/* Party Selection */}
-          <View style={styles.inputGroup}>
+          <View style={[styles.inputGroup, { zIndex: 10 }]}>
             <Text style={styles.label}>{isPayment ? 'Paid To (Party)' : 'Received From (Party)'}</Text>
             <RNPickerSelect
               onValueChange={setSelectedParty}
               items={parties.map(p => ({ label: p.name, value: p.id }))}
               value={selectedParty}
               style={pickerStyles}
+              useNativeAndroidPickerStyle={false}
+              fixAndroidTouchableBug={true}
               placeholder={{ label: 'Select Party', value: null }}
-              Icon={() => <Ionicons name="person-outline" size={20} color={accentColor} style={{ marginTop: 12, marginRight: 10 }} />}
+              Icon={() => <Ionicons name="person-outline" size={20} color={accentColor} style={{ marginRight: 10 }} />}
             />
           </View>
 
           {/* Wallet Selection */}
-          <View style={styles.inputGroup}>
+          <View style={[styles.inputGroup, { zIndex: 9 }]}>
             <Text style={styles.label}>{isPayment ? 'Paid From (Wallet)' : 'Deposit To (Wallet)'}</Text>
             <RNPickerSelect
               onValueChange={setSelectedWallet}
               items={wallets.map(w => ({ label: w.name, value: w.id }))}
               value={selectedWallet}
               style={pickerStyles}
+              useNativeAndroidPickerStyle={false}
+              fixAndroidTouchableBug={true}
               placeholder={{ label: 'Select Wallet', value: null }}
-              Icon={() => <Ionicons name="wallet-outline" size={20} color={accentColor} style={{ marginTop: 12, marginRight: 10 }} />}
+              Icon={() => <Ionicons name="wallet-outline" size={20} color={accentColor} style={{ marginRight: 10 }} />}
             />
           </View>
 
@@ -259,30 +263,37 @@ const styles = StyleSheet.create({
 
 const pickerStyles = {
   inputIOS: {
-    fontSize: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    backgroundColor: '#F9F9F9',
+    fontSize: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    color: '#333',
+    color: '#1A1A1A',
     paddingRight: 30,
-    fontWeight: '600' as any,
+    fontWeight: '500' as any,
     borderWidth: 1,
-    borderColor: '#EEE',
+    borderColor: '#E0E0E0',
+    marginBottom: 0,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   inputAndroid: {
-    fontSize: 16,
+    fontSize: 14,
     paddingVertical: 10,
-    paddingHorizontal: 14,
-    backgroundColor: '#F9F9F9',
+    paddingHorizontal: 16,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    color: '#333',
+    color: '#1A1A1A',
     paddingRight: 30,
-    fontWeight: '600' as any,
+    fontWeight: '500' as any,
     borderWidth: 1,
-    borderColor: '#EEE',
+    borderColor: '#E0E0E0',
+    marginBottom: 0,
   },
-  iconContainer: { top: 0, right: 0 },
+  iconContainer: { top: 12, right: 0 },
 };
 
 export default AddPartyTransactionScreen;
