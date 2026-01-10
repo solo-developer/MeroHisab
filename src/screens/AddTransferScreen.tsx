@@ -91,7 +91,7 @@ export const AddTransferScreen = ({ navigation }: any) => {
                 <View style={{ width: 40 }} />
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
                 {/* Amount */}
                 <View style={styles.amountContainer}>
@@ -111,28 +111,32 @@ export const AddTransferScreen = ({ navigation }: any) => {
                 <View style={styles.formContainer}>
 
                     {/* FROM Wallet */}
-                    <View style={styles.inputGroup}>
+                    <View style={[styles.inputGroup, { zIndex: 10 }]}>
                         <Text style={styles.label}>Transfer From</Text>
                         <RNPickerSelect
                             onValueChange={setFromWalletId}
                             items={wallets.map(w => ({ label: w.name, value: w.id }))}
                             value={fromWalletId}
                             style={pickerStyles}
+                            useNativeAndroidPickerStyle={false}
+                            fixAndroidTouchableBug={true}
                             placeholder={{ label: 'Select Source Engine', value: null }}
-                            Icon={() => <Ionicons name="arrow-up-circle-outline" size={20} color="#C62828" style={{ marginTop: 12, marginRight: 10 }} />}
+                            Icon={() => <Ionicons name="arrow-up-circle-outline" size={20} color="#C62828" style={{ marginRight: 10 }} />}
                         />
                     </View>
 
                     {/* TO Wallet */}
-                    <View style={styles.inputGroup}>
+                    <View style={[styles.inputGroup, { zIndex: 9 }]}>
                         <Text style={styles.label}>Transfer To</Text>
                         <RNPickerSelect
                             onValueChange={setToWalletId}
                             items={wallets.map(w => ({ label: w.name, value: w.id }))}
                             value={toWalletId}
                             style={pickerStyles}
+                            useNativeAndroidPickerStyle={false}
+                            fixAndroidTouchableBug={true}
                             placeholder={{ label: 'Select Destination', value: null }}
-                            Icon={() => <Ionicons name="arrow-down-circle-outline" size={20} color="#2E7D32" style={{ marginTop: 12, marginRight: 10 }} />}
+                            Icon={() => <Ionicons name="arrow-down-circle-outline" size={20} color="#2E7D32" style={{ marginRight: 10 }} />}
                         />
                     </View>
 
@@ -263,28 +267,35 @@ const styles = StyleSheet.create({
 
 const pickerStyles = {
     inputIOS: {
-        fontSize: 16,
-        paddingVertical: 14,
-        paddingHorizontal: 14,
-        backgroundColor: '#F9F9F9',
+        fontSize: 14,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        backgroundColor: '#FFFFFF',
         borderRadius: 12,
-        color: '#333',
+        color: '#1A1A1A',
         paddingRight: 30,
-        fontWeight: '600' as any,
+        fontWeight: '500' as any,
         borderWidth: 1,
-        borderColor: '#EEE',
+        borderColor: '#E0E0E0',
+        marginBottom: 0,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
     },
     inputAndroid: {
-        fontSize: 16,
+        fontSize: 14,
         paddingVertical: 10,
-        paddingHorizontal: 14,
-        backgroundColor: '#F9F9F9',
+        paddingHorizontal: 16,
+        backgroundColor: '#FFFFFF',
         borderRadius: 12,
-        color: '#333',
+        color: '#1A1A1A',
         paddingRight: 30,
-        fontWeight: '600' as any,
+        fontWeight: '500' as any,
         borderWidth: 1,
-        borderColor: '#EEE',
+        borderColor: '#E0E0E0',
+        marginBottom: 0,
     },
-    iconContainer: { top: 0, right: 0 },
+    iconContainer: { top: 12, right: 0 },
 };
