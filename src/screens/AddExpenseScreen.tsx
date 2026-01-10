@@ -44,9 +44,10 @@ export const AddExpenseScreen = ({ navigation }: any) => {
       setWallets(walletsList);
       if (walletsList.length > 0) setSelectedWallet(walletsList[0].id || null);
 
-      const categoriesList = await CategoryRepository.getAll();
-      setCategories(categoriesList);
-      if (categoriesList.length > 0) setSelectedCategory(categoriesList[0].id || null);
+      const allCategories = await CategoryRepository.getAll();
+      const expenseCategories = allCategories.filter(c => c.type.toLowerCase() === 'expense');
+      setCategories(expenseCategories);
+      if (expenseCategories.length > 0) setSelectedCategory(expenseCategories[0].id || null);
     };
     fetchData();
   }, []);
@@ -102,7 +103,7 @@ export const AddExpenseScreen = ({ navigation }: any) => {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
         {/* Amount Input */}
         <View style={styles.amountContainer}>
@@ -137,7 +138,7 @@ export const AddExpenseScreen = ({ navigation }: any) => {
           </View>
 
           {/* Wallet Selection */}
-          <View style={styles.inputGroup}>
+          <View style={[styles.inputGroup, { zIndex: 10 }]}>
             <Text style={styles.label}>Paid From</Text>
             <RNPickerSelect
               onValueChange={setSelectedWallet}
@@ -145,13 +146,14 @@ export const AddExpenseScreen = ({ navigation }: any) => {
               value={selectedWallet}
               style={pickerStyles}
               useNativeAndroidPickerStyle={false}
+              fixAndroidTouchableBug={true}
               placeholder={{}}
               Icon={() => <Ionicons name="wallet-outline" size={20} color="#C62828" style={{ marginRight: 10 }} />}
             />
           </View>
 
           {/* Category Selection */}
-          <View style={styles.inputGroup}>
+          <View style={[styles.inputGroup, { zIndex: 9 }]}>
             <Text style={styles.label}>Category</Text>
             <RNPickerSelect
               onValueChange={setSelectedCategory}
@@ -159,6 +161,7 @@ export const AddExpenseScreen = ({ navigation }: any) => {
               value={selectedCategory}
               style={pickerStyles}
               useNativeAndroidPickerStyle={false}
+              fixAndroidTouchableBug={true}
               placeholder={{}}
               Icon={() => <Ionicons name="grid-outline" size={20} color="#C62828" style={{ marginRight: 10 }} />}
             />
@@ -343,11 +346,6 @@ const pickerStyles = {
     borderWidth: 1,
     borderColor: '#E0E0E0',
     marginBottom: 0,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
   },
   iconContainer: { top: 12, right: 0 },
 };
