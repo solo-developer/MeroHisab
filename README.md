@@ -1,4 +1,4 @@
-# MeroHisab
+# PocketTracker
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/solo-developer/MeroHisab/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
